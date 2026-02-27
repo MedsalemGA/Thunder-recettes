@@ -1,0 +1,128 @@
+/* # Variables ::
+------------------------------------*/
+
+:root {
+    --color-white: #fff;
+    --color-th-white: #fff;
+    --color-black: #000;
+    --color-th-black: #000;
+    --color-black-2: #040404;
+    --color-black-trout: #495057;
+    --color-mine-shaft: #393737;
+    --color-mine-shaft-2: #313030;
+    --color-mine-shaft-3: #383737;
+    --color-mine-shaft-4: #282828;
+    --color-scorpion: #5C5959;
+    --color-black-tundora: #484848;
+    --color-golden-dream: #EDC72F;
+    --color-golden-galliano: #D8AF0D;
+    --color-goldenrod: #FDDF65;
+    --color-golden-sand: #F7D17E;
+    --color-golden-amber: #FBC000;
+    --color-golden-saffron: #f0bb37;
+    --color-golden-mustard: #fed84f;
+    --color-yellow-lightning: #f9cf26;
+    --color-yellow-kournikova: #ffe380;
+    --color-yellow-energy: #f7d148;
+    --color-yellow-buttercup: #F0BF0F;
+    --color-yellow-creambrulee: #ffe794;
+    --color-early-down: #fff9e5;
+    --color-zest: #DB781D;
+    --color-gray-cod: #1E1E1E;
+    --color-gray-mercury: #E2E1E1;
+    --color-gray-mercury-2: #e6e6e6;
+    --color-gray-concrete: #F4F2F2;
+    --color-gray-concrete-2: #F3F1F2;
+    --color-gray-dusty: #989696;
+    --color-gray-dusty-2: #979797;
+    --color-gray-alto: #D9D9D9;
+    --color-gray-alto-2: #dad9d9;
+    --color-gray-squeeze: #E3EBF4;
+    --color-gray-albaster: #F7F7F7;
+    --color-gray-2: #8c8c8c;
+    --color-gray-3: #898787;
+    --color-gray-4: #8f8f8f;
+    --color-gray-nobel: #b8b7b7;
+    --color-gray-ebb: #ece7e7;
+    --color-gray-desert: #F2F2F1;
+    --color-gray-desert-2: #F5F5F4;
+    --color-gray-desert-3: #E6E6E6;
+    --color-gray-haze: #F6F7F7;
+    --color-gray-gallery: #ececec;
+    --color-silver: #C4C4C4;
+    --color-silver-2: #ccc;
+    --color-silver-chalice: #ABABAB;
+    --color-silver-chalice-2: #aaa;
+    --color-silver-chalice-3: #afafaf;
+    --color-silver-ghost: #CED4DA;
+    --color-red: #FF0000;
+    --color-red-apricot: #E77F77;
+    --color-copperfield: #e07b7b;
+    --color-red-alizarin-crimson: #E82222;
+    --color-red-vermilion: #E42D13;
+    --color-crimson: #EF4444;
+    --color-red-pomegranate: #F44336;
+    --color-red-monza: #CB0E0E;
+    --color-red-flamingo: #EF4444;
+    --color-red-corel: #FE3D44;
+    --color-pink-wild: #ff4886;
+    --color-pink-froly: #f58a8a;
+    --color-peach-schnapps: #FFDCD8;
+    --color-gray-mid: #676768;
+    --color-gray-boulder: #797575;
+    --color-gray-dove: #626262;
+    --color-gray-Opacity: #F3F3F3;
+    --color-gray-dove-2: #746e6e;
+    --color-gray-dove-3: #696868;
+    --color-gray-tide: #BDBAB0;
+    --color-gray-gothic: #7994A2;
+    --color-gray-athens: #EDEEF3;
+    --color-blue-dianne: #264E62;
+    --color-blue-eastern: #1F94A4;
+    --color-blue-eastern-2: #24A6A4;
+    --color-blue-eastern-3: #2AACAF;
+    --color-blue-eastern-4: #28AAAF;
+    --color-blue-eastern-5: #1F94A5;
+    --color-blue-keppel: #31B0AE;
+    --color-blue-keppel-2: #2EB5B2;
+    --color-blue-blizzard: #B2E9F0;
+    --color-blue-blizzard-2: #9de6f1;
+    --color-blue-sinbad: #98ced5;
+    --color-blue-glacier: #7dbdc5;
+    --color-blue-charlotte: #A1ECF6;
+    --color-blue-fountain: #64BFBE;
+    --color-blue-azure: #1877F2;
+    --color-blue-dodger: #3880ff;
+    --color-blue-shakespeare: #47B9C9;
+    --color-green-shamrock: #2fdf75;
+    --color-green-malachite: #0fc15f;
+    --color-green-jade: #00b359;
+    --color-hurricane: #958E8E;
+    --color-iceberg: #D5F0EF;
+    --color-blue-frosted: #7ec1cb;
+    --color-blue-frosted-2: #7ec1cb5c;
+    --color-blue-wedgewood: #4792A1;
+    --color-blue-genoa: #105e68;
+    --color-turquoise: #2DDAD7;
+    --color-pelorous: #3BB3C4;
+    --color-pelorous-2: #3BB3C41A;
+    --color-viking: #5bcedf;
+    --color-indigo: #5e4dcd;
+    --color-snuf: #dbdcef;
+    --color-serenade: #FFF7E8;
+    --color-bubbles: #e2fbff;
+    --color-light-yellow: #FFD700;
+    --color-light-orange: #FFA500;
+}
+
+/* -- Change Themes -- */
+
+:root.light {
+  --color-black: #fff;
+  --color-white: #000;
+}
+
+:root.dark {
+  --color-black: #000;
+  --color-white: #fff;
+}

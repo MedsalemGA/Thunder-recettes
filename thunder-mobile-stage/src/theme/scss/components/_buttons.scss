@@ -1,0 +1,138 @@
+/* # Buttons ::
+------------------------------------*/
+
+.btn {
+    width: 100%;
+    @include fonts(16px, 16px, var(--color-th-white));
+    font-family: 'Poppins-Regular', serif;
+    height: 46px;
+
+    &.btn-gold {
+        @include backgroundBtnGoldenGalliano;
+        --border-radius: 20px;
+    }
+    &.btn-eastern {
+        @include backgroundBlueEastern;
+        --border-radius: 20px;
+    }
+    &.btn-Frosted {
+      @include backgroundBlueFrosted;
+      --border-radius: 20px;
+      color: var(--color-black-tundora);
+      @include border(1px, var(--color-blue-frosted));
+      border-radius: 20px;
+    }
+    &.btn-gold-2 {
+      background-color: var(--color-golden-galliano);
+      border-radius: 20px;
+    }
+    &.btn-gold-3 {
+      background-color: var(--color-golden-dream);
+      border-radius: 20px;
+      font-family: 'Poppins-SemiBold', serif;
+    }
+    &.btn-link {
+      background-color: var(--color-blue-eastern);
+      border-radius: 20px;
+      font-family: 'Poppins-Light', serif;
+    }
+    &.btn-blue-eastern {
+      background-color: var(--color-blue-eastern);
+      border-radius: 20px;
+      font-family: 'Poppins-Light', serif;
+      width: initial;
+      min-width: 150px;
+      height: 38px;
+      @include fontSize(14px, 14px);
+    }
+    &.btn-gray {
+        @include backgroundBtnGrayTide;
+        --border-radius: 20px;
+    }
+    &.btn-red {
+      @include backgroundRedApricot;
+      --border-radius: 20px;
+    }
+    &.btn-border-estern {
+      @include backgroundGrey;
+      border-radius: 16px;
+      background: var(--color-gray-Opacity);
+      color: var(--color-blue-eastern-2);
+      @include border(1px, var(--color-blue-eastern-2));
+      font-family: 'Poppins', serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: weight(bold);
+      line-height: normal;
+
+      button {
+        border-radius: 50%
+      }
+    }
+    &.btn-border-gold {
+      @include backgroundBtnWhite;
+      --border-radius: 20px;
+      border-radius: 20px;
+      color: var(--color-golden-dream);
+      @include border(2px, var(--color-golden-dream));
+    }
+}
+
+.btn-back {
+  background-image: url('./../../../assets/svg/arrow-back-2.svg');
+  background-repeat: no-repeat;
+  background-size: 42px auto;
+  background-position: center;
+  @include dimensions(40px, 40px);
+  border-radius: 50%;
+  margin: 25px 0 0 10px;
+}
+.btn-close-view {
+  background-image: url('./../../../assets/svg/close-black-icn.svg');
+  background-repeat: no-repeat;
+  background-size: 17px auto;
+  background-position: center;
+  @include dimensions(40px, 40px);
+  border-radius: 50%;
+  margin: 25px 0 0 10px;
+  background-color: var(--color-th-white);
+}
+
+/* # Theme light ::
+------------------------------------*/
+
+.light {
+  .btn {
+    &.btn-gold {
+      color: var(--color-th-white);
+      @include backgroundBtnGolden;
+    }
+    &.btn-gray {
+      color: var(--color-th-white);
+    }
+    &.btn-gold-2 {
+      color: var(--color-th-white);
+    }
+  }
+}
+.dark {
+  .btn {
+    &.btn-gold {
+      color: var(--color-th-white);
+      @include backgroundBtnGoldenGalliano;
+    }
+  }
+}
+
+/* # $Mobile ::
+------------------------------------*/
+
+@media (max-width: 360px) {
+  .btn {
+    &.btn-gray,
+    &.btn-gold {
+      @include fontSize(13px, 13px);
+    }
+  }
+}
+

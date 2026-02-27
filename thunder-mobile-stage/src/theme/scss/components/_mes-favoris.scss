@@ -1,0 +1,261 @@
+/* # Mes Favoris ::
+------------------------------------*/
+
+.mes-favoris-list,
+.mes-favoris-list-f,
+.mes-blocs-list {
+  .mes-favoris-card,
+  .mes-favoris-card-f {
+    border-radius: 5px;
+    --background: var(--color-gray-mercury);
+    margin: 0;
+    box-shadow: 0 0 8px rgb(196 196 196 / 50%);
+
+    &:not(:last-child) {
+      margin-bottom: 35px;
+    }
+    .mes-favoris-card-img {
+      position: relative;
+      height: 145px;
+      @include flex;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+      }
+      .add-favoris-link {
+        position: absolute;
+        top: 13px;
+        right: 11px;
+        @include dimensions(25px, 20px);
+        background-image: url("../../../assets/icon/heart-icn.png");
+        background-repeat: no-repeat;
+        background-size: 25px auto;
+        background-position: center;
+        cursor: pointer;
+
+        &.active {
+          background-image: url("../../../assets/icon/heart-active-icn.png");
+        }
+      }
+    }
+    ion-card-header,
+    .mes-favoris-card-header {
+      position: relative;
+      ion-card-title,
+      .mes-favoris-card-title {
+        @include fonts(15px, 18px, var(--color-black));
+        color: black;
+        font-family: "Poppins-Bold", serif;
+        margin: 0;
+        padding: 0;
+        @include flex(flex, flex-start, space-between);
+
+        .add-favoris-link {
+          @include dimensions(17px, 17px);
+          background-image: url("../../../assets/icon/heart-icn.png");
+          background-repeat: no-repeat;
+          background-size: 17px;
+          background-position: center;
+          cursor: pointer;
+          display: block;
+          &.active {
+            background-image: url("../../../assets/icon/heart-active-icn.png");
+          }
+        }
+        .star-counter {
+          background-image: url("../../../assets/svg/star-icn.svg");
+          background-repeat: no-repeat;
+          background-size: 22px auto;
+          background-position: left center;
+          @include fonts(15px, 17px, var(--color-black));
+          font-family: "Poppins-Bold", serif;
+          padding: 0 0 0 27px;
+          min-height: 17px;
+        }
+        .icons-group {
+          @include flex(flex, center, flex-end);
+          gap: 5px;
+        }
+      }
+    }
+    ion-card-content,
+    .mes-favoris-card-content {
+      .mes-favoris-desc-blc {
+        .mes-favoris-desc-item {
+          @include fonts(14px, 14px, var(--color-black));
+          font-family: "Poppins-Light", serif;
+          margin: 0;
+
+          &:nth-child(1) {
+            margin: 0 0 10px;
+          }
+          &:nth-child(2) {
+            @include flex(flex, center, space-between);
+          }
+          time {
+            min-width: 111px;
+            height: 28px;
+            border-radius: 30px;
+            margin: 0 0 0 10px;
+            background-color: var(--color-golden-dream);
+            @include fonts(14px, 14px, var(--color-white));
+            font-family: "Poppins-Medium", serif;
+            @include flex;
+            padding: 2px 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.favorites-slides {
+  .mes-favoris-card {
+    border-radius: 5px;
+    --background: var(--color-th-white);
+    max-width: 184px;
+    margin: 0 auto;
+
+    &:not(:last-child) {
+      margin-bottom: 35px;
+    }
+
+    .mes-favoris-card-img {
+      position: relative;
+      height: 100px;
+      @include flex;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: auto;
+        max-height: 100%;
+      }
+      .add-favoris-link {
+        position: absolute;
+        top: 13px;
+        right: 11px;
+        @include dimensions(25px, 20px);
+        background-image: url("../../../assets/icon/heart-icn.png");
+        background-repeat: no-repeat;
+        background-size: 25px auto;
+        background-position: center;
+        cursor: pointer;
+
+        &.active {
+          background-image: url("../../../assets/icon/heart-active-icn.png");
+        }
+      }
+    }
+    ion-card-header,
+    .mes-favoris-card-header {
+      position: relative;
+
+      ion-card-title,
+      .mes-favoris-card-title {
+        @include fonts(15px, 18px, var(--color-black));
+        font-family: "Poppins-Bold", serif;
+        margin: 0;
+        @include truncate-2-line;
+        //height: 37px;
+        text-align: left;
+      }
+      .star-counter {
+        background-image: url("../../../assets/icon/star.png");
+        background-repeat: no-repeat;
+        background-size: 16px auto;
+        background-position: left center;
+        @include fonts(14px, 1.2, var(--color-black));
+        font-family: "Poppins-Bold", serif;
+        padding: 5px 0 5px 20px !important;
+        display: block;
+        margin: 10px auto 0 0;
+        min-width: 48px;
+        text-align: left;
+        min-height: 25px;
+      }
+    }
+    ion-card-content,
+    .mes-favoris-card-content {
+      .mes-favoris-desc-blc {
+        .mes-favoris-desc-item {
+          @include fonts(14px, 14px, var(--color-black));
+          font-family: "Poppins-Light", serif;
+          margin: 0;
+
+          &:nth-child(1) {
+            margin: 0 0 10px;
+          }
+          time {
+            min-width: 111px;
+            height: 28px;
+            border-radius: 30px;
+            margin: 10px 0 0;
+            background-color: var(--color-golden-dream);
+            @include fonts(14px, 14px, var(--color-white));
+            font-family: "Poppins-Medium", serif;
+            @include flex;
+            padding: 2px 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.select-section-slides {
+  &.favorites-slides {
+    ion-slides {
+      padding: 15px 0;
+    }
+  }
+}
+
+/* # Theme light ::
+------------------------------------*/
+
+.light {
+  .mes-favoris-list,
+  .mes-favoris-list-f {
+    .mes-favoris-card,
+    .mes-favoris-card-f {
+      ion-card-header,
+      .mes-favoris-card-header {
+        .star-counter {
+          color: var(--color-th-black);
+        }
+      }
+      ion-card-content,
+      .mes-favoris-card-content {
+        .mes-favoris-desc-blc {
+          .mes-favoris-desc-item {
+            time {
+              color: var(--color-th-white);
+            }
+          }
+        }
+      }
+    }
+  }
+  .mes-blocs-list {
+    .mes-favoris-card {
+      ion-card-header,
+      .mes-favoris-card-header {
+        .star-counter {
+          color: var(--color-th-black);
+        }
+      }
+      ion-card-content,
+      .mes-favoris-card-content {
+        .mes-favoris-desc-blc {
+          .mes-favoris-desc-item {
+            time {
+              color: var(--color-th-white);
+            }
+          }
+        }
+      }
+    }
+  }
+}

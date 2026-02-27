@@ -1,0 +1,45 @@
+
+.modal.modal-update-available {
+  .btns-group {
+   display: block;
+  }
+}
+video {
+  -webkit-touch-callout: none; /* Disable the callout menu */
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}
+
+@media (display-mode: fullscreen) {
+  body {
+    padding: 0;
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    padding: 0;
+  }
+}
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    --safe-area-inset-top: env(safe-area-inset-top);
+    height: calc(100% + var(--safe-area-inset-top));
+  }
+}
+
+@media (display-mode: fullscreen) {
+  body {
+    height: 100%;
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    height: 100%;
+  }
+}

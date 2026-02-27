@@ -1,0 +1,32 @@
+{
+  "name": "thunder-express",
+  "integrations": {
+    "cordova": {
+      "liveUpdate": {
+        "excludes": [
+          "assets/fonts/Poppins/Poppins-Bold.eot",
+          "assets/fonts/Poppins/Poppins-Bold.svg",
+          "assets/fonts/Poppins/Poppins-Bold.ttf",
+          "assets/fonts/Poppins/Poppins-Bold.woff",
+          "assets/fonts/Poppins/Poppins-Bold.woff2",
+          "assets/fonts/Poppins/Poppins-Light.eot",
+          "assets/fonts/Poppins/Poppins-Light.svg",
+          "assets/fonts/Poppins/Poppins-Light.ttf",
+          "assets/fonts/Poppins/Poppins-Light.woff",
+          "assets/fonts/Poppins/Poppins-Light.woff2",
+          "assets/fonts/Poppins/Poppins-Medium.eot",
+          "assets/fonts/Poppins/Poppins-Medium.svg",
+          "assets/fonts/Poppins/Poppins-Medium.ttf",
+          "assets/fonts/Poppins/Poppins-Medium.woff",
+          "assets/fonts/Poppins/Poppins-Medium.woff2",
+          "assets/fonts/Poppins/Poppins-Regular.eot",
+          "assets/fonts/Poppins/Poppins-Regular.svg",
+          "assets/fonts/Poppins/Poppins-Regular.ttf"
+        ]
+      }
+    },
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "fd9fd8e5"
+}

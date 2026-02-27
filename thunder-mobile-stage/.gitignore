@@ -1,0 +1,26 @@
+node_modules/
+temp/
+*.DS_Store
+*.log
+*.swp
+log.txt
+npm-debug.log*
+
+/.angular
+/.idea
+/.ionic
+/.sass-cache
+/.sourcemaps
+/.versions
+/.vscode
+/coverage
+/dist
+/node_modules
+/platforms
+/www
+/android/
+
+# Playwright test
+/test-results
+/playwright-report
+plugins

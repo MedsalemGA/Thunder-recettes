@@ -1,0 +1,451 @@
+/* # Sidebar Menu ::
+------------------------------------*/
+
+.sidebar-menu {
+  .sidebar-menu-content {
+    --background: var(--color-black);
+    --width: 428px;
+    position: relative;
+
+    .sidebar-close {
+      position: absolute;
+      top: 0;
+      right: -10px;
+      @include backgroundBtnTransparent;
+      z-index: 99999;
+      cursor: pointer;
+
+      ion-icon {
+        font-size: 30px;
+      }
+    }
+
+    .sidebar-nav {
+      ion-list {
+        margin: 0 0 10px;
+        padding: 0;
+
+        ion-item {
+          --background: var(--color-black);
+          --border-color: transparent;
+
+          ::ng-deep .item-detail-icon {
+            color: transparent;
+          }
+          ion-icon {
+            color: var(--color-white);
+            background-position: center;
+            background-repeat: no-repeat;
+
+            &.home-icn {
+              background-image: url("../../../assets/svg/home-icn.svg");
+              background-size: 27px auto;
+            }
+            &.local-offer-icn {
+              background-image: url("../../../assets/svg/local-offer-icn.svg");
+              background-size: 22px auto;
+            }
+            &.configuration-settings-icn {
+              background-image: url("../../../assets/svg/configuration-settings-icn.svg");
+              background-size: 24px auto;
+            }
+            &.category-icn {
+              background-image: url("../../../assets/svg/category-icn.svg");
+              background-size: 21px auto;
+            }
+            &.basket-shopping-icn {
+              background-image: url("../../../assets/svg/basket-shopping-icn.svg");
+              background-size: 22px auto;
+            }
+            &.location-on-icn {
+              background-image: url("../../../assets/svg/location-on-icn.svg");
+              background-size: 27px auto;
+            }
+            &.notifications-icn {
+              background-image: url("../../../assets/svg/notifications-icn.svg");
+              background-size: 24px auto;
+            }
+            &.comment-icn {
+              background-image: url("../../../assets/svg/comment-icn.svg");
+              background-size: 24px auto;
+            }
+            &.favoris-icn {
+              background-image: url("../../../assets/svg/favoris-icn.svg");
+              background-size: 24px auto;
+            }
+            &.statistic-icn {
+              background-image: url("../../../assets/svg/statistic.svg");
+              background-size: 24px auto;
+            }
+            &.wallet-icn {
+              background-image: url("../../../assets/svg/white-wallet.svg");
+              background-size: 22px auto;
+            }
+          }
+          ion-label {
+            font-family: "Poppins", serif;
+            font-weight: 400;
+            @include fonts(20px, 30px, var(--color-white));
+            text-transform: uppercase;
+          }
+        }
+      }
+    }
+    .sign-out-wrapper {
+      border-top: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 20px 0 20px;
+      margin: 0 0 0 15px;
+      margin-top: 0;
+    }
+    .sign-out-blc {
+      ion-button {
+        font-family: "Poppins";
+        @include fonts(20px, 30px, var(--color-white));
+        font-weight: 400;
+        text-transform: uppercase;
+        --padding-start: 0;
+      }
+      .logout-icn {
+        color: var(--color-white);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-image: url("../../../assets/svg/logout.svg");
+        background-size: 22px auto;
+      }
+    }
+  }
+}
+
+/* -- user-desc-area -- */
+.user-desc-area {
+  margin: 60px 0 30px;
+
+  .user_img {
+    @include dimensions(116px, 116px);
+    @include flex;
+    margin: 0 auto 15px;
+    position: relative;
+    .user_img-user {
+      &::part(image) {
+        border-radius: 50%;
+        box-shadow: 0px 4px 4px 0px #00000040;
+        @include dimensions(116px, 116px);
+      }
+    }
+    .user_img-organisation {
+      @include dimensions(41px, 41px);
+      border-radius: 50%;
+      box-shadow: 0px 4px 4px 0px #00000040;
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      z-index: 99999;
+      background-color: #fff;
+      border: 1px solid #fbc000;
+    }
+  }
+  .user_description-organisation {
+    font-family: "Poppins";
+    @include fonts(13px, 20px, var(--color-white));
+    margin: auto;
+    text-align: center;
+    padding: 11px 23px;
+    background: #fbc000;
+    border-radius: 10px;
+    width: fit-content;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 28px;
+    min-width: 226px;
+  }
+  .user_description {
+    padding: 0;
+    .welcome-txt {
+      display: block;
+      font-family: "Poppins-Regular", serif;
+      @include fonts(16px, 16px, var(--color-white));
+      margin: 0 0 7px;
+      text-align: center;
+    }
+    .user_description-name {
+      font-family: "Poppins";
+      @include fonts(20px, 30px, var(--color-white));
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0;
+      text-align: center;
+    }
+  }
+}
+
+/* # Theme light ::
+------------------------------------*/
+
+.light {
+  .user-desc-area {
+    .user_img {
+      // filter: drop-shadow(0px 0px 16px var(--color-silver));
+    }
+  }
+  .sidebar-menu {
+    .sidebar-menu-content {
+      .sign-out-wrapper {
+        border-top: 1px solid var(--color-th-black);
+      }
+      .sidebar-close {
+        color: var(--color-th-black);
+        --box-shadow: none;
+      }
+      .sidebar-nav {
+        ion-list {
+          background: var(--color-th-white);
+          ion-item {
+            ion-icon {
+              &.home-icn {
+                background-image: url("../../../assets/svg/home-black-icn.svg");
+              }
+              &.local-offer-icn {
+                background-image: url("../../../assets/svg/local-offer-black-icn.svg");
+              }
+              &.configuration-settings-icn {
+                background-image: url("../../../assets/svg/settings.png");
+              }
+              &.category-icn {
+                background-image: url("../../../assets/svg/category-black-icn.svg");
+              }
+              &.basket-shopping-icn {
+                background-image: url("../../../assets/svg/basket-shopping-black-icn.svg");
+              }
+              &.location-on-icn {
+                background-image: url("../../../assets/svg/location-on-black-icn.svg");
+              }
+              &.notifications-icn {
+                background-image: url("../../../assets/svg/notifications-black-icn.svg");
+              }
+              &.comment-icn {
+                background-image: url("../../../assets/svg/comment-black-icn.svg");
+              }
+              &.favoris-icn {
+                background-image: url("../../../assets/svg/favoris-black-icn.svg");
+              }
+              &.mes-livraisons-icn {
+                background-image: url("../../../assets/svg/mes-livraisons-black-icn.svg");
+                background-size: 35px auto;
+              }
+              &.mes-produits-icn {
+                background-image: url("../../../assets/product-black-icn.png");
+                background-size: 25px auto;
+              }
+              &.wallet-icn {
+                background-image: url("../../../assets/svg/black-wallet.svg");
+                background-size: 22px auto;
+              }
+            }
+          }
+        }
+      }
+      .sign-out-blc {
+        .logout-icn {
+          background-image: url("../../../assets/svg/logout-black.svg");
+        }
+      }
+    }
+  }
+}
+
+.dark {
+  .user-desc-area {
+    .user_img {
+      // filter: none;
+    }
+  }
+  .sidebar-menu {
+    .sidebar-menu-content {
+      .sign-out-wrapper {
+        border-top: 1px solid var(--color-th-white);
+      }
+      .sidebar-close {
+        color: var(--color-th-white);
+      }
+      .sidebar-nav {
+        ion-list {
+          ion-item {
+            ion-icon {
+              &.home-icn {
+                background-image: url("../../../assets/svg/home-icn.svg");
+              }
+              &.local-offer-icn {
+                background-image: url("../../../assets/svg/local-offer-icn.svg");
+              }
+              &.configuration-settings-icn {
+                background-image: url("../../../assets/svg/configuration-settings-icn.svg");
+              }
+              &.category-icn {
+                background-image: url("../../../assets/svg/category-icn.svg");
+              }
+              &.basket-shopping-icn {
+                background-image: url("../../../assets/svg/basket-shopping-icn.svg");
+              }
+              &.location-on-icn {
+                background-image: url("../../../assets/svg/location-on-icn.svg");
+              }
+              &.notifications-icn {
+                background-image: url("../../../assets/svg/notifications-icn.svg");
+              }
+              &.comment-icn {
+                background-image: url("../../../assets/svg/comment-icn.svg");
+              }
+              &.favoris-icn {
+                background-image: url("../../../assets/svg/favoris-icn.svg");
+              }
+              &.mes-livraisons-icn {
+                background-image: url("../../../assets/svg/mes-livraisons-icn.svg");
+                background-size: 35px auto;
+              }
+              &.mes-produits-icn {
+                background-image: url("../../../assets/product-white-icn.png");
+                background-size: 25px auto;
+              }
+              &.wallet-icn {
+                background-image: url("../../../assets/svg/white-wallet.svg");
+                background-size: 22px auto;
+              }
+            }
+          }
+        }
+      }
+      .sign-out-blc {
+        .logout-icn {
+          background-image: url("../../../assets/svg/logout.svg");
+        }
+      }
+    }
+  }
+}
+
+/* # $Mobile ::
+------------------------------------*/
+
+@media (max-width: 375px) {
+  .user-desc-area {
+    margin: 40px 0 24px;
+  }
+  .user-desc-area .user_img {
+    // @include dimensions(90px, 90px);
+  }
+}
+/* # Responsive Styles ::
+------------------------------------*/
+
+@media (max-width: 768px) {
+  .sidebar-menu {
+    .sidebar-menu-content {
+      --width: 100%;
+
+      .sidebar-nav {
+        ion-list {
+          ion-item {
+            ion-label {
+              @include fonts(18px, 26px, var(--color-white));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .user-desc-area {
+    margin: 30px 0 20px;
+
+    .user_img {
+      @include dimensions(90px, 90px);
+
+      .user_img-user {
+        &::part(image) {
+          @include dimensions(90px, 90px);
+        }
+      }
+
+      .user_img-organisation {
+        @include dimensions(35px, 35px);
+      }
+    }
+
+    .user_description-organisation {
+      @include fonts(12px, 18px, var(--color-white));
+      padding: 8px 18px;
+      min-width: 200px;
+    }
+
+    .user_description {
+      .welcome-txt {
+        @include fonts(14px, 14px, var(--color-white));
+      }
+
+      .user_description-name {
+        @include fonts(18px, 26px, var(--color-white));
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-menu {
+    .sidebar-menu-content {
+      .sidebar-nav {
+        ion-list {
+          ion-item {
+            ion-label {
+              @include fonts(16px, 24px, var(--color-white));
+            }
+          }
+        }
+      }
+
+      .sign-out-wrapper {
+        margin-left: 10px;
+        padding: 15px 0;
+      }
+
+      .sign-out-blc {
+        ion-button {
+          @include fonts(16px, 24px, var(--color-white));
+        }
+      }
+    }
+  }
+
+  .user-desc-area {
+    margin: 20px 0 15px;
+
+    .user_img {
+      @include dimensions(80px, 80px);
+
+      .user_img-user {
+        &::part(image) {
+          @include dimensions(80px, 80px);
+        }
+      }
+
+      .user_img-organisation {
+        @include dimensions(30px, 30px);
+      }
+    }
+
+    .user_description-organisation {
+      @include fonts(11px, 16px, var(--color-white));
+      padding: 6px 15px;
+      min-width: 180px;
+    }
+
+    .user_description {
+      .welcome-txt {
+        @include fonts(13px, 13px, var(--color-white));
+      }
+
+      .user_description-name {
+        @include fonts(16px, 24px, var(--color-white));
+      }
+    }
+  }
+}

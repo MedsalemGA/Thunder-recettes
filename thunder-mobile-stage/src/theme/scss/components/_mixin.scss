@@ -1,0 +1,337 @@
+/* # Mixin ::
+------------------------------------*/
+
+/* -- Truncate -- */
+
+@mixin truncate-global {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@mixin truncate-2-line {
+  @include truncate-global;
+  -webkit-line-clamp: 2;
+}
+@mixin truncate($l: 2) {
+  @include truncate-global;
+  -webkit-line-clamp: $l;
+}
+
+/* -- Background button -- */
+
+@mixin backgroundBtnTransparent {
+  --background: transparent;
+  --background-activated: transparent;
+  --background-focused: transparent;
+  --background-hover: transparent;
+}
+@mixin backgroundBtnWhite {
+  --background: var(--color-th-white);
+  --background-activated: var(--color-th-white);
+  --background-focused: var(--color-th-white);
+  --background-hover: var(--color-th-white);
+}
+@mixin backgroundBtnBlack {
+  --background: var(--color-th-black);
+  --background-activated: var(--color-th-black);
+  --background-focused: var(--color-th-black);
+  --background-hover: var(--color-th-black);
+}
+@mixin backgroundBtnGolden {
+  --background: var(--color-golden-dream);
+  --background-activated: var(--color-golden-dream);
+  --background-focused: var(--color-golden-dream);
+  --background-hover: var(--color-golden-dream);
+}
+@mixin backgroundBtnGoldenGalliano {
+  --background: var(--color-golden-galliano);
+  --background-activated: var(--color-golden-galliano);
+  --background-focused: var(--color-golden-galliano);
+  --background-hover: var(--color-golden-galliano);
+}
+@mixin backgroundBtnGrayTide {
+  --background: var(--color-gray-tide);
+  --background-activated: var(--color-gray-tide);
+  --background-focused: var(--color-gray-tide);
+  --background-hover: var(--color-gray-tide);
+}
+@mixin backgroundGrayMercury {
+  --background: var(--color-gray-mercury);
+  --background-activated: var(--color-gray-mercury);
+  --background-focused: var(--color-gray-mercury);
+  --background-hover: var(--color-gray-mercury);
+}
+@mixin backgroundBlueEastern {
+  --background: var(--color-blue-eastern);
+  --background-activated: var(--color-blue-eastern);
+  --background-focused: var(--color-blue-eastern);
+  --background-hover: var(--color-blue-eastern);
+}
+@mixin backgroundTransparent2 {
+  --background: transparent;
+  --background-activated: transparent;
+  --background-focused: transparent;
+  --background-hover: transparent;
+}
+@mixin backgroundBlueShakespeare {
+  --background: var(--color-blue-shakespeare);
+  --background-activated: var(--color-blue-shakespeare);
+  --background-focused: var(--color-blue-shakespeare);
+  --background-hover: var(--color-blue-shakespeare);
+}
+@mixin backgroundRedApricot {
+  --background: var(--color-red-apricot);
+  --background-activated: var(--color-red-apricot);
+  --background-focused: var(--color-red-apricot);
+  --background-hover: var(--color-red-apricot);
+}
+@mixin backgroundGrey {
+  --background: var(--color-gray-Opacity);
+  --background-activated: var(--color-gray-Opacityt);
+  --background-focused: var(--color-gray-Opacity);
+  --background-hover: var(--color-gray-Opacity);
+}
+@mixin backgroundBlueDianne {
+  --background: var(--color-blue-dianne);
+  --background-activated: var(--color-blue-dianne);
+  --background-focused: var(--color-blue-dianne);
+  --background-hover: var(--color-blue-dianne);
+}
+@mixin backgroundBlueAzure {
+  --background: var(--color-blue-azure);
+  --background-activated: var(--color-blue-azure);
+  --background-focused: var(--color-blue-azure);
+  --background-hover: var(--color-blue-azure);
+}
+@mixin backgroundSilver {
+  --background: var(--color-silver);
+  --background-activated: var(--color-silver);
+  --background-focused: var(--color-silver);
+  --background-hover: var(--color-silver);
+}
+@mixin backgroundBlueBlizzard {
+  --background: var(--color-blue-blizzard);
+  --background-activated: var(--color-blue-blizzard);
+  --background-focused: var(--color-blue-blizzard);
+  --background-hover: var(--color-blue-blizzard);
+}
+@mixin backgroundGrayDesert {
+  --background: var(--color-gray-desert-2);
+  --background-activated: var(--color-gray-desert-2);
+  --background-focused: var(--color-gray-desert-2);
+  --background-hover: var(--color-gray-desert-2);
+}
+@mixin backgroundGrayDesert3 {
+  --background: var(--color-gray-desert-3);
+  --background-activated: var(--color-gray-desert-3);
+  --background-focused: var(--color-gray-desert-3);
+  --background-hover: var(--color-gray-desert-3);
+}
+@mixin backgroundMineShaft {
+  --background: var(--color-mine-shaft-3);
+  --background-activated: var(--color-mine-shaft-3);
+  --background-focused: var(--color-mine-shaft-3);
+  --background-hover: var(--color-mine-shaft-3);
+}
+@mixin backgroundOutlineGoldenAmber {
+  --background: var(--color-th-white);
+  --background-hover-opacity: 1;
+  --transition: all 0.3s;
+}
+@mixin backgroundBtnGoldenAmber {
+  --background: var(--color-golden-amber);
+  --background-activated: var(--color-golden-amber);
+  --background-focused: var(--color-golden-amber);
+  --background-hover: var(--color-golden-amber);
+}
+@mixin backgroundBlueFrosted {
+  --background: var(--color-blue-frosted-2);
+  --background-activated: var(--color-blue-frosted-2);
+  --background-focused: var(--color-blue-frosted-2);
+  --background-hover: var(--color-blue-frosted-2);
+}
+@mixin backgroundSerenade {
+  --background: var(--color-serenade);
+  --background-activated: var(--color-serenade);
+  --background-focused: var(--color-serenade);
+  --background-hover: var(--color-serenade);
+}
+
+/* -- Flex -- */
+
+@mixin flex($flex: flex, $ai: center, $jc: center) {
+  display: $flex;
+  align-items: $ai;
+  justify-content: $jc;
+}
+
+/* -- Fonts -- */
+
+@mixin fonts($fs: 16px, $lh: 16px, $cl: var(--color-th-black)) {
+  font-size: $fs;
+  line-height: $lh;
+  color: $cl;
+}
+@mixin fontSize($fs: 16px, $lh: 16px) {
+  font-size: $fs;
+  line-height: $lh;
+}
+
+/* -- Dimensions -- */
+
+@mixin dimensions($w: 25px, $h: 25px) {
+  width: $w;
+  height: $h;
+}
+
+/* -- User Select -- */
+
+@mixin userSelect {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* -- Background Image -- */
+
+@mixin backgroundImage($image, $x: 50%, $y: 50%, $s: 25px) {
+  background: {
+    image: $image;
+    repeat: no-repeat;
+    position: $x $y;
+    size: $s auto;
+  }
+}
+
+/* -- Border -- */
+
+@mixin border($width, $color) {
+  border: $width solid $color;
+}
+
+/* -- scrollbar -- */
+
+@mixin scrollbar-style(
+  $thumb-color,
+  $track-color,
+  $hover-color,
+  $width: 10px,
+  $radius: 5px
+) {
+  /* WebKit browsers */
+  &::-webkit-scrollbar {
+    width: $width; /* For vertical scrollbar */
+    height: $width; /* For horizontal scrollbar */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+    border-radius: $radius;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $hover-color;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $track-color;
+    border-radius: $radius;
+  }
+
+  /* Firefox support */
+  scrollbar-width: thin; /* Options: auto, thin, none */
+  scrollbar-color: $thumb-color $track-color; /* Thumb color and track color */
+}
+@mixin form-input-styles(
+  $font-size,
+  $font-family: "Poppins",
+  $color: var(--color-th-black)
+) {
+  font-size: $font-size;
+  font-family: $font-family;
+  color: $color;
+  line-height: 24px;
+  margin-bottom: 15px;
+  display: block;
+
+  &::placeholder {
+    opacity: 1;
+    font-style: italic;
+  }
+}
+@mixin button-styles(
+  $bg-color,
+  $text-color,
+  $font-size,
+  $font-weight,
+  $padding: 8px 34px,
+  $radius: 15px
+) {
+  --background: #{$bg-color};
+  --background-activated: #{$bg-color};
+  --color: #{$text-color};
+  margin: 0;
+  min-height: 42px;
+  --box-shadow: none;
+
+  &::part(native) {
+    font-family: "Poppins", sans-serif;
+    font-weight: $font-weight;
+    font-size: $font-size;
+    line-height: 26px;
+    text-transform: uppercase;
+    padding: $padding;
+    border-radius: $radius;
+  }
+}
+@mixin separator-line {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: calc(50% - 50px);
+  height: 1px;
+  background-color: var(--color-th-black);
+}
+@mixin text-style($size, $weight, $line-height, $color: var(--color-th-black)) {
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height;
+  font-family: "Poppins", sans-serif;
+  color: $color;
+}
+@mixin heading-style($size, $weight, $line-height, $tt: uppercase) {
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height;
+  text-transform: $tt;
+  color: var(--color-th-black);
+  margin: 0;
+}
+@mixin social-button-style( $height : 40px) {
+  width: 100%;
+  height: $height;
+  min-height: $height;
+  margin: 0;
+  --background-activated: white;
+  --box-shadow: none;
+
+  &::part(native) {
+    border-radius: 20px;
+    border: 1px solid #959494;
+    height: $height;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: capitalize;
+    font-family: "Poppins", sans-serif;
+    line-height: $height;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+    color: var(--color-th-black);
+    background-size: 20px;
+    background-position: left 27px center;
+    background-repeat: no-repeat;
+  }
+}
