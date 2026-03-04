@@ -1,3 +1,6 @@
+<div class="bigadminphoto">
+      <button (click)="showimg()"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo-big"></button>
+    </div>
 <!-- Admin Layout Container -->
 <div class="admin-layout">
   <!-- Sidebar -->
@@ -5,46 +8,41 @@
     <!-- Brand Section -->
     <div class="brand-section">
       <div class="brand-content">
-        <img src="../../../../assets/i18n/thunder.png" style="width: 30px; height: 30px;">
-        <h1 class="brand-title" [class.visible]="isSidebarOpen">Thunder</h1>
-        <p class="brand-tagline" [class.visible]="isSidebarOpen" style="font-size: 20px;">Admin Dashboard</p>
+        <img src="../../../../assets/i18n/thunder.png" style="width: 40px; height: 40px;background-color:rgb(9, 206, 196);border-radius: 10px;padding: 5px;">
+        <h1 class="brand-title" [class.visible]="isSidebarOpen" style="font-size: 20px;">Thunder Express</h1>
+        <p class="brand-tagline" [class.visible]="isSidebarOpen" style="font-size: 15px;">Admin Dashboard</p>
       </div>
     </div>
 
     <!-- Navigation Menu -->
     <nav class="nav-menu">
-      <!-- Dashboard -->
-      <a (click)="navigateTo('dashboard')" class="nav-item">
+     
+      <!-- Fournisseurs -->
+      <a (click)="scrollTo('fournisseurs')" class="nav-item" [class.active]="activeSection === 'fournisseurs'">
         <div class="nav-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"></path>
-          </svg>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17a2 2 0 11-4 0m0 0a2 2 0 104 0m6 0a2 2 0 11-4 0m4 0a2 2 0 104 0M3 13h13V6a2 2 0 00-2-2H3v9zm13 0h3l2 3v1h-5v-4z">
+            </path>
+         </svg>
         </div>
-        <span class="nav-text" [class.visible]="isSidebarOpen">Dashboard</span>
+        <span class="nav-text" [class.visible]="isSidebarOpen">Fournisseurs</span>
       </a>
 
-      <!-- Companies -->
-      <a (click)="navigateTo('entreprises')" class="nav-item">
+      <!-- Recettes -->
+      <a (click)="scrollTo('recettes')" class="nav-item" [class.active]="activeSection === 'recettes'">
         <div class="nav-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 3v18m4-18v18m4-18v18m4-18v18M3 7h18M3 17h18">
+            </path>
           </svg>
         </div>
-        <span class="nav-text" [class.visible]="isSidebarOpen">Companies</span>
+        <span class="nav-text" [class.visible]="isSidebarOpen">Recettes</span>
       </a>
 
-      <!-- Influencers -->
-      <a (click)="navigateTo('influenceurs')" class="nav-item">
-        <div class="nav-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-          </svg>
-        </div>
-        <span class="nav-text" [class.visible]="isSidebarOpen">Influencers</span>
-      </a>
-
-      <!-- Messaging -->
-      <a (click)="navigateTo('messaging')" class="nav-item">
+      <!-- Messages -->
+      <a (click)="scrollTo('messages')" class="nav-item" [class.active]="activeSection === 'messages'">
         <div class="nav-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
@@ -53,28 +51,8 @@
         <span class="nav-text" [class.visible]="isSidebarOpen">Messaging</span>
       </a>
 
-      <!-- Offers -->
-      <a (click)="navigateTo('offres')" class="nav-item">
-        <div class="nav-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-          </svg>
-        </div>
-        <span class="nav-text" [class.visible]="isSidebarOpen">Offers</span>
-      </a>
-
-      <!-- Postulations -->
-      <a (click)="navigateTo('postulations')" class="nav-item">
-        <div class="nav-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m1-5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" />
-          </svg>
-        </div>
-        <span class="nav-text" [class.visible]="isSidebarOpen">Postulations</span>
-      </a>
-
       <!-- Configuration -->
-      <a (click)="navigateTo('configuration')" class="nav-item">
+      <a (click)="scrollTo('configuration')" class="nav-item" [class.active]="activeSection === 'configuration'">
         <div class="nav-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -95,6 +73,7 @@
         <div class="admin-details" [class.visible]="isSidebarOpen">
           <span class="admin-name">{{ adminName }}</span>
           <span class="admin-role">Administrator</span>
+          <button (click)="showimg()"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo"></button>
         </div>
       </div>
 
@@ -118,9 +97,108 @@
 
   <!-- Main Content Area -->
   <main class="main-content">
-    <router-outlet></router-outlet>
+  
+    
+  <section id="fournisseurs" class="page-section">
+    <div class="section-header">
+      <h2 class="section-title">Fournisseurs</h2>
+      <p class="section-subtitle">Gérez vos fournisseurs et partenaires</p>
+    </div>
+    <div class="content-card">
+      <div class="searchcontent">
+           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input">
+          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 30 30"style="position: relative; left: -40px; top: 0px;">
+<path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
+</svg>
+      <button class="ajouterfournisseur-button" (click)="showajouterfournisseur()" *ngIf="!isshowajouterfournisseur">Nouveau fournisseur</button>
+      </div>
+      <div class="ajouterfournisseur">
+        
+        <div class="ajouterfournisseur-form" *ngIf="isshowajouterfournisseur">
+          <input type="text" placeholder="Nom exemple : Mohamed Amine..." class="ajouterfournisseur-input" [(ngModel)]="name" name="name" required min="3" max="25" >
+          
+          <input type="text" placeholder="Email exemple : mohamedamine@gmail.com..." class="ajouterfournisseur-input"  [(ngModel)]="email_fournisseur" name="email" required >  
+          <div class="passworddiv">
+            <input [type]="hidePassword ? 'text' : 'password'" placeholder="Mot de passe ******" class="ajouterfournisseur-input"   [(ngModel)]="password" name="password" (keyup)="passwordrule($event,password,alertMessage,color)">
+            <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition">
+                <!-- Eye Icon (Show) -->
+                <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <!-- Eye Slash Icon (Hide) -->
+                <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              </button>
+          </div>
+          
+          <input type="text" placeholder="Adresse exemple : 123 rue de la paix, Casablanca..." class="ajouterfournisseur-input" [(ngModel)]="adresse" name="adresse">
+          <input type="text" placeholder="Tél exemple : +212612345678..." class="ajouterfournisseur-input" [(ngModel)]="telephone" name="telephone">
+          <input type="text" placeholder="Spécialité expemple : Transport, Logistique, ..." class="ajouterfournisseur-input" [(ngModel)]="specialite" name="specialite">
+          <input type="text" placeholder="Code commercial expemple : 123456..." class="ajouterfournisseur-input" [(ngModel)]="code_commercial" name="code_commercial">
+          <input type="file" placeholder="Photo.." class="ajouterfournisseur-input">
+          <button class="ajouterfournisseur-submit" (click)="ajouterfournisseur()" [disabled]="color!=='green'">Ajouter</button>
+          <button class="ajouterfournisseur-delete" (click)="showajouterfournisseur()" *ngIf="isshowajouterfournisseur">X</button>
+        </div>
+          <p *ngIf="color=='red'" class="text-red-500" id="message3">{{ alertMessage }}</p>
+          <p *ngIf="color=='yellow'" class="text-yellow-500" id="message2">{{ alertMessage }}</p>
+          <p *ngIf="color=='green'" class="text-green-500" id="message1">{{ alertMessage }}</p>
+         
+      </div>
+      <!--<div class="fournisseur-card">
+        <div class="fournisseur-info">
+          <img src="{{fournisseur.photo}}" alt="Fournisseur Photo" class="fournisseur-photo">
+          <div class="fournisseur-details">
+            <h3 class="fournisseur-name">{{fournisseur.name}}</h3>
+            <p class="fournisseur-email">{{fournisseur.email}}</p>
+            <p class="fournisseur-adresse">{{fournisseur.adresse}}</p>
+            <p class="fournisseur-code">{{fournisseur.code_commercial}}</p>
+            <p class="fournisseur-telephone">{{fournisseur.telephone}}</p>
+            <p class="fournisseur-specialité">{{fournisseur.specialité}}</p>
+          </div>
+        </div>-->
+   
+    </div>
+  </section>
+
+  <section id="recettes" class="page-section">
+    <div class="section-header">
+      <h2 class="section-title">Recettes</h2>
+      <p class="section-subtitle">Consultez et gérez les recettes</p>
+    </div>
+    <div class="content-card">
+      <p>Contenu des Recettes</p>
+      <!-- Ajoutez votre contenu ici -->
+    </div>
+  </section>
+
+  <section id="messages" class="page-section">
+    <div class="section-header">
+      <h2 class="section-title">Messaging</h2>
+      <p class="section-subtitle">Vos messages et notifications</p>
+    </div>
+    <div class="content-card">
+      <p>Contenu des Messages</p>
+      <!-- Ajoutez votre contenu ici -->
+    </div>
+  </section>
+
+  <section id="configuration" class="page-section">
+    <div class="section-header">
+      <h2 class="section-title">Configuration</h2>
+      <p class="section-subtitle">Paramètres et configuration de l'application</p>
+    </div>
+    <div class="content-card">
+      <p>Contenu de la Configuration</p>
+      <!-- Ajoutez votre contenu ici -->
+    </div>
+  </section>
   </main>
 
   <!-- Mobile Overlay -->
   <div class="mobile-overlay" [class.active]="isSidebarOpen" (click)="toggleSidebar()"></div>
-</div>
+</div> 

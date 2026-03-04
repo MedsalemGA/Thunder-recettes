@@ -62,32 +62,19 @@ export class AdminComponent  implements OnInit {
       password: this.password,
     };
     console.log('Payload envoyé :', data);
+    localStorage.setItem('email',this.usernameOrEmail);
     this.http.post('http://localhost:8000/api/adminlogin', data).subscribe({
       next: (response: any) => {
         console.log(response)
         localStorage.setItem('auth_token', response.data?.token);
-        Swal.fire({
-    title: 'Succès',
-    text: 'Message ici',
-    icon: 'success',
-    position: 'center',           // ← très important
-    showConfirmButton: true,
-    timer: 3000,                  // optionnel
-    allowOutsideClick: false,     // optionnel
-    allowEscapeKey: false,        // optionnel
-    backdrop: true                // optionnel mais aide parfois
-});
+        alert("Connexion réussie")
         console.log('Connexion réussie:', response);
         this.router.navigate(['/admindashboard']);
       },
       error: (error) => {
         console.error('Erreur de connexion:', error);
         this.errornum=this.errornum+1;
-        Swal.fire({
-          icon: 'error',
-          title: 'Erreur de connexion',
-          text: 'Veuillez vérifier vos identifiants.'
-        });
+        alert('erreur de conexion')
       
         
       }

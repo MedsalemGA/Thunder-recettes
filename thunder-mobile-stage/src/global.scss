@@ -26,16 +26,25 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* =============================================
+   SweetAlert2 — Fix z-index global (Ionic)
+   ============================================= */
 .swal2-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    margin: auto !important;
-    z-index: 99999 !important;
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+.swal2-backdrop-show {
+  z-index: 999998 !important;
 }
 
 .swal2-popup {
-    margin: auto !important;
+  z-index: 999999 !important;
+  position: relative !important;
 }

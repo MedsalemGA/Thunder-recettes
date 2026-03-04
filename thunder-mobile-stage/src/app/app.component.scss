@@ -43,3 +43,7 @@ video {
     height: 100%;
   }
 }
+html {
+  scroll-behavior: smooth;
+}
+/* Dans styles.scss / global styles.css ou dans un fichier importé partout */

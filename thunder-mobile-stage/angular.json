@@ -41,6 +41,7 @@
               "node_modules/flag-icon-css/css/flag-icons.min.css",
               "node_modules/video.js/dist/video-js.css",
               "src/global.scss"
+
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
