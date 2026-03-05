@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { NgIf, } from '@angular/common';
-import {ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { NgIf,NgFor } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AdminserviceService } from 'src/app/services/adminservice/adminservice.service';
+import { AlertController, ToastController } from '@ionic/angular';
 
 
 
@@ -12,13 +13,13 @@ import { AdminserviceService } from 'src/app/services/adminservice/adminservice.
   selector: 'app-admindashboard',
   templateUrl: './admindashboard.component.html',
   styleUrls: ['./admindashboard.component.scss'],
-  imports: [NgIf,ReactiveFormsModule,FormsModule],
+  imports: [NgIf,ReactiveFormsModule,FormsModule,NgFor],
   standalone: true,
   
 })
 
 export class AdmindashboardComponent implements OnInit, OnDestroy {
-
+  restFournisseurs:any[]=[];
   isSidebarOpen = false;
   adminName ='';
   activeSection = 'fournisseurs';
@@ -26,7 +27,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   adminPhoto="";
   isshowimg=false;
   isshowajouterfournisseur=false;
-  name = "";
+  fournisseur_name = "";
   email_fournisseur = "";
   password = "";
   hidePassword: boolean = true;
@@ -36,10 +37,21 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   code_commercial = "";
   alertMessage = "";
   color = "";
-
+  fournisseurs: any[] = [];
+  fournisseur_photo="";
+  showmodifyfournisseur=false;
+  useridtemp=0;
+  query="";
   private observer!: IntersectionObserver;
 
-  constructor( private http: HttpClient,private route: ActivatedRoute,private router: Router,private adminservice: AdminserviceService) {}
+  constructor(
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private router: Router,
+    private adminservice: AdminserviceService,
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController
+  ) {}
 
   ngOnInit() {
     
@@ -47,6 +59,8 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     
     this.email = localStorage.getItem('email') || '';
    this.getadmininfo();
+   this.showfournisseurs();
+   
   }
 
   ngOnDestroy() {
@@ -60,7 +74,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
   togglePasswordVisibility() {
-    this.adminservice.tooglepassword(this.hidePassword);
+    this.hidePassword = !this.hidePassword;
   }
   passwordrule(event: KeyboardEvent,password:string){
     this.adminservice.ontype(event,password);
@@ -71,9 +85,9 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
    
     
   }
-  showimg(){
+  showimg(image:string){
     this.isshowimg = !this.isshowimg;
-    const element = document.querySelector('.admin-photo-big') as HTMLElement;
+    const element = document.querySelector('.'+image) as HTMLElement;
     const element2 = document.querySelector('.admin-layout') as HTMLElement;
     
     if (this.isshowimg) {
@@ -89,31 +103,88 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
       
     }
   }
+  showmodifyformfournisseur(id:number){
+    this.showmodifyfournisseur = !this.showmodifyfournisseur;
+    this.isshowajouterfournisseur = !this.isshowajouterfournisseur;
+    this.alertMessage = "";
+    this.color = "";
+    this.useridtemp = id;
+    this.fournisseur_name = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.name;
+    this.email_fournisseur = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.email;
+    this.adresse = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.adresse;
+    this.telephone = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.telephone;
+    this.specialite = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.specialite;
+    this.code_commercial = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.code_commercial;
+    this.fournisseur_photo = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.photo;
+    this.password = this.fournisseurs.find(fournisseur => fournisseur.id === id)?.user.password;
+   
+
+  }
+  showfournisseurs(){
+  this.adminservice.getallfournisseurs().subscribe(
+    (res: any) => {
+      this.fournisseurs = res.data;
+      // Réappliquer le filtre actuel après rechargement
+      this.rechercherFournisseur(this.query);
+    },
+    (error) => {
+      this.fournisseurs = [];
+      this.restFournisseurs = [];
+    }
+  );
+}
   showajouterfournisseur(){
     this.isshowajouterfournisseur = !this.isshowajouterfournisseur;
     this.alertMessage = "";
     this.color = "";
+    this.showmodifyfournisseur = false;
+    this.fournisseur_name = "";
+    this.email_fournisseur = "";
+    this.password = "";
+    this.adresse = "";
+    this.telephone = "";
+    this.specialite = "";
+    this.code_commercial = "";
+    this.fournisseur_photo = "";
+  
 
   }
-  ajouterfournisseur(){
-    if(this.name==="" || this.email_fournisseur==="" || this.password==="" || this.adresse==="" || this.telephone==="" || this.specialite==="" || this.code_commercial===""){
-      alert("Veuillez remplir tous les champs");
+  async ajouterfournisseur(){
+    if(this.fournisseur_name==="" || this.email_fournisseur==="" || this.password==="" || this.adresse==="" || this.telephone==="" || this.specialite==="" || this.code_commercial===""){
+      const alert = await this.alertCtrl.create({
+        header: 'Champs manquants',
+        message: 'Veuillez remplir tous les champs obligatoires.',
+        cssClass: 'custom-alert-warning',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
       return;
     }
-    
-    
-    this.http.post('http://localhost:8000/api/ajouterfournisseur', {name:this.name,email:this.email_fournisseur,password:this.password,adresse:this.adresse,telephone:this.telephone,specialite:this.specialite,code_commercial:this.code_commercial} ).subscribe({
-      next: (response) => {
-        console.log(response);
+
+    this.http.post('http://localhost:8000/api/ajouterfournisseur', {name:this.fournisseur_name,email:this.email_fournisseur,password:this.password,adresse:this.adresse,telephone:this.telephone,specialite:this.specialite,code_commercial:this.code_commercial,photo:this.fournisseur_photo} ).subscribe({
+      next: async () => {
         this.isshowajouterfournisseur = false;
-        alert("Fournisseur ajouté avec succès");
-        
+        this.showfournisseurs();
+        const toast = await this.toastCtrl.create({
+          message: '✅ Fournisseur ajouté avec succès.',
+          duration: 2500,
+          color: 'success',
+          position: 'top',
+          cssClass: 'custom-toast'
+        });
+        await toast.present();
       },
-      error: (error) => {
-        console.error('Erreur de connexion:', error);
+      error: async (error) => {
+        const alert = await this.alertCtrl.create({
+          header: 'Erreur',
+          message: error?.error?.message || 'Une erreur est survenue lors de l\'ajout du fournisseur.',
+          cssClass: 'custom-alert-error',
+          buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
       }
     });
-  } 
+  }
   scrollTo(sectionId: string) {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -153,33 +224,171 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
           this.adminPhoto = response.data.photo;
           console.log(this.adminPhoto);
         },
-        error: (error) => {
-          console.error('Erreur de connexion:', error);
+        error: async () => {
+          const alert = await this.alertCtrl.create({
+            header: 'Erreur',
+            message: 'Impossible de récupérer les informations de l\'administrateur.',
+            cssClass: 'custom-alert-error',
+            buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+          });
+          await alert.present();
         }
       });
-    ;
   }
-logout() {
+async logout() {
 
   const token = localStorage.getItem('auth_token');
 
-  this.http.post(
-    'http://localhost:8000/api/logout',
-    {}, // ✅ body vide
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
+  const confirm = await this.alertCtrl.create({
+    header: 'Confirmer la déconnexion',
+    message: 'Voulez-vous vraiment vous déconnecter ?',
+    cssClass: 'custom-alert-warning',
+    buttons: [
+      {
+        text: 'Annuler',
+        role: 'cancel',
+        cssClass: 'alert-btn-teal'
+      },
+      {
+        text: 'Oui, déconnecter',
+        cssClass: 'alert-btn-danger',
+        handler: () => {
+
+          this.http.post(
+            'http://localhost:8000/api/logout',
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          ).subscribe(async (response: any) => {
+
+            const toast = await this.toastCtrl.create({
+              message: '✅ Déconnexion réussie.',
+              duration: 2000,
+              color: 'success',
+              position: 'top',
+              cssClass: 'custom-toast'
+            });
+
+            await toast.present();
+
+            localStorage.removeItem('auth_token');
+
+            this.router.navigate(['/admin']);
+
+          }, async () => {
+
+            const alert = await this.alertCtrl.create({
+              header: 'Erreur de déconnexion',
+              message: 'Une erreur est survenue lors de la déconnexion.',
+              cssClass: 'custom-alert-error',
+              buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+            });
+
+            await alert.present();
+
+          });
+
+        }
       }
-    }
-  ).subscribe({
-    next: (response:any) => {
-      console.log(response);
-      localStorage.removeItem('auth_token');
-      this.router.navigate(['/admin']);
+    ]
+  });
+
+  await confirm.present();
+}
+async deletefournisseur(id:number){
+  const confirm = await this.alertCtrl.create({
+    header: 'Confirmer la suppression',
+    message: 'Voulez-vous vraiment supprimer ce fournisseur ?',
+    cssClass: 'custom-alert-warning',
+    buttons: [
+      { text: 'Annuler', role: 'cancel', cssClass: 'alert-btn-teal' },
+      {
+        text: 'Oui, supprimer',
+        cssClass: 'alert-btn-danger',
+        handler: () => {
+          this.adminservice.deletefournisseur(id).subscribe({
+            next: async () => {
+              this.showfournisseurs();
+              const toast = await this.toastCtrl.create({
+                message: '🗑️ Fournisseur supprimé avec succès.',
+                duration: 2000,
+                color: 'success',
+                position: 'top',
+                cssClass: 'custom-toast'
+              });
+              await toast.present();
+            },
+            error: async (error) => {
+              const alert = await this.alertCtrl.create({
+                header: 'Erreur',
+                message: error?.error?.message || 'Erreur lors de la suppression du fournisseur.',
+                cssClass: 'custom-alert-error',
+                buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+              });
+              await alert.present();
+            }
+          });
+        }
+      }
+    ]
+  });
+  await confirm.present();
+}
+async modifyfournisseur(id:number){
+  const data: Record<string, string> = {};
+  if(this.fournisseur_name!=="") data['name']=this.fournisseur_name;
+  if(this.email_fournisseur!=="") data['email']=this.email_fournisseur;
+  if(this.password!=="") data['password']=this.password;
+  if(this.adresse!=="") data['adresse']=this.adresse;
+  if(this.telephone!=="") data['telephone']=this.telephone;
+  if(this.specialite!=="") data['specialite']=this.specialite;
+  if(this.code_commercial!=="") data['code_commercial']=this.code_commercial;
+  if(this.fournisseur_photo!=="") data['photo']=this.fournisseur_photo;
+
+  this.adminservice.updatefournisseur(id,data).subscribe({
+    next: async () => {
+      this.showajouterfournisseur();
+      this.showfournisseurs();
+      const toast = await this.toastCtrl.create({
+        message: '✅ Fournisseur modifié avec succès.',
+        duration: 2500,
+        color: 'success',
+        position: 'top',
+        cssClass: 'custom-toast'
+      });
+      await toast.present();
     },
-    error: (error) => {
-      console.error('Erreur logout:', error);
+    error: async (error) => {
+      const alert = await this.alertCtrl.create({
+        header: 'Erreur',
+        message: error?.error?.message || 'Erreur lors de la modification du fournisseur.',
+        cssClass: 'custom-alert-error',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
     }
   });
 }
+rechercherFournisseur(query: string) {
+  
+
+  const value = query.toLowerCase().trim();
+  
+  if (!value) {
+    this.restFournisseurs = this.fournisseurs;
+    return;
+  }
+
+  this.restFournisseurs = this.fournisseurs.filter(f => 
+    f.user.name.toLowerCase().includes(value) ||
+    f.user.email.toLowerCase().includes(value) ||
+    f.code_commercial.toLowerCase().includes(value)
+  );
+
+}
+
+
 }

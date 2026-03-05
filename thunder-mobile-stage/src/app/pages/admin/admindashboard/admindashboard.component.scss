@@ -213,7 +213,31 @@
   position: absolute;
   top: -5px;
   left: 150px;
+  &:hover{
+    
+    opacity: 0;
+  }
+ 
 }
+.admin-photo-toogle{
+ 
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 10px;
+  border: 2px solid #00A896;
+  position: absolute;
+  top: -5px;
+  left: 150px;
+  background-color: #0e0f0f;
+  color: #ffffff;
+  z-index: -1;
+ 
+}
+
+
+
+
 .admin-photo-big{
   width: 720px;
   height: 700px;
@@ -224,6 +248,8 @@
   z-index: 1000;
   
 }
+
+
 
   
 
@@ -424,6 +450,226 @@
     box-shadow: none;
   }
 }
+/* ============================================
+   Aucun résultat de recherche
+   ============================================ */
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #9ca3af;
+
+  svg {
+    width: 56px;
+    height: 56px;
+    color: #0ae1cc;
+    opacity: 0.6;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #6b7280;
+
+    strong {
+      color: #00A896;
+    }
+  }
+}
+
+/* ============================================
+   Grille des cards fournisseurs
+   ============================================ */
+.fournisseur-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  background-color: #f1f8f0;
+}
+
+/* ============================================
+   Card fournisseur
+   ============================================ */
+.fournisseur-card {
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 168, 150, 0.1);
+  border: 1px solid rgba(0, 168, 150, 0.15);
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 168, 150, 0.22);
+    border-color: #0ae1cc;
+  }
+}
+
+/* Bannière supérieure */
+.card-banner {
+  position: relative;
+  height: 90px;
+  background: linear-gradient(135deg, #0ae1cc 0%, #00A896 60%, #007a6e 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 1.2rem 0 1.2rem;
+}
+
+/* Avatar circulaire chevauchant la bannière */
+.card-avatar {
+  position: absolute;
+  bottom: -32px;
+  left: 1.2rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 168, 150, 0.35);
+  background: #e8fdfb;
+  overflow: hidden;
+
+  .fournisseur-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  &:hover {
+    height: 100px;
+    width: 100px;
+    padding: 10px;
+    bottom: -35px;
+    transform: scale(2) translateX(30px);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  }
+}
+
+/* Badge spécialité */
+.card-specialite-badge {
+  margin-left: auto;
+  margin-bottom: 0.6rem;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+/* Corps de la card */
+.card-body {
+  padding: 2.8rem 1.2rem 1.2rem 1.2rem;
+}
+
+.fournisseur-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+/* Liste des infos */
+.card-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.2rem;
+}
+
+.card-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.info-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(10, 225, 204, 0.15) 0%, rgba(0, 168, 150, 0.15) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: #00A896;
+    stroke: #00A896;
+  }
+}
+
+.info-text {
+  font-size: 0.8rem;
+  color: #4b5563;
+  font-family: 'Courier New', Courier, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Boutons d'action */
+.card-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.btn-edit, .btn-delete {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #0ae1cc 0%, #00A896 100%);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 168, 150, 0.3);
+
+  &:hover {
+    box-shadow: 0 6px 18px rgba(0, 168, 150, 0.45);
+    transform: translateY(-1px);
+  }
+}
+
+.btn-delete {
+  background: #fff0f0;
+  color: #e53e3e;
+  border: 1px solid rgba(229, 62, 62, 0.2);
+
+  &:hover {
+    background: #e53e3e;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(229, 62, 62, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
 
 
 html {
@@ -601,20 +847,54 @@ html {
   }
   .ajouterfournisseur-delete{
     left: 60%;
-  } 
+  }
   .ajouterfournisseur-button{
     font-size: 0.6rem;
     width: 110px;
-    
   }
- .search-input{
+  .search-input{
     font-size: 0.6rem;
     height: 40px;
     &::placeholder {
       font-size: 0.6rem;
     }
   }
- 
+
+  /* Fournisseur grid — 1 colonne sur mobile */
+  .fournisseur-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Sections padding réduit */
+  .page-section {
+    padding: 2rem 1rem;
+  }
+
+  /* Searchcontent en colonne sur mobile */
+  .searchcontent {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+
+    .search-input { width: 100%; }
+    svg { display: none; }
+  }
+
+  /* Form ajout fournisseur */
+  .ajouterfournisseur-form {
+    padding: 0.5rem;
+  }
+
+  .ajouterfournisseur-input {
+    font-size: 0.75rem;
+  }
+
+  /* Section header fixe en hauteur */
+  .section-header {
+    height: auto;
+    min-height: 80px;
+  }
 }
 
 /* Small Mobile Devices */
@@ -677,6 +957,37 @@ html {
   .ajouterfournisseur-delete{
     left: 50%;
   }
+
+  /* Fournisseur grid — 1 colonne */
+  .fournisseur-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .card-banner {
+    height: 75px;
+  }
+
+  .card-avatar {
+    width: 54px;
+    height: 54px;
+    bottom: -27px;
+  }
+
+  .page-section {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .section-header {
+    height: auto;
+    min-height: 70px;
+    padding-left: 12px;
+  }
+
+  .btn-edit, .btn-delete {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.5rem;
+  }
 }
 
 /* Tablet Devices */
@@ -692,6 +1003,21 @@ html {
   .main-content {
     margin-left: 4rem;
     width: calc(100% - 4rem);
+  }
+
+  /* Fournisseur grid — 2 colonnes sur tablette */
+  .fournisseur-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .page-section {
+    padding: 2rem 1.25rem;
+  }
+
+  .section-header {
+    height: auto;
+    min-height: 90px;
   }
 }
 
@@ -951,3 +1277,49 @@ html {
 }
 
 
+/* Password div wrapper */
+.passworddiv {
+  position: relative;
+  width: 100%;
+
+  .password-field {
+    padding-right: 3rem;
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-30%);
+  width: 2rem;
+  height: 2rem;
+  background: rgba(0, 168, 150, 0.08);
+  border: none;
+  color: #00A896;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke: #00A896;
+    stroke-width: 1.5;
+  }
+
+  &:hover {
+    background: rgba(0, 168, 150, 0.18);
+    color: #007a6e;
+    transform: translateY(-30%) scale(1.1);
+
+    svg { stroke: #007a6e; }
+  }
+
+  &:active {
+    transform: translateY(-30%) scale(0.95);
+  }
+}

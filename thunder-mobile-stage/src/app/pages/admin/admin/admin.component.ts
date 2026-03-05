@@ -1,11 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
-import Swal from 'sweetalert2';
-import { ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AlertController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-admin',
@@ -14,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class AdminComponent  implements OnInit {
      isdisabled:boolean=false;
-    
+
      errornum:number=0;
      usernameOrEmail: string = '';
      password: string = '';
@@ -24,9 +20,10 @@ export class AdminComponent  implements OnInit {
      hidePassword: boolean = true;
     constructor(
        private http: HttpClient,
-       
        private router: Router,
-       private route: ActivatedRoute
+       private route: ActivatedRoute,
+       private alertCtrl: AlertController,
+       private toastCtrl: ToastController
      ) {
        this.route.queryParams.subscribe(params => {
          this.usernameOrEmail = params['email'] || '';
@@ -42,7 +39,7 @@ export class AdminComponent  implements OnInit {
     // Initialization can be added here if needed
   }
 
-  onSubmit() {
+  async onSubmit() {
     // Reset errors
     this.usernameOrEmailError = '';
     this.passwordError = '';
@@ -61,25 +58,34 @@ export class AdminComponent  implements OnInit {
       usernameOrEmail: this.usernameOrEmail,
       password: this.password,
     };
-    console.log('Payload envoyé :', data);
-    localStorage.setItem('email',this.usernameOrEmail);
+    localStorage.setItem('email', this.usernameOrEmail);
     this.http.post('http://localhost:8000/api/adminlogin', data).subscribe({
-      next: (response: any) => {
-        console.log(response)
+      next: async (response: any) => {
         localStorage.setItem('auth_token', response.data?.token);
-        alert("Connexion réussie")
-        console.log('Connexion réussie:', response);
-        this.router.navigate(['/admindashboard']);
+        const toast = await this.toastCtrl.create({
+          message: '✅ Connexion réussie ! Bienvenue.',
+          duration: 1800,
+          color: 'success',
+          position: 'top',
+          cssClass: 'custom-toast'
+        });
+        await toast.present();
+        setTimeout(() => this.router.navigate(['/admindashboard']), 1800);
       },
-      error: (error) => {
-        console.error('Erreur de connexion:', error);
-        this.errornum=this.errornum+1;
-        alert('erreur de conexion')
-      
-        
+      error: async (error) => {
+        this.errornum = this.errornum + 1;
+        if (this.errornum >= 3) {
+          this.disableFor24h();
+        }
+        const alert = await this.alertCtrl.create({
+          header: 'Erreur de connexion',
+          message: error?.error?.message || 'Email ou mot de passe incorrect.',
+          cssClass: 'custom-alert-error',
+          buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
       }
     });
-    
   }
     togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;

@@ -117,6 +117,7 @@ public function ajouterfournisseur(Request $request){
         "password" => "required",
         "adresse" => "required",
         "telephone" => "required",
+        "photo"=> "required",
         "specialite" => "required",
         "code_commercial" => "required",
     ]);
@@ -126,6 +127,7 @@ public function ajouterfournisseur(Request $request){
         "password"=> Hash::make($validated["password"]),
         "adresse"=> $validated["adresse"],
         "telephone"=> $validated["telephone"],
+        "photo"=> $validated["photo"],
         "role"=> "fournisseur"
     ]);
     $fournisseur= Fournisseur::create([
@@ -140,6 +142,67 @@ public function ajouterfournisseur(Request $request){
         "message" => "Fournisseur created successfully",
         "data"    => $fournisseur
     ], 201);}
+    public function getallfournisseurs()
+{
+    $fournisseurs = Fournisseur::with('user')
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'fournisseur');
+        })
+        ->get();
 
+    return response()->json([
+        "status"  => "success",
+        "message" => "Fournisseurs found",
+        "data"    => $fournisseurs,
+    ], 200);
+}
+public function deletefournisseurs(Request $request){
+    $fournisseurs = User::findOrFail($request->id);
+    $fournisseurs->delete();
+    return response()->json([
+        "status"  => "success",
+        "message" => "Fournisseur deleted",
+        "data"    => $fournisseurs,
+    ], 200);
+
+
+}
+public function updatefournisseurs(Request $request)
+{
+    $fournisseur = Fournisseur::findOrFail($request->id);
+    $user = $fournisseur->user;
+
+    // mise à jour table users
+    $userData = $request->only([
+        'name',
+        'email',
+        'photo',
+        'adresse',
+        'telephone',
+        'password',
+        
+
+
+    ]);
+
+    if (!empty($userData)) {
+        $user->update($userData);
+    }
+
+    // mise à jour table fournisseurs
+    $fournisseurData = $request->only([
+        'code_commercial',
+        'specialite',
+    ]);
+
+    if (!empty($fournisseurData)) {
+        $fournisseur->update($fournisseurData);
+    }
+
+    return response()->json([
+        'message' => 'Fournisseur modifié',
+        'fournisseur' => $fournisseur->load('user')
+    ]);
+}
 
 }

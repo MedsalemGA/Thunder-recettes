@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +8,10 @@ export class AdminserviceService {
   alertMessage = "";
   color = "";
 
-  constructor() {
+  constructor(private http: HttpClient) {
 
    }
-   tooglepassword(hidePassword: boolean){
-    hidePassword = !hidePassword;
-  }
+  
   ontype(event: KeyboardEvent,password:string)
   {
     
@@ -52,4 +50,17 @@ export class AdminserviceService {
     }
     return false;
   }
+  findfournisseur(query:string){
+    return this.http.get('http://localhost:8000/api/chercherfournisseurs?query='+query);
+  }
+  getallfournisseurs():any{
+   return  this.http.get('http://localhost:8000/api/getallforunisseur');
+  }
+  deletefournisseur(id:number){
+    return this.http.delete('http://localhost:8000/api/deletefournisseur?id='+id);
+  }
+  updatefournisseur(id,data:any){
+    return this.http.patch('http://localhost:8000/api/updatefournisseur?id='+id,data);
+  }
+  
 }

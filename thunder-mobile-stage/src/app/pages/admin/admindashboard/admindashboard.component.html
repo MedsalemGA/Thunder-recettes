@@ -1,6 +1,8 @@
 <div class="bigadminphoto">
-      <button (click)="showimg()"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo-big"></button>
+      <button (click)="showimg('admin-photo-big')"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo-big"></button>
     </div>
+    
+   
 <!-- Admin Layout Container -->
 <div class="admin-layout">
   <!-- Sidebar -->
@@ -73,7 +75,21 @@
         <div class="admin-details" [class.visible]="isSidebarOpen">
           <span class="admin-name">{{ adminName }}</span>
           <span class="admin-role">Administrator</span>
-          <button (click)="showimg()"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo"></button>
+          <button (click)="showimg('admin-photo-big')"><img src="{{adminPhoto}}"alt="Admin Photo" class="admin-photo"></button>
+             <svg xmlns="http://www.w3.org/2000/svg"  class="admin-photo-toogle"
+    
+     stroke="currentColor" 
+     stroke-width="1.5" 
+     stroke-linecap="round" 
+     stroke-linejoin="round" 
+     viewBox="0 0 24 24">
+<g transform="scale(0.6) translate(8 8)">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+  </g>
+  <circle cx="12" cy="12" r="1.5"/>
+
+</svg>
+        
         </div>
       </div>
 
@@ -105,8 +121,8 @@
       <p class="section-subtitle">Gérez vos fournisseurs et partenaires</p>
     </div>
     <div class="content-card">
-      <div class="searchcontent">
-           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input">
+      <div class="searchcontent" *ngIf="!isshowajouterfournisseur">
+           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input" (keyup)="rechercherFournisseur($event.target.value)" [(ngModel)]="query">
           <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 30 30"style="position: relative; left: -40px; top: 0px;">
 <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
 </svg>
@@ -115,24 +131,37 @@
       <div class="ajouterfournisseur">
         
         <div class="ajouterfournisseur-form" *ngIf="isshowajouterfournisseur">
-          <input type="text" placeholder="Nom exemple : Mohamed Amine..." class="ajouterfournisseur-input" [(ngModel)]="name" name="name" required min="3" max="25" >
+          <input type="text" placeholder="Nom exemple : Mohamed Amine..." class="ajouterfournisseur-input" [(ngModel)]="fournisseur_name" name="name" required min="3" max="25" >
           
           <input type="text" placeholder="Email exemple : mohamedamine@gmail.com..." class="ajouterfournisseur-input"  [(ngModel)]="email_fournisseur" name="email" required >  
           <div class="passworddiv">
             <input [type]="hidePassword ? 'text' : 'password'" placeholder="Mot de passe ******" class="ajouterfournisseur-input"   [(ngModel)]="password" name="password" (keyup)="passwordrule($event,password,alertMessage,color)">
             <button
                 type="button"
+               
                 (click)="togglePasswordVisibility()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition">
+                class="password-toggle">
                 <!-- Eye Icon (Show) -->
-                <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg"  *ngIf="hidePassword"
+     width="24" height="24" 
+     fill="none" 
+     stroke="currentColor" 
+     stroke-width="2" 
+     stroke-linecap="round" 
+     stroke-linejoin="round" 
+     viewBox="0 0 24 24">
+
+  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+  <circle cx="12" cy="12" r="3"/>
+
+</svg>
                 <!-- Eye Slash Icon (Hide) -->
-                <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg"  *ngIf="!hidePassword" width="24" height="24" fill="none"  stroke="currentColor" stroke-width="2"  stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"> <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94"/>
+  <path d="M1 1l22 22"/>
+  <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.77 21.77 0 0 1-3.1 4.27"/>
+  <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+
+</svg>
               </button>
           </div>
           
@@ -140,8 +169,9 @@
           <input type="text" placeholder="Tél exemple : +212612345678..." class="ajouterfournisseur-input" [(ngModel)]="telephone" name="telephone">
           <input type="text" placeholder="Spécialité expemple : Transport, Logistique, ..." class="ajouterfournisseur-input" [(ngModel)]="specialite" name="specialite">
           <input type="text" placeholder="Code commercial expemple : 123456..." class="ajouterfournisseur-input" [(ngModel)]="code_commercial" name="code_commercial">
-          <input type="file" placeholder="Photo.." class="ajouterfournisseur-input">
-          <button class="ajouterfournisseur-submit" (click)="ajouterfournisseur()" [disabled]="color!=='green'">Ajouter</button>
+          <input type="text" placeholder="Photo url ..." class="ajouterfournisseur-input" [(ngModel)]="fournisseur_photo">
+          <button class="ajouterfournisseur-submit" (click)="ajouterfournisseur()" [disabled]="color!=='green'" *ngIf="!showmodifyfournisseur">Ajouter</button>
+          <button class="ajouterfournisseur-submit"  (click)="modifyfournisseur(useridtemp)" *ngIf="showmodifyfournisseur">Modifier</button>
           <button class="ajouterfournisseur-delete" (click)="showajouterfournisseur()" *ngIf="isshowajouterfournisseur">X</button>
         </div>
           <p *ngIf="color=='red'" class="text-red-500" id="message3">{{ alertMessage }}</p>
@@ -149,19 +179,90 @@
           <p *ngIf="color=='green'" class="text-green-500" id="message1">{{ alertMessage }}</p>
          
       </div>
-      <!--<div class="fournisseur-card">
-        <div class="fournisseur-info">
-          <img src="{{fournisseur.photo}}" alt="Fournisseur Photo" class="fournisseur-photo">
-          <div class="fournisseur-details">
-            <h3 class="fournisseur-name">{{fournisseur.name}}</h3>
-            <p class="fournisseur-email">{{fournisseur.email}}</p>
-            <p class="fournisseur-adresse">{{fournisseur.adresse}}</p>
-            <p class="fournisseur-code">{{fournisseur.code_commercial}}</p>
-            <p class="fournisseur-telephone">{{fournisseur.telephone}}</p>
-            <p class="fournisseur-specialité">{{fournisseur.specialité}}</p>
+      
+      <!-- Message aucun résultat -->
+      <div class="no-results" *ngIf="!isshowajouterfournisseur && restFournisseurs.length === 0 && query.trim() !== ''">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+        </svg>
+        <p>Aucun fournisseur trouvé pour <strong>"{{ query }}"</strong></p>
+      </div>
+
+      <!-- Grille des cards fournisseurs -->
+      <div class="fournisseur-grid" *ngIf="!isshowajouterfournisseur && restFournisseurs.length > 0">
+
+        <div class="fournisseur-card" *ngFor="let fournisseur of restFournisseurs">
+          <!-- Bannière supérieure avec avatar -->
+          <div class="card-banner">
+            <div class="card-avatar">
+            <img src="{{fournisseur.user.photo}}" alt="Fournisseur Photo" class="fournisseur-photo">
+            </div>
+            <span class="card-specialite-badge">{{fournisseur.specialite}}</span>
           </div>
-        </div>-->
-   
+
+          <!-- Corps de la card -->
+          <div class="card-body">
+            <h3 class="fournisseur-name">{{fournisseur.user.name}}</h3>
+
+            <div class="card-info-list">
+              <!-- Email -->
+              <div class="card-info-item">
+                <div class="info-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <span class="info-text">{{fournisseur.user.email}}</span>
+              </div>
+              <!-- Adresse -->
+              <div class="card-info-item">
+                <div class="info-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </div>
+                <span class="info-text">{{fournisseur.user.adresse}}</span>
+              </div>
+              <!-- Téléphone -->
+              <div class="card-info-item">
+                <div class="info-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                </div>
+                <span class="info-text">+216:{{fournisseur.user.telephone}}</span>
+              </div>
+              <!-- Code commercial -->
+              <div class="card-info-item">
+                <div class="info-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                  </svg>
+                </div>
+                <span class="info-text">Code :{{fournisseur.code_commercial}}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card-actions">
+              <button class="btn-edit" (click)="showmodifyformfournisseur(fournisseur.id)" >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+              </button>
+              <button class="btn-delete" (click)="deletefournisseur(fournisseur.user.id)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 

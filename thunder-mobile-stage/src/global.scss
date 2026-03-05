@@ -33,18 +33,54 @@ html {
 }
 
 /* =============================================
-   SweetAlert2 — Fix z-index global (Ionic)
+   Ionic AlertController — Theme teal
    ============================================= */
-.swal2-container {
-  z-index: 999999 !important;
-  position: fixed !important;
+
+/* Alert de base */
+.custom-alert-error .alert-wrapper,
+.custom-alert-warning .alert-wrapper {
+  border-radius: 16px !important;
+  overflow: hidden;
 }
 
-.swal2-backdrop-show {
-  z-index: 999998 !important;
+.custom-alert-error .alert-head,
+.custom-alert-warning .alert-head {
+  background: linear-gradient(135deg, #0ae1cc, #00A896) !important;
+  padding: 18px 20px !important;
 }
 
-.swal2-popup {
-  z-index: 999999 !important;
-  position: relative !important;
+.custom-alert-error .alert-title,
+.custom-alert-warning .alert-title {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+}
+
+.custom-alert-error .alert-message,
+.custom-alert-warning .alert-message {
+  color: #374151 !important;
+  font-size: 0.95rem !important;
+  padding: 16px 20px !important;
+}
+
+/* Bouton teal (OK / Annuler) */
+.alert-btn-teal {
+  color: #00A896 !important;
+  font-weight: 600 !important;
+}
+
+/* Bouton danger (Supprimer) */
+.alert-btn-danger {
+  color: #e53e3e !important;
+  font-weight: 700 !important;
+}
+
+/* =============================================
+   Ionic ToastController — Theme teal
+   ============================================= */
+.custom-toast {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(0, 168, 150, 0.35);
+  font-weight: 600;
+  font-size: 0.95rem;
 }
