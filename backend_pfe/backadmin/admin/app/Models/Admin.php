@@ -16,6 +16,12 @@ class Admin extends Authenticatable
 
     protected $fillable = [
         'user_id',
+        'login_otp',
+        'login_otp_expires_at',
+    ];
+
+    protected $casts = [
+        'login_otp_expires_at' => 'datetime',
     ];
 
     protected $hidden = [

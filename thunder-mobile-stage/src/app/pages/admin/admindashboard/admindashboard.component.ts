@@ -7,18 +7,20 @@ import { FormsModule } from '@angular/forms';
 import { AdminserviceService } from 'src/app/services/adminservice/adminservice.service';
 import { AlertController, ToastController } from '@ionic/angular';
 
-
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admindashboard',
   templateUrl: './admindashboard.component.html',
   styleUrls: ['./admindashboard.component.scss'],
-  imports: [NgIf,ReactiveFormsModule,FormsModule,NgFor],
+  imports: [NgIf,ReactiveFormsModule,FormsModule,NgFor,CommonModule],
   standalone: true,
   
 })
 
+
 export class AdmindashboardComponent implements OnInit, OnDestroy {
+  
   restFournisseurs:any[]=[];
   isSidebarOpen = false;
   adminName ='';
@@ -42,7 +44,28 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   showmodifyfournisseur=false;
   useridtemp=0;
   query="";
-  private observer!: IntersectionObserver;
+
+  // ── Recettes ───────────────────────────────────────────────────────────
+  recettes: any[] = [
+    
+  ];
+  restRecettes: any[] = [];
+  queryRecette = '';
+  showRecetteForm = false;
+  showModifyRecette = false;
+  showRecetteDetail = false;
+  selectedRecette: any = null;
+  recetteIdTemp = 0;
+
+  // Champs formulaire recette
+  recette_nom = '';
+  recette_description = '';
+  recette_image = '';
+  recette_prix: number | null = null;
+  recette_categorie = '';
+  recette_temps_preparation: number | null = null;
+  recette_nombre_personnes: number | null = null;
+
 
   constructor(
     private http: HttpClient,
@@ -54,20 +77,14 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    
-    this.initScrollSpy();
-    
     this.email = localStorage.getItem('email') || '';
-   this.getadmininfo();
-   this.showfournisseurs();
-   
+    this.getadmininfo();
+    this.showfournisseurs();
+    this.getallrecettes();
+    this.restRecettes = [...this.recettes];
   }
 
-  ngOnDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  }
+  ngOnDestroy() {}
   
 
   toggleSidebar() {
@@ -133,6 +150,19 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     }
   );
 }
+getallrecettes(){
+  this.adminservice.showallrecettes().subscribe(
+    (res: any) => {
+      this.recettes = res.data;
+      // Réappliquer le filtre actuel après rechargement
+      this.rechercherRecette(this.queryRecette);
+    },
+    (error) => {
+      this.recettes = [];
+      this.restRecettes = [];
+    }
+  );
+}
   showajouterfournisseur(){
     this.isshowajouterfournisseur = !this.isshowajouterfournisseur;
     this.alertMessage = "";
@@ -185,35 +215,17 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
       }
     });
   }
-  scrollTo(sectionId: string) {
-    const el = document.getElementById(sectionId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  navigateTo(sectionId: string) {
+    this.activeSection = sectionId;
+    // Réinitialiser le formulaire fournisseur si on quitte la section
+    if (sectionId !== 'fournisseurs') {
+      this.isshowajouterfournisseur = false;
+      this.showmodifyfournisseur = false;
     }
-    // Fermer la sidebar sur mobile après le clic
+    // Fermer la sidebar sur mobile après navigation
     if (window.innerWidth < 768) {
       this.isSidebarOpen = false;
     }
-  }
-
-  
-
-  private initScrollSpy() {
-    const sections = ['fournisseurs', 'recettes', 'messages', 'configuration'];
-    const options = { root: null, rootMargin: '-40% 0px -55% 0px', threshold: 0 };
-
-    this.observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          this.activeSection = entry.target.id;
-        }
-      });
-    }, options);
-
-    sections.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) this.observer.observe(el);
-    });
   }
   getadmininfo(){
     
@@ -373,22 +385,189 @@ async modifyfournisseur(id:number){
   });
 }
 rechercherFournisseur(query: string) {
-  
-
   const value = query.toLowerCase().trim();
-  
   if (!value) {
     this.restFournisseurs = this.fournisseurs;
     return;
   }
-
-  this.restFournisseurs = this.fournisseurs.filter(f => 
+  this.restFournisseurs = this.fournisseurs.filter(f =>
     f.user.name.toLowerCase().includes(value) ||
     f.user.email.toLowerCase().includes(value) ||
     f.code_commercial.toLowerCase().includes(value)
   );
-
 }
 
+  // ── Recettes ──────────────────────────────────────────────────────────
+  ngOnInitRecettes() {
+    this.restRecettes = [...this.recettes];
+  }
 
+  rechercherRecette(query: string) {
+    const value = query.toLowerCase().trim();
+    if (!value) { this.restRecettes = [...this.recettes]; return; }
+    this.restRecettes = this.recettes.filter(r =>
+      r.nom.toLowerCase().includes(value) ||
+      r.categorie.toLowerCase().includes(value) ||
+      r.description.toLowerCase().includes(value)
+    );
+  }
+
+  openRecetteDetail(recette: any) {
+    this.selectedRecette = recette;
+    this.showRecetteDetail = true;
+  }
+
+  closeRecetteDetail() {
+    this.showRecetteDetail = false;
+    this.selectedRecette = null;
+  }
+
+  openAjouterRecette() {
+    this.showRecetteForm = true;
+    this.showModifyRecette = false;
+    this.recette_nom = '';
+    this.recette_description = '';
+    this.recette_image = '';
+    this.recette_prix = null;
+    this.recette_categorie = '';
+  }
+
+  openModifyRecette(recette: any) {
+    this.showModifyRecette = true;
+    this.showRecetteForm = true;
+    this.recetteIdTemp = recette.id;
+    this.recette_nom = recette.nom;
+    this.recette_description = recette.description;
+    this.recette_image = recette.image;
+    this.recette_prix = recette.prix;
+    this.recette_categorie = recette.categorie;
+  }
+
+  closeRecetteForm() {
+    this.showRecetteForm = false;
+    this.showModifyRecette = false;
+  }
+
+  async ajouterRecette() {
+    if (!this.recette_nom || !this.recette_description || !this.recette_prix || !this.recette_categorie) {
+      const alert = await this.alertCtrl.create({
+        header: 'Champs manquants',
+        message: 'Veuillez remplir tous les champs obligatoires.',
+        cssClass: 'custom-alert-warning',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
+      return;
+    }
+    const data = {
+      nom: this.recette_nom,
+      description: this.recette_description,
+      image: this.recette_image,
+      prix: this.recette_prix,
+      categorie: this.recette_categorie,
+      temps_preparation: this.recette_temps_preparation,
+      nombre_personnes: this.recette_nombre_personnes
+    };
+    this.adminservice.ajouterrecettes(data).subscribe({
+      next: async () => {
+        this.getallrecettes();
+        this.closeRecetteForm();
+        const toast = await this.toastCtrl.create({
+          message: '✅ Recette ajoutée avec succès.',
+          duration: 2500,
+          color: 'success',
+          position: 'top',
+          cssClass: 'custom-toast'
+        });
+        await toast.present();
+      },
+      error: async (error) => {
+        const alert = await this.alertCtrl.create({
+          header: 'Erreur',
+          message: error?.error?.message || 'Erreur lors de l\'ajout de la recette.',
+          cssClass: 'custom-alert-error',
+          buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
+      }
+    });
+
+  }
+
+  async modifyRecette(id:number){
+    const data:any = {};
+  if(this.recette_nom!=="") data['name']=this.recette_nom;
+  if(this.recette_description!=="") data['description']=this.recette_description;
+  if(this.recette_image!=="") data['image']=this.recette_image;
+  if(this.recette_prix!==null) data['prix']=this.recette_prix;
+  if(this.recette_categorie!=="") data['categorie']=this.recette_categorie;
+  if(this.recette_temps_preparation!==null) data['temps_preparation']=this.recette_temps_preparation;
+  if(this.recette_nombre_personnes!==null) data['nombre_personnes']=this.recette_nombre_personnes;
+ 
+
+  this.adminservice.updaterecettes(id,data).subscribe({
+    next: async (response:any) => {
+      
+      this.getallrecettes();
+      this.closeRecetteForm();
+      const toast = await this.toastCtrl.create({
+        message: '✅ Recette modifié avec succès.',
+        duration: 2500,
+        color: 'success',
+        position: 'top',
+        cssClass: 'custom-toast'
+      });
+      await toast.present();
+    },
+    error: async (error) => {
+      const alert = await this.alertCtrl.create({
+        header: 'Erreur',
+        message: error?.error?.message || 'Erreur lors de la modification du recette.',
+        cssClass: 'custom-alert-error',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
+    }
+  });
+}
+
+  async deleterecette(id:number){
+  const confirm = await this.alertCtrl.create({
+    header: 'Confirmer la suppression',
+    message: 'Voulez-vous vraiment supprimer cette recetter ?',
+    cssClass: 'custom-alert-warning',
+    buttons: [
+      { text: 'Annuler', role: 'cancel', cssClass: 'alert-btn-teal' },
+      {
+        text: 'Oui, supprimer',
+        cssClass: 'alert-btn-danger',
+        handler: () => {
+          this.adminservice.deleterecettes(id).subscribe({
+            next: async () => {
+              this.getallrecettes();
+              const toast = await this.toastCtrl.create({
+                message: '🗑️ Recette supprimée avec succès.',
+                duration: 2000,
+                color: 'success',
+                position: 'top',
+                cssClass: 'custom-toast'
+              });
+              await toast.present();
+            },
+            error: async (error) => {
+              const alert = await this.alertCtrl.create({
+                header: 'Erreur',
+                message: error?.error?.message || 'Erreur lors de la suppression du recette.',
+                cssClass: 'custom-alert-error',
+                buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+              });
+              await alert.present();
+            }
+          });
+        }
+      }
+    ]
+  });
+  await confirm.present();
+}
 }

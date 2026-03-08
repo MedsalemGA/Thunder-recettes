@@ -62,5 +62,17 @@ export class AdminserviceService {
   updatefournisseur(id,data:any){
     return this.http.patch('http://localhost:8000/api/updatefournisseur?id='+id,data);
   }
+  showallrecettes(){
+    return this.http.get('http://localhost:8000/api/getallrecettes');
+  }
+  ajouterrecettes(data:any){
+    return this.http.post('http://localhost:8000/api/ajouterrecettes',data);
+  }
+  updaterecettes(id:number,data:any){
+    return this.http.patch('http://localhost:8000/api/updaterecettes?id='+id,data);
+  }
+  deleterecettes(id:number){
+    return this.http.delete('http://localhost:8000/api/deleterecettes?id='+id);
+  }
   
 }
