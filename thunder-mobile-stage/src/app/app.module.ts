@@ -15,7 +15,6 @@ import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { NativeGeocoder } from '@awesome-cordova-plugins/native-geocoder/ngx';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CodeInputModule } from 'angular-code-input';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { environment } from '../environments/environment';
 
@@ -45,6 +44,7 @@ import { Deeplinks } from '@awesome-cordova-plugins/deeplinks/ngx';
 import { LocationAccuracy } from "@awesome-cordova-plugins/location-accuracy/ngx";
 import { AdminComponent } from './pages/admin/admin/admin.component';
 
+
 // Note we need a separate function as it's required
 // by the AOT compiler.
 
@@ -64,9 +64,6 @@ export function createTranslateLoader(http: HttpClient) {
     FormsModule,
     HttpClientModule,
     SlickCarouselModule,
-    CodeInputModule.forRoot({
-      codeLength: 6,
-    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

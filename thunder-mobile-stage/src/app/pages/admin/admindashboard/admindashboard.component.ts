@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 export class AdmindashboardComponent implements OnInit, OnDestroy {
   
   restFournisseurs:any[]=[];
+  isLoading = false;
   isSidebarOpen = false;
   adminName ='';
   activeSection = 'fournisseurs';
@@ -65,6 +66,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   recette_categorie = '';
   recette_temps_preparation: number | null = null;
   recette_nombre_personnes: number | null = null;
+  recette_ingredients: { nom: string; quantite: string }[] = [];
 
 
   constructor(
@@ -138,28 +140,32 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
 
   }
   showfournisseurs(){
+  this.isLoading = true;
   this.adminservice.getallfournisseurs().subscribe(
     (res: any) => {
       this.fournisseurs = res.data;
-      // Réappliquer le filtre actuel après rechargement
       this.rechercherFournisseur(this.query);
+      this.isLoading = false;
     },
-    (error) => {
+    () => {
       this.fournisseurs = [];
       this.restFournisseurs = [];
+      this.isLoading = false;
     }
   );
 }
 getallrecettes(){
+  this.isLoading = true;
   this.adminservice.showallrecettes().subscribe(
     (res: any) => {
       this.recettes = res.data;
-      // Réappliquer le filtre actuel après rechargement
       this.rechercherRecette(this.queryRecette);
+      this.isLoading = false;
     },
-    (error) => {
+    () => {
       this.recettes = [];
       this.restRecettes = [];
+      this.isLoading = false;
     }
   );
 }
@@ -191,8 +197,10 @@ getallrecettes(){
       return;
     }
 
+    this.isLoading = true;
     this.http.post('http://localhost:8000/api/ajouterfournisseur', {name:this.fournisseur_name,email:this.email_fournisseur,password:this.password,adresse:this.adresse,telephone:this.telephone,specialite:this.specialite,code_commercial:this.code_commercial,photo:this.fournisseur_photo} ).subscribe({
       next: async () => {
+        this.isLoading = false;
         this.isshowajouterfournisseur = false;
         this.showfournisseurs();
         const toast = await this.toastCtrl.create({
@@ -205,6 +213,7 @@ getallrecettes(){
         await toast.present();
       },
       error: async (error) => {
+        this.isLoading = false;
         const alert = await this.alertCtrl.create({
           header: 'Erreur',
           message: error?.error?.message || 'Une erreur est survenue lors de l\'ajout du fournisseur.',
@@ -228,24 +237,24 @@ getallrecettes(){
     }
   }
   getadmininfo(){
-    
-    
-      this.http.post('http://localhost:8000/api/getadmininfo', {email:this.email} ).subscribe({ 
-        next:(response:any)=>{
-          this.adminName = response.data.name;
-          this.adminPhoto = response.data.photo;
-          console.log(this.adminPhoto);
-        },
-        error: async () => {
-          const alert = await this.alertCtrl.create({
-            header: 'Erreur',
-            message: 'Impossible de récupérer les informations de l\'administrateur.',
-            cssClass: 'custom-alert-error',
-            buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
-          });
-          await alert.present();
-        }
-      });
+    this.isLoading = true;
+    this.http.post('http://localhost:8000/api/getadmininfo', {email:this.email} ).subscribe({
+      next:(response:any)=>{
+        this.adminName = response.data.name;
+        this.adminPhoto = response.data.photo;
+        this.isLoading = false;
+      },
+      error: async () => {
+        this.isLoading = false;
+        const alert = await this.alertCtrl.create({
+          header: 'Erreur',
+          message: 'Impossible de récupérer les informations de l\'administrateur.',
+          cssClass: 'custom-alert-error',
+          buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
+      }
+    });
   }
 async logout() {
 
@@ -265,17 +274,13 @@ async logout() {
         text: 'Oui, déconnecter',
         cssClass: 'alert-btn-danger',
         handler: () => {
-
+          this.isLoading = true;
           this.http.post(
             'http://localhost:8000/api/logout',
             {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            }
-          ).subscribe(async (response: any) => {
-
+            { headers: { Authorization: `Bearer ${token}` } }
+          ).subscribe(async () => {
+            this.isLoading = false;
             const toast = await this.toastCtrl.create({
               message: '✅ Déconnexion réussie.',
               duration: 2000,
@@ -283,26 +288,19 @@ async logout() {
               position: 'top',
               cssClass: 'custom-toast'
             });
-
             await toast.present();
-
             localStorage.removeItem('auth_token');
-
             this.router.navigate(['/admin']);
-
           }, async () => {
-
+            this.isLoading = false;
             const alert = await this.alertCtrl.create({
               header: 'Erreur de déconnexion',
               message: 'Une erreur est survenue lors de la déconnexion.',
               cssClass: 'custom-alert-error',
               buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
             });
-
             await alert.present();
-
           });
-
         }
       }
     ]
@@ -321,8 +319,10 @@ async deletefournisseur(id:number){
         text: 'Oui, supprimer',
         cssClass: 'alert-btn-danger',
         handler: () => {
+          this.isLoading = true;
           this.adminservice.deletefournisseur(id).subscribe({
             next: async () => {
+              this.isLoading = false;
               this.showfournisseurs();
               const toast = await this.toastCtrl.create({
                 message: '🗑️ Fournisseur supprimé avec succès.',
@@ -334,6 +334,7 @@ async deletefournisseur(id:number){
               await toast.present();
             },
             error: async (error) => {
+              this.isLoading = false;
               const alert = await this.alertCtrl.create({
                 header: 'Erreur',
                 message: error?.error?.message || 'Erreur lors de la suppression du fournisseur.',
@@ -360,8 +361,10 @@ async modifyfournisseur(id:number){
   if(this.code_commercial!=="") data['code_commercial']=this.code_commercial;
   if(this.fournisseur_photo!=="") data['photo']=this.fournisseur_photo;
 
+  this.isLoading = true;
   this.adminservice.updatefournisseur(id,data).subscribe({
     next: async () => {
+      this.isLoading = false;
       this.showajouterfournisseur();
       this.showfournisseurs();
       const toast = await this.toastCtrl.create({
@@ -374,6 +377,7 @@ async modifyfournisseur(id:number){
       await toast.present();
     },
     error: async (error) => {
+      this.isLoading = false;
       const alert = await this.alertCtrl.create({
         header: 'Erreur',
         message: error?.error?.message || 'Erreur lors de la modification du fournisseur.',
@@ -422,6 +426,14 @@ rechercherFournisseur(query: string) {
     this.selectedRecette = null;
   }
 
+  ajouterIngredient() {
+    this.recette_ingredients.push({ nom: '', quantite: '' });
+  }
+
+  supprimerIngredient(index: number) {
+    this.recette_ingredients.splice(index, 1);
+  }
+
   openAjouterRecette() {
     this.showRecetteForm = true;
     this.showModifyRecette = false;
@@ -430,6 +442,9 @@ rechercherFournisseur(query: string) {
     this.recette_image = '';
     this.recette_prix = null;
     this.recette_categorie = '';
+    this.recette_temps_preparation = null;
+    this.recette_nombre_personnes = null;
+    this.recette_ingredients = [];
   }
 
   openModifyRecette(recette: any) {
@@ -441,6 +456,9 @@ rechercherFournisseur(query: string) {
     this.recette_image = recette.image;
     this.recette_prix = recette.prix;
     this.recette_categorie = recette.categorie;
+    this.recette_temps_preparation = recette.temps_preparation ?? null;
+    this.recette_nombre_personnes = recette.nombre_personnes ?? null;
+    this.recette_ingredients = recette.ingredients ? JSON.parse(JSON.stringify(recette.ingredients)) : [];
   }
 
   closeRecetteForm() {
@@ -466,10 +484,13 @@ rechercherFournisseur(query: string) {
       prix: this.recette_prix,
       categorie: this.recette_categorie,
       temps_preparation: this.recette_temps_preparation,
-      nombre_personnes: this.recette_nombre_personnes
+      nombre_personnes: this.recette_nombre_personnes,
+      ingredients: this.recette_ingredients.filter(i => i.nom.trim() !== '')
     };
+    this.isLoading = true;
     this.adminservice.ajouterrecettes(data).subscribe({
       next: async () => {
+        this.isLoading = false;
         this.getallrecettes();
         this.closeRecetteForm();
         const toast = await this.toastCtrl.create({
@@ -482,6 +503,7 @@ rechercherFournisseur(query: string) {
         await toast.present();
       },
       error: async (error) => {
+        this.isLoading = false;
         const alert = await this.alertCtrl.create({
           header: 'Erreur',
           message: error?.error?.message || 'Erreur lors de l\'ajout de la recette.',
@@ -496,22 +518,24 @@ rechercherFournisseur(query: string) {
 
   async modifyRecette(id:number){
     const data:any = {};
-  if(this.recette_nom!=="") data['name']=this.recette_nom;
+  if(this.recette_nom!=="") data['nom']=this.recette_nom;
   if(this.recette_description!=="") data['description']=this.recette_description;
   if(this.recette_image!=="") data['image']=this.recette_image;
   if(this.recette_prix!==null) data['prix']=this.recette_prix;
   if(this.recette_categorie!=="") data['categorie']=this.recette_categorie;
   if(this.recette_temps_preparation!==null) data['temps_preparation']=this.recette_temps_preparation;
   if(this.recette_nombre_personnes!==null) data['nombre_personnes']=this.recette_nombre_personnes;
+  data['ingredients'] = this.recette_ingredients.filter(i => i.nom.trim() !== '');
  
 
+  this.isLoading = true;
   this.adminservice.updaterecettes(id,data).subscribe({
-    next: async (response:any) => {
-      
+    next: async () => {
+      this.isLoading = false;
       this.getallrecettes();
       this.closeRecetteForm();
       const toast = await this.toastCtrl.create({
-        message: '✅ Recette modifié avec succès.',
+        message: '✅ Recette modifiée avec succès.',
         duration: 2500,
         color: 'success',
         position: 'top',
@@ -520,9 +544,10 @@ rechercherFournisseur(query: string) {
       await toast.present();
     },
     error: async (error) => {
+      this.isLoading = false;
       const alert = await this.alertCtrl.create({
         header: 'Erreur',
-        message: error?.error?.message || 'Erreur lors de la modification du recette.',
+        message: error?.error?.message || 'Erreur lors de la modification de la recette.',
         cssClass: 'custom-alert-error',
         buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
       });
@@ -542,8 +567,10 @@ rechercherFournisseur(query: string) {
         text: 'Oui, supprimer',
         cssClass: 'alert-btn-danger',
         handler: () => {
+          this.isLoading = true;
           this.adminservice.deleterecettes(id).subscribe({
             next: async () => {
+              this.isLoading = false;
               this.getallrecettes();
               const toast = await this.toastCtrl.create({
                 message: '🗑️ Recette supprimée avec succès.',
@@ -555,9 +582,10 @@ rechercherFournisseur(query: string) {
               await toast.present();
             },
             error: async (error) => {
+              this.isLoading = false;
               const alert = await this.alertCtrl.create({
                 header: 'Erreur',
-                message: error?.error?.message || 'Erreur lors de la suppression du recette.',
+                message: error?.error?.message || 'Erreur lors de la suppression de la recette.',
                 cssClass: 'custom-alert-error',
                 buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
               });

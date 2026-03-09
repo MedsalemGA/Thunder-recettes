@@ -122,7 +122,7 @@
     </div>
     <div class="content-card">
       <div class="searchcontent" *ngIf="!isshowajouterfournisseur">
-           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input" (keyup)="rechercherFournisseur($event.target.value)" [(ngModel)]="query">
+           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input" [(ngModel)]="query" (ngModelChange)="rechercherFournisseur($event)">
           <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 30 30"style="position: relative; left: -40px; top: 0px;">
 <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
 </svg>
@@ -460,6 +460,39 @@
               <input type="number" [(ngModel)]="recette_nombre_personnes" placeholder="Ex: 4" min="1" step="1">
             </div>
           </div>
+
+          <!-- Section Ingrédients -->
+          <div class="ingredients-section">
+            <div class="ingredients-header">
+              <label class="ingredients-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                </svg>
+                Ingrédients
+              </label>
+              <button type="button" class="btn-add-ingredient" (click)="ajouterIngredient()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Ajouter un ingrédient
+              </button>
+            </div>
+            <div class="ingredients-list">
+              <div class="ingredient-row" *ngFor="let ing of recette_ingredients; let i = index">
+                <input type="text" class="ing-input" [(ngModel)]="ing.nom" placeholder="Nom de l'ingrédient">
+                <input type="text" class="ing-input ing-quantite" [(ngModel)]="ing.quantite" placeholder="Quantité (ex: 200g)">
+                <button type="button" class="btn-remove-ingredient" (click)="supprimerIngredient(i)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="ingredients-empty" *ngIf="recette_ingredients.length === 0">
+                Aucun ingrédient ajouté. Cliquez sur « Ajouter un ingrédient ».
+              </p>
+            </div>
+          </div>
         </div>
         <div class="recette-form-footer">
           <button class="btn-cancel" (click)="closeRecetteForm()">Annuler</button>
@@ -484,16 +517,40 @@
         </div>
         <div class="detail-body" *ngIf="selectedRecette">
           <h2 class="detail-title">{{ selectedRecette.nom }}</h2>
-          <p class="detail-desc">{{ selectedRecette.description }}</p>
-          <div class="detail-meta">
-            <span class="detail-prix">{{ selectedRecette.prix | number:'1.2-2' }} DT</span>
-            <button class="btn-edit" (click)="openModifyRecette(selectedRecette); closeRecetteDetail()">
+
+          <!-- Infos rapides -->
+          <div class="detail-info-row">
+            <div class="detail-info-chip">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
-              Modifier
-            </button>
+              <span>{{ selectedRecette.prix | number:'1.2-2' }} DT</span>
+            </div>
+            <div class="detail-info-chip" *ngIf="selectedRecette.temps_preparation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>{{ selectedRecette.temps_preparation }} min</span>
+            </div>
+          </div>
+
+          <!-- Ingrédients -->
+          <div class="detail-ingredients" *ngIf="selectedRecette.ingredients && selectedRecette.ingredients.length > 0">
+            <h4 class="detail-ingredients__title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+              </svg>
+              Ingrédients
+            </h4>
+            <ul class="detail-ingredients__list">
+              <li *ngFor="let ing of selectedRecette.ingredients" class="detail-ingredients__item">
+                <span class="ing-name">{{ ing.nom }}</span>
+                <span class="ing-qty">{{ ing.quantite }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -525,4 +582,14 @@
 
   <!-- Mobile Overlay -->
   <div class="mobile-overlay" [class.active]="isSidebarOpen" (click)="toggleSidebar()"></div>
-</div> 
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     Global Loading Spinner Overlay
+     ═══════════════════════════════════════════════ -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-wrapper">
+    <div class="spinner-ring"></div>
+    <p class="spinner-label">Chargement...</p>
+  </div>
+</div>

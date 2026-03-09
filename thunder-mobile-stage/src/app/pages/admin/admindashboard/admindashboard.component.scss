@@ -1833,6 +1833,180 @@ html {
 }
 
 /* ============================================================
+   Ingredients — Formulaire
+   ============================================================ */
+.ingredients-section {
+  padding: 1rem 0 0;
+  border-top: 1px dashed rgba(0, 168, 150, 0.2);
+  margin-top: 0.5rem;
+}
+
+.ingredients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ingredients-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111827;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: #00A896;
+  }
+}
+
+.btn-add-ingredient {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(10, 225, 204, 0.1);
+  border: 1.5px solid #0ae1cc;
+  border-radius: 8px;
+  color: #00A896;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover { background: rgba(10, 225, 204, 0.2); }
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ingredient-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  .ing-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: border-color 0.2s;
+
+    &:focus { outline: none; border-color: #0ae1cc; }
+
+    &.ing-quantite { flex: 0 0 130px; }
+  }
+
+  .btn-remove-ingredient {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid #fca5a5;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.06);
+    color: #ef4444;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+
+    svg { width: 14px; height: 14px; }
+
+    &:hover { background: rgba(239, 68, 68, 0.15); }
+  }
+}
+
+.ingredients-empty {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  text-align: center;
+  padding: 0.6rem 0;
+  margin: 0;
+}
+
+/* ============================================================
+   Ingredients — Vue Détail
+   ============================================================ */
+.detail-info-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.detail-info-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(10, 225, 204, 0.08);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #00A896;
+
+  svg { width: 15px; height: 15px; stroke: #00A896; }
+}
+
+.detail-ingredients {
+  margin-top: 0.4rem;
+  border-top: 1px dashed rgba(0, 168, 150, 0.2);
+  padding-top: 0.9rem;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.7rem;
+
+    svg { width: 16px; height: 16px; stroke: #00A896; }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.75rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    font-size: 0.85rem;
+
+    .ing-name { font-weight: 500; color: #374151; }
+    .ing-qty {
+      font-weight: 600;
+      color: #00A896;
+      font-size: 0.82rem;
+      background: rgba(10, 225, 204, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+    }
+  }
+}
+
+/* ============================================================
    Responsive recettes
    ============================================================ */
 @media (max-width: 1199px) {
@@ -1850,3 +2024,51 @@ html {
   .recette-form-body .form-grid { grid-template-columns: 1fr; }
 }
 
+/* ============================================================
+   Global Loading Spinner Overlay
+   ============================================================ */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(10, 225, 204, 0.25);
+  border-top-color: #0ae1cc;
+  animation: spinRing 0.75s linear infinite;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-label {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}

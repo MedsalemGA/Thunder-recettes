@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+import { finalize } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,10 +56,14 @@ export class AdminserviceService {
     return this.http.get('http://localhost:8000/api/chercherfournisseurs?query='+query);
   }
   getallfournisseurs():any{
+  
+
    return  this.http.get('http://localhost:8000/api/getallforunisseur');
+   
   }
   deletefournisseur(id:number){
     return this.http.delete('http://localhost:8000/api/deletefournisseur?id='+id);
+
   }
   updatefournisseur(id,data:any){
     return this.http.patch('http://localhost:8000/api/updatefournisseur?id='+id,data);

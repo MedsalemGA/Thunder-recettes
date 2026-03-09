@@ -19,9 +19,8 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
-                 "sweetalert2"
-              
-              ],
+              "sweetalert2"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -38,18 +37,14 @@
             "styles": [
               "node_modules/slick-carousel/slick/slick.scss",
               "node_modules/slick-carousel/slick/slick-theme.scss",
-              "node_modules/flag-icon-css/css/flag-icons.min.css",
               "node_modules/video.js/dist/video-js.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-
               "src/global.scss"
-
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/slick-carousel/slick/slick.min.js"
             ],
-            "aot": false,
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,

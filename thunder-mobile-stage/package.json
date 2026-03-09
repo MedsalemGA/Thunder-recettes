@@ -20,17 +20,17 @@
   "dependencies": {
     "@angular-slider/ngx-slider": "^2.0.4",
     "@angular/animations": "^21.1.5",
-    "@angular/cdk": "^21.1.5",
-    "@angular/common": "^15.2.10",
-    "@angular/core": "^15.2.10",
+    "@angular/cdk": "16.2.14",
+    "@angular/common": "^16.2.12",
+    "@angular/core": "^16.2.12",
     "@angular/fire": "^7.5.0",
-    "@angular/forms": "^15.2.10",
+    "@angular/forms": "^16.2.12",
     "@angular/google-maps": "^14.2.7",
     "@angular/material": "^21.1.5",
-    "@angular/platform-browser": "^15.2.10",
-    "@angular/platform-browser-dynamic": "^15.2.10",
-    "@angular/router": "^15.2.10",
-    "@angular/service-worker": "^15.2.10",
+    "@angular/platform-browser": "^16.2.12",
+    "@angular/platform-browser-dynamic": "^16.2.12",
+    "@angular/router": "^16.2.12",
+    "@angular/service-worker": "^16.2.12",
     "@auth0/angular-jwt": "^5.0.2",
     "@awesome-cordova-plugins/android-permissions": "^6.6.0",
     "@awesome-cordova-plugins/app-version": "^6.6.0",
@@ -61,7 +61,7 @@
     "@capacitor-firebase/analytics": "8.1.0",
     "@capacitor-firebase/messaging": "8.1.0",
     "@capacitor/android": "^8.0.0",
-    "@capacitor/app": "^8.0.0",
+    "@capacitor/app": "8.0.1",
     "@capacitor/browser": "^8.0.0",
     "@capacitor/camera": "^8.0.0",
     "@capacitor/core": "^8.0.0",
@@ -83,7 +83,6 @@
     "@ngneat/until-destroy": "^9.2.1",
     "@ngx-translate/core": "^14.0.0",
     "@ngx-translate/http-loader": "^7.0.0",
-    "@types/swiper": "^6.0.0",
     "@types/video.js": "^7.3.53",
     "@videojs/themes": "^1.0.1",
     "agora-rtc-sdk-ng": "^4.19.3",
@@ -101,7 +100,6 @@
     "cordova-plugin-request-location-accuracy": "^2.3.0",
     "date-fns": "2.30.0",
     "firebase": "^10.7.0",
-    "flag-icon-css": "^4.1.7",
     "jquery": "^3.6.0",
     "laravel-echo": "^1.14.0",
     "moment-timezone": "^0.5.43",
@@ -119,18 +117,18 @@
     "tslib": "^2.2.0",
     "video.js": "^7.10.2",
     "videojs-seek-buttons": "^3.0.1",
-    "zone.js": "~0.11.4"
+    "zone.js": "~0.13.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^15.2.11",
-    "@angular-eslint/builder": "15.2.1",
-    "@angular-eslint/eslint-plugin": "15.2.1",
-    "@angular-eslint/eslint-plugin-template": "15.2.1",
-    "@angular-eslint/template-parser": "15.2.1",
-    "@angular/cli": "^15.2.11",
-    "@angular/compiler": "^15.2.10",
-    "@angular/compiler-cli": "^15.2.10",
-    "@angular/language-service": "^15.2.10",
+    "@angular-devkit/build-angular": "^16.2.16",
+    "@angular-eslint/builder": "16.3.1",
+    "@angular-eslint/eslint-plugin": "16.3.1",
+    "@angular-eslint/eslint-plugin-template": "16.3.1",
+    "@angular-eslint/template-parser": "16.3.1",
+    "@angular/cli": "^16.2.16",
+    "@angular/compiler": "^16.2.12",
+    "@angular/compiler-cli": "^16.2.12",
+    "@angular/language-service": "^16.2.12",
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.0.0",
     "@ionic/angular-toolkit": "^9.0.0",
@@ -140,11 +138,9 @@
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "5.3.0",
     "@typescript-eslint/parser": "5.3.0",
-    "cordova-android": "^13.0.0",
     "cordova-androidx-build": "^1.0.4",
     "cordova-clipboard": "^1.3.0",
     "cordova-common": "^5.0.0",
-    "cordova-ios": "^7.1.0",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-android-permissions": "^1.1.5",
     "cordova-plugin-app-version": "^0.1.14",
@@ -167,7 +163,6 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",
     "eslint-plugin-prefer-arrow": "1.2.2",
-    "ionic-plugin-deeplinks": "^1.0.24",
     "jasmine-core": "~3.8.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.2",
@@ -181,71 +176,8 @@
     "typescript": "~4.9.5"
   },
   "description": "An Ionic project",
-  "cordova": {
-    "plugins": {
-      "cordova-plugin-statusbar": {},
-      "cordova-plugin-device": {},
-      "cordova-plugin-ionic-webview": {},
-      "cordova-plugin-geolocation": {
-        "GEOLOCATION_USAGE_DESCRIPTION": "App uses geolocation to determine where you are.",
-        "GPS_REQUIRED": "true"
-      },
-      "cordova-plugin-vibration": {},
-      "cordova-plugin-call-number": {},
-      "cordova-plugin-camera": {
-        "ANDROIDX_CORE_VERSION": "1.8.+"
-      },
-      "cordova-plugin-ios-keychain": {},
-      "cordova-plugin-ionic": {
-        "APP_ID": "fd9fd8e5",
-        "CHANNEL_NAME": "Production",
-        "UPDATE_METHOD": "background",
-        "MAX_STORE": "2",
-        "MIN_BACKGROUND_DURATION": "30",
-        "UPDATE_API": "https://liveupdate.thunder.webify.pro/version"
-      },
-      "cordova-plugin-sign-in-with-apple": {},
-      "cordova-plugin-local-notification-12": {
-        "ANDROID_SUPPORT_V4_VERSION": "26.+",
-        "ANDROIDX_VERSION": "1.2.0",
-        "ANDROIDX_APPCOMPAT_VERSION": "1.3.1"
-      },
-      "cordova-clipboard": {},
-      "cordova.plugins.diagnostic": {
-        "ANDROIDX_VERSION": "1.0.0",
-        "ANDROIDX_APPCOMPAT_VERSION": "1.3.1"
-      },
-      "cordova-plugin-app-version": {},
-      "cordova-plugin-inappbrowser": {},
-      "cordova-plugin-market": {},
-      "cordova-plugin-media": {
-        "KEEP_AVAUDIOSESSION_ALWAYS_ACTIVE": "NO"
-      },
-      "cordova-plugin-android-permissions": {},
-      "ionic-plugin-deeplinks": {
-        "URL_SCHEME": "thunder",
-        "DEEPLINK_SCHEME": "https",
-        "DEEPLINK_HOST": "thunder-express.com",
-        "ANDROID_PATH_PREFIX": "/",
-        "ANDROID_2_PATH_PREFIX": "/",
-        "ANDROID_3_PATH_PREFIX": "/",
-        "ANDROID_4_PATH_PREFIX": "/",
-        "ANDROID_5_PATH_PREFIX": "/",
-        "DEEPLINK_2_SCHEME": " ",
-        "DEEPLINK_2_HOST": " ",
-        "DEEPLINK_3_SCHEME": " ",
-        "DEEPLINK_3_HOST": " ",
-        "DEEPLINK_4_SCHEME": " ",
-        "DEEPLINK_4_HOST": " ",
-        "DEEPLINK_5_SCHEME": " ",
-        "DEEPLINK_5_HOST": " "
-      },
-      "cordova-plugin-file-transfer": {},
-      "cordova-plugin-x-socialsharing": {}
-    },
-    "platforms": [
-      "ios",
-      "android"
-    ]
-  }
+  "browserslist": [
+    "Chrome >=61",
+    "ChromeAndroid >=60"
+  ]
 }
