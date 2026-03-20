@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit, ChangeDetectorRef, AfterViewInit } from '@angular/core';
-
-
+import { Storage } from '@ionic/storage-angular';
 
 @Component({
   selector: 'app-root',
@@ -9,12 +8,15 @@ import { Component, Inject, OnInit, ChangeDetectorRef, AfterViewInit } from '@an
 })
 export class AppComponent implements OnInit, AfterViewInit {
    
-  constructor() {
+  constructor(private storage: Storage) {
   
   }
 
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Initialiser le stockage Ionic
+    await this.storage.create();
+    
     // Initialiser le service de paramètres pour détecter le type d'appareil
   
   }

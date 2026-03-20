@@ -7,7 +7,6 @@ const config: CapacitorConfig = {
   cordova: {
     preferences: {
       ScrollEnabled: 'false',
-      DisableDeploy: 'false',
       BackupWebStorage: 'none',
       loadUrlTimeoutValue: '200000',
       Fullscreen: 'true',
@@ -17,7 +16,6 @@ const config: CapacitorConfig = {
       allowUniversalAccessFromFileURLs: 'true',
       hostname: 'localhost',
       'deployment-target': '14.0',
-      ResolveServiceWorkerRequests: 'true',
     }
   },
   plugins: {

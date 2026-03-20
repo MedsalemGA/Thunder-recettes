@@ -1,0 +1,217 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <h1>Panier Intelligent</h1>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cart-content" *ngIf="cart && !isLoading">
+  <!-- Résumé du panier -->
+  <ion-card class="cart-summary">
+    <ion-card-content>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Articles</span>
+          <span class="summary-value">{{ cart.totalItems }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Recettes</span>
+          <span class="summary-value">{{ cart.recipes.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Prix total</span>
+          <span class="summary-value">{{ cart.totalPrice | currency }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Moy/recette</span>
+          <span class="summary-value">{{ getCartSummary().estimatedPricePerRecipe | currency }}</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Suggestions d'optimisation IA -->
+  <ion-card *ngIf="optimizationSuggestions.length > 0" class="suggestions-card">
+    <ion-card-header>
+      <h3>💡 Suggestions d'optimisation</h3>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="suggestions-list">
+        <div *ngFor="let suggestion of optimizationSuggestions" class="suggestion-item">
+          <ion-icon name="bulb-outline" color="warning"></ion-icon>
+          <span>{{ suggestion }}</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Segments -->
+  <ion-segment [(ngModel)]="activeSegment" color="primary">
+    <ion-segment-button value="items" layout="icon-start">
+      <ion-label>Ingrédients</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="recipes" layout="icon-start">
+      <ion-label>Recettes</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Contenu des segments -->
+  <div [ngSwitch]="activeSegment">
+    <!-- Section Ingrédients -->
+    <div *ngSwitchCase="'items'">
+      <div *ngIf="cart.items.length > 0">
+        <!-- Groupement par recette -->
+        <div *ngFor="let recipeId of (groupedByRecipe | keyvalue)" class="recipe-group">
+          <ion-card class="recipe-group-card">
+            <ion-card-header>
+              <div class="recipe-group-header">
+                <h3>{{ getRecipeName(recipeId.key) }}</h3>
+                <ion-button 
+                  *ngIf="recipeId.key !== 'manual'"
+                  fill="outline" 
+                  size="small"
+                  color="danger"
+                  (click)="removeRecipe(recipeId.key)">
+                  <ion-icon name="trash" slot="start"></ion-icon>
+                  Retirer
+                </ion-button>
+              </div>
+            </ion-card-header>
+
+            <ion-card-content>
+              <div class="items-list">
+                <div *ngFor="let item of recipeId.value" class="cart-item">
+                  <div class="item-info">
+                    <div class="item-name">
+                      {{ item.ingredientName }}
+                      <span class="substitution-badge" *ngIf="item.substitution">
+                        🔄 Remplacé
+                      </span>
+                    </div>
+                    <div class="item-note" *ngIf="item.notes">
+                      {{ item.notes }}
+                    </div>
+                  </div>
+
+                  <div class="item-controls">
+                    <div class="quantity-control">
+                      <ion-button fill="outline" size="small" (click)="updateQuantity(item.ingredientId, item.quantity - 1)">
+                        <ion-icon name="remove"></ion-icon>
+                      </ion-button>
+                      <span class="quantity">{{ item.quantity }} {{ item.unit }}</span>
+                      <ion-button fill="outline" size="small" (click)="updateQuantity(item.ingredientId, item.quantity + 1)">
+                        <ion-icon name="add"></ion-icon>
+                      </ion-button>
+                    </div>
+                    <div class="item-price">
+                      {{ (item.price * item.quantity) | currency }}
+                    </div>
+                    <ion-button fill="clear" color="danger" size="small" (click)="removeItem(item.ingredientId)">
+                      <ion-icon name="trash"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            fill="outline"
+            color="medium"
+            (click)="mergeItems()">
+            <ion-icon name="git-merge" slot="start"></ion-icon>
+            Fusionner les articles
+          </ion-button>
+          <ion-button 
+            expand="block" 
+            fill="outline"
+            color="medium"
+            (click)="exportCart()">
+            <ion-icon name="download" slot="start"></ion-icon>
+            Télécharger (CSV)
+          </ion-button>
+          <ion-button 
+            expand="block" 
+            fill="outline"
+            color="danger"
+            (click)="clearCart()">
+            <ion-icon name="trash" slot="start"></ion-icon>
+            Vider le panier
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Panier vide -->
+      <ion-card *ngIf="cart.items.length === 0" class="empty-cart">
+        <ion-card-content>
+          <div class="empty-illustration">
+            <ion-icon name="cart-outline"></ion-icon>
+          </div>
+          <h2>Panier vide</h2>
+          <p>Ajoutez des recettes pour remplir votre panier</p>
+          <ion-button fill="solid" color="primary" (click)="closeModal()">
+            Continuer le shopping
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Section Recettes -->
+    <div *ngSwitchCase="'recipes'">
+      <div *ngIf="getRecipes().length > 0" class="recipes-list">
+        <ion-card *ngFor="let recipe of getRecipes()" class="recipe-overview-card">
+          <img [src]="recipe.image" [alt]="recipe.name">
+          <ion-card-header>
+            <ion-card-title>{{ recipe.name }}</ion-card-title>
+            <ion-card-subtitle>
+              <span>⭐ {{ recipe.rating }}/5</span>
+              <span>👥 {{ recipe.servings }}</span>
+              <span>⏱️ {{ (recipe.prepTime + recipe.cookTime) }}min</span>
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ recipe.description }}</p>
+            <ion-button expand="block" fill="outline" color="primary">
+              Voir détails
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <ion-card *ngIf="getRecipes().length === 0" class="empty-recipes">
+        <ion-card-content>
+          <p>Aucune recette dans votre panier</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Bouton de commande -->
+  <div class="checkout-section" *ngIf="cart.items.length > 0">
+    <ion-button 
+      expand="block" 
+      color="success" 
+      size="large"
+      (click)="checkout()"
+      class="checkout-btn">
+      <ion-icon name="cart-outline" slot="start"></ion-icon>
+      Commander - {{ cart.totalPrice | currency }}
+    </ion-button>
+  </div>
+</ion-content>
+
+<!-- Loading -->
+<ion-content *ngIf="isLoading" class="skeleton-loading">
+  <ion-skeleton-text animated [ngStyle]="{'height': '100px', 'margin': '16px'}"></ion-skeleton-text>
+  <ion-skeleton-text animated [ngStyle]="{'height': '200px', 'margin': '16px'}"></ion-skeleton-text>
+</ion-content>

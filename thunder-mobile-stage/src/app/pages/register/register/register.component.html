@@ -1,0 +1,112 @@
+<ion-content class="auth-content">
+  <div class="auth-wrapper">
+
+    <div class="auth-header">
+      <div class="auth-avatar">
+        <ion-icon name="person-add-outline"></ion-icon>
+      </div>
+      <h1 class="auth-title">Créer un compte</h1>
+      <p class="auth-sub">Rejoignez Thunder Express</p>
+    </div>
+
+    <div class="global-error" *ngIf="globalError">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ globalError }}
+    </div>
+
+    <div class="auth-card">
+      <form (ngSubmit)="onRegister()">
+
+        <div class="field-group">
+          <label class="field-label">Nom complet</label>
+          <div class="input-wrap" [class.error]="errors.name">
+            <ion-icon name="person-outline" class="input-icon"></ion-icon>
+            <input type="text" class="field-input" placeholder="Nom Prénom"
+              [(ngModel)]="form.name" name="name" autocomplete="name" />
+          </div>
+          <span class="field-error" *ngIf="errors.name">{{ errors.name }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          <div class="input-wrap" [class.error]="errors.email">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input type="email" class="field-input" placeholder="votre@email.com"
+              [(ngModel)]="form.email" name="email" autocomplete="email" />
+          </div>
+          <span class="field-error" *ngIf="errors.email">{{ errors.email }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Téléphone</label>
+          <div class="input-wrap" [class.error]="errors.telephone">
+            <ion-icon name="call-outline" class="input-icon"></ion-icon>
+            <input type="tel" class="field-input" placeholder="+216 XX XXX XXX"
+              [(ngModel)]="form.telephone" name="telephone" />
+          </div>
+          <span class="field-error" *ngIf="errors.telephone">{{ errors.telephone }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Adresse / Région</label>
+          <div class="input-wrap select-wrap" [class.error]="errors.adresse">
+            <ion-icon name="location-outline" class="input-icon"></ion-icon>
+            <select class="field-input field-select" [(ngModel)]="form.adresse" name="adresse">
+              <option value="" disabled>Choisir une région</option>
+              <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+          </div>
+          <span class="field-error" *ngIf="errors.adresse">{{ errors.adresse }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <div class="input-wrap" [class.error]="errors.password">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input [type]="showPassword ? 'text' : 'password'" class="field-input"
+              placeholder="Minimum 8 caractères"
+              [(ngModel)]="form.password" name="password"
+              (input)="checkStrength(form.password)" />
+            <button type="button" class="eye-btn" (click)="showPassword = !showPassword">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <div class="strength-bar" *ngIf="form.password">
+            <div class="strength-track">
+              <div class="strength-fill" [style.width]="strength + '%'" [attr.data-level]="strengthLabel"></div>
+            </div>
+            <span class="strength-label" [attr.data-level]="strengthLabel">{{ strengthLabel }}</span>
+          </div>
+          <span class="field-error" *ngIf="errors.password">{{ errors.password }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Confirmer le mot de passe</label>
+          <div class="input-wrap" [class.error]="errors.confirmPassword">
+            <ion-icon name="shield-checkmark-outline" class="input-icon"></ion-icon>
+            <input [type]="showConfirm ? 'text' : 'password'" class="field-input"
+              placeholder="Répéter le mot de passe"
+              [(ngModel)]="form.confirmPassword" name="confirmPassword" />
+            <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
+              <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="errors.confirmPassword">{{ errors.confirmPassword }}</span>
+        </div>
+
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Créer mon compte</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+
+      </form>
+    </div>
+
+    <div class="auth-footer">
+      <span>Déjà un compte ?</span>
+      <button class="link-btn" (click)="goToLogin()">Se connecter</button>
+    </div>
+
+  </div>
+</ion-content>

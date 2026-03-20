@@ -1,0 +1,174 @@
+:host {
+  --teal:       #0ae1cc;
+  --teal-dark:  #00A896;
+  --teal-xdark: #007F72;
+  --gold:       #FFD700;
+  --card-bg:    #ffffff;
+  --text-sub:   #64748b;
+  --radius-md:  14px;
+
+  // Mandatory: makes the host a real block element
+  display: block;
+}
+
+// ─────────────────────────────────────────
+// BAR — fixed at bottom, always visible
+// ─────────────────────────────────────────
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+
+  background: var(--card-bg);
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+}
+
+// ─────────────────────────────────────────
+// ITEM
+// ─────────────────────────────────────────
+.footer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  flex: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  .footer-icon-wrap {
+    position: relative;
+    width: 42px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  ion-icon {
+    font-size: 22px;
+    color: var(--text-sub);
+    transition: opacity 0.18s, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &.icon-active  { position: absolute; opacity: 0; transform: scale(0.7); }
+    &.icon-default { opacity: 1; transform: scale(1); }
+  }
+
+  .footer-label {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-sub);
+    transition: color 0.18s;
+    white-space: nowrap;
+  }
+
+  // ── Active state ──
+  &.active {
+    .footer-icon-wrap {
+      background: rgba(10, 225, 204, 0.12);
+    }
+
+    ion-icon {
+      &.icon-default { opacity: 0; transform: scale(0.7); }
+      &.icon-active  {
+        opacity: 1;
+        transform: scale(1);
+        color: var(--teal-xdark);
+      }
+    }
+
+    .footer-label {
+      color: var(--teal-xdark);
+      font-weight: 700;
+    }
+  }
+
+  &:active .footer-icon-wrap {
+    background: rgba(10, 225, 204, 0.15);
+    transform: scale(0.93);
+  }
+}
+
+// ─────────────────────────────────────────
+// CART PILL — centre elevated button
+// ─────────────────────────────────────────
+.cart-item {
+  flex: 1.1;
+
+  .cart-pill {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(10, 225, 204, 0.45);
+    margin-bottom: -2px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+
+    ion-icon {
+      font-size: 24px;
+      color: #fff !important;
+      &.icon-default { opacity: 1 !important; transform: scale(1) !important; }
+      &.icon-active  { opacity: 0 !important; }
+    }
+  }
+
+  &.active .cart-pill {
+    background: linear-gradient(135deg, var(--teal-dark), var(--teal-xdark));
+    box-shadow: 0 4px 18px rgba(0, 127, 114, 0.55);
+
+    ion-icon {
+      &.icon-default { opacity: 0 !important; transform: scale(0.7) !important; }
+      &.icon-active  { opacity: 1 !important; transform: scale(1) !important; color: #fff !important; }
+    }
+  }
+
+  &:active .cart-pill {
+    transform: scale(0.91);
+    box-shadow: 0 2px 8px rgba(10, 225, 204, 0.3);
+  }
+
+  .footer-label         { color: var(--text-sub); }
+  &.active .footer-label { color: var(--teal-xdark); }
+}
+
+// ─────────────────────────────────────────
+// CART BADGE
+// ─────────────────────────────────────────
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--gold);
+  color: #1a202c;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--card-bg);
+  line-height: 1;
+  animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}

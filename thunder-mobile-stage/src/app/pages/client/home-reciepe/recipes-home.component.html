@@ -1,0 +1,206 @@
+
+
+<ion-content class="recipes-content">
+
+  <!-- ── Barre de recherche ── -->
+  <div class="search-wrap">
+    <ion-icon name="search-outline" class="search-icon"></ion-icon>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Rechercher une recette..."
+      [(ngModel)]="searchQuery"
+      (input)="applyFilters()"
+    />
+    <button *ngIf="searchQuery" class="search-clear" (click)="clearSearch()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- ── Pills Cuisine ── -->
+  <div class="filter-block">
+    <p class="filter-label">Cuisine</p>
+    <div class="pills-row">
+      <div
+        class="pill"
+        [class.active]="selectedCuisine === 'all'"
+        (click)="selectCuisine('all')"
+      >
+        <span class="dot"></span>Tout
+      </div>
+      <div
+        *ngFor="let c of cuisines; trackBy: trackByCuisine"
+        class="pill"
+        [class.active]="selectedCuisine === c"
+        (click)="selectCuisine(c)"
+      >
+        {{ c }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pills Difficulté ── -->
+  <div class="filter-block">
+    <p class="filter-label">Difficulté</p>
+    <div class="pills-row">
+      <div
+        class="pill"
+        [class.active]="selectedDifficulty === 'all'"
+        (click)="selectDifficulty('all')"
+      >
+        <span class="dot"></span>Tout
+      </div>
+      <div
+        class="pill"
+        [class.active]="selectedDifficulty === 'easy'"
+        (click)="selectDifficulty('easy')"
+      >Facile</div>
+      <div
+        class="pill"
+        [class.active]="selectedDifficulty === 'medium'"
+        (click)="selectDifficulty('medium')"
+      >Moyen</div>
+      <div
+        class="pill"
+        [class.active]="selectedDifficulty === 'hard'"
+        (click)="selectDifficulty('hard')"
+      >Difficile</div>
+    </div>
+  </div>
+
+  <!-- ── Filter Chips (Tri) ── -->
+  <div class="chips-row">
+    <div
+      class="filter-chip"
+      [class.has-value]="filterSort === 'rating'"
+      (click)="setSort('rating')"
+    >
+      <div class="chip-content">
+        <span class="chip-label">Trier par</span>
+        <span class="chip-value">{{ getSortLabel() }}</span>
+      </div>
+      <ion-icon name="swap-vertical-outline" class="chip-arrow"></ion-icon>
+    </div>
+
+    <div
+      class="filter-chip"
+      [class.has-value]="selectedDifficulty !== 'all'"
+      (click)="cycleDifficulty()"
+    >
+      <div class="chip-content">
+        <span class="chip-label">Difficulté</span>
+        <span class="chip-value">{{ getDifficultyLabel() }}</span>
+      </div>
+      <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+    </div>
+
+    <div
+      class="filter-chip"
+      [class.has-value]="selectedCuisine !== 'all'"
+      (click)="resetCuisine()"
+    >
+      <div class="chip-content">
+        <span class="chip-label">Cuisine</span>
+        <span class="chip-value">{{ selectedCuisine === 'all' ? 'Toutes' : selectedCuisine }}</span>
+      </div>
+      <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
+    </div>
+  </div>
+
+  <!-- ── Tags actifs ── -->
+  <div class="active-filters" *ngIf="activeFiltersList.length > 0">
+    <div class="active-tag" *ngFor="let tag of activeFiltersList; trackBy: trackByTag">
+      {{ tag.label }}
+      <button class="tag-remove" (click)="removeFilter(tag.key)">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <button class="reset-all" (click)="resetFilters()">Tout effacer</button>
+  </div>
+
+  <!-- ── Barre résultats ── -->
+  <div class="results-bar">
+    <span class="results-count">
+      <strong>{{ filteredRecipes.length }}</strong> recette{{ filteredRecipes.length > 1 ? 's' : '' }}
+    </span>
+    <button class="sort-btn" (click)="cycleSort()">
+      <ion-icon name="swap-vertical-outline"></ion-icon>
+      {{ getSortLabel() }}
+    </button>
+  </div>
+
+  <!-- ── Grille de recettes ── -->
+  <div class="recipes-grid" *ngIf="filteredRecipes.length > 0">
+    <ion-card
+      *ngFor="let recipe of filteredRecipes; trackBy: trackByRecipe"
+      class="recipe-card"
+      (click)="viewRecipeDetails(recipe)"
+    >
+      <div class="recipe-image-container">
+        <img [src]="recipe.image" [alt]="recipe.name" class="recipe-img" />
+
+        <span
+          class="difficulty-badge"
+          [ngClass]="{
+            'easy':   recipe.difficulty === 'easy',
+            'medium': recipe.difficulty === 'medium',
+            'hard':   recipe.difficulty === 'hard'
+          }"
+        >
+          {{ recipe.difficulty === 'easy' ? 'Facile' : recipe.difficulty === 'medium' ? 'Moyen' : 'Difficile' }}
+        </span>
+
+        <button class="fav-btn" (click)="toggleFavorite(recipe, $event)">
+          <ion-icon
+            [name]="isFavorite(recipe) ? 'heart' : 'heart-outline'"
+            [style.color]="isFavorite(recipe) ? '#ef4444' : '#64748b'"
+          ></ion-icon>
+        </button>
+      </div>
+
+      <ion-card-header>
+        <div class="card-top">
+          <span class="recipe-cuisine">{{ recipe.cuisine }}</span>
+          <div class="rating">
+            <ion-icon name="star"></ion-icon>
+            {{ recipe.rating | number:'1.1-1' }}
+          </div>
+        </div>
+        <ion-card-title>{{ recipe.name }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p class="recipe-desc">{{ recipe.description }}</p>
+
+        <div class="recipe-meta">
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ getTotalTime(recipe) }} min
+          </div>
+          <div class="meta-item">
+            <ion-icon name="people-outline"></ion-icon>
+            {{ recipe.servings }} pers.
+          </div>
+        
+        </div>
+
+        <ion-button  
+          expand="block"
+          class="add-to-cart-btn"
+          (click)="addRecipeToCart(recipe, $event)"
+         
+        >
+          {{ isInCart(recipe) ? 'Dans le panier ✓' : 'Commander' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- ── État vide ── -->
+  <div class="empty-state" *ngIf="filteredRecipes.length === 0">
+    <ion-icon name="search-outline"></ion-icon>
+    <h3>Aucune recette trouvée</h3>
+    <p>Essayez de modifier vos filtres ou votre recherche.</p>
+  </div>
+
+</ion-content>

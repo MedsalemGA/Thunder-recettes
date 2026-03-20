@@ -1,0 +1,561 @@
+// =============================================
+// Variables
+// =============================================
+$primary:        #0ae1cc;
+$primary-dark:   #00A896;
+$primary-bg:     #E1F5EE;
+$primary-border: #9FE1CB;
+$primary-text:   #0F6E56;
+
+$text-dark:  #1a202c;
+$text-light: #64748b;
+$text-hint:  #94a3b8;
+
+$bg-page:    #f8fafc;
+$bg-white:   #ffffff;
+$bg-surface: #f1f5f9;
+$border:     #e2e8f0;
+$border-h:   #cbd5e1;
+
+$shadow:       0 8px 24px rgba(0, 0, 0, 0.06);
+$shadow-hover: 0 20px 35px rgba(10, 225, 204, 0.14);
+
+$radius-pill: 100px;
+$radius-lg:   16px;
+$radius-md:   12px;
+
+// =============================================
+// Host & Content
+// =============================================
+:host { display: block; min-height: 100%; }
+
+ion-content.recipes-content {
+  --background: #{$bg-page};
+
+  &::part(background) {
+    background-image:
+      radial-gradient(#{$primary} 0.5px, transparent 0.5px),
+      radial-gradient(#{$primary} 0.5px, #{$bg-page} 0.5px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    opacity: 0.3;
+  }
+}
+
+// =============================================
+// Header
+// =============================================
+ion-toolbar {
+  --background: white;
+  --color: #{$text-dark};
+  --border-width: 0;
+  padding: 10px 5px;
+}
+
+.header-title {
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.cart-btn {
+  position: relative;
+  ion-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    --background: #{$primary};
+    --color: #04342C;
+  }
+}
+
+// =============================================
+// Search bar
+// =============================================
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $bg-white;
+  border: 1px solid $border;
+  border-radius: $radius-pill;
+  padding: 12px 18px;
+  margin: 16px 16px 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(10, 225, 204, 0.12);
+  }
+
+  .search-icon {
+    font-size: 18px;
+    color: $text-hint;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: $text-dark;
+    outline: none;
+    min-width: 0;
+    &::placeholder { color: $text-hint; }
+  }
+
+  .search-clear {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: $bg-surface;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s;
+    ion-icon { font-size: 14px; color: $text-light; }
+    &:hover { background: $border; }
+  }
+}
+
+// =============================================
+// Filter block + label
+// =============================================
+.filter-block {
+  padding: 0 16px;
+  margin-bottom: 14px;
+}
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: $text-hint;
+  margin: 0 0 8px 2px;
+}
+
+// =============================================
+// Pills
+// =============================================
+.pills-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: $radius-pill;
+  border: 1px solid $border;
+  background: $bg-white;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-light;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  user-select: none;
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+    flex-shrink: 0;
+    transition: opacity 0.18s;
+  }
+
+  &:hover {
+    border-color: $border-h;
+    color: $text-dark;
+    background: $bg-surface;
+  }
+
+  &.active {
+    background: $primary;
+    border-color: $primary;
+    color: #04342C;
+    .dot { opacity: 1; }
+  }
+}
+
+// =============================================
+// Filter chips
+// =============================================
+.chips-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+  margin-bottom: 14px;
+}
+
+.filter-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: $bg-white;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 10px 12px;
+  cursor: pointer;
+  min-width: 0;
+  transition: all 0.18s ease;
+
+  &:hover {
+    border-color: $border-h;
+    background: $bg-surface;
+  }
+
+  &.has-value {
+    border-color: $primary;
+    background: $primary-bg;
+    .chip-value { color: $primary-text; }
+    .chip-arrow { color: $primary-dark; }
+  }
+
+  .chip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .chip-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: $text-hint;
+    line-height: 1;
+  }
+
+  .chip-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-dark;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .chip-arrow {
+    font-size: 14px;
+    color: $text-hint;
+    flex-shrink: 0;
+  }
+}
+
+// =============================================
+// Tags actifs
+// =============================================
+.active-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 16px 12px;
+}
+
+.active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px 6px 12px;
+  background: $primary-bg;
+  border: 1px solid $primary-border;
+  border-radius: $radius-pill;
+  font-size: 12px;
+  font-weight: 600;
+  color: $primary-text;
+
+  .tag-remove {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: $primary-border;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s;
+    ion-icon { font-size: 11px; color: #085041; }
+    &:hover { background: #5DCAA5; }
+  }
+}
+
+.reset-all {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-light;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: $radius-md;
+  transition: all 0.15s;
+  white-space: nowrap;
+  &:hover { background: $bg-surface; color: $text-dark; }
+}
+
+// =============================================
+// Barre résultats
+// =============================================
+.results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 16px;
+}
+
+.results-count {
+  font-size: 13px;
+  color: $text-light;
+  strong { color: $text-dark; font-weight: 700; }
+}
+
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-light;
+  background: none;
+  border: 1px solid $border;
+  border-radius: $radius-pill;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  ion-icon { font-size: 15px; }
+  &:hover { background: $bg-surface; border-color: $border-h; color: $text-dark; }
+}
+
+// =============================================
+// Grille recettes
+// =============================================
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 0 16px 40px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// =============================================
+// Carte recette
+// =============================================
+.recipe-card {
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: $shadow;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border: none;
+  background: white;
+  margin: 0;
+
+  &:hover {
+    box-shadow: $shadow-hover;
+    transform: translateY(-8px);
+    .recipe-img { transform: scale(1.1); }
+  }
+
+  .recipe-image-container {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: #e2e8f0;
+
+    .recipe-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s ease;
+    }
+
+    .difficulty-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 7px 14px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      backdrop-filter: blur(10px);
+      color: white;
+      z-index: 2;
+      &.easy   { background: rgba(16, 185, 129, 0.88); }
+      &.medium { background: rgba(245, 158, 11, 0.88); }
+      &.hard   { background: rgba(239, 68, 68, 0.88); }
+    }
+
+    .fav-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      z-index: 2;
+      ion-icon { font-size: 22px; }
+      &:hover { background: white; transform: scale(1.1); }
+      &:active { transform: scale(0.92); }
+    }
+  }
+
+  ion-card-header { padding: 20px 20px 10px; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .recipe-cuisine {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: $primary-dark;
+      letter-spacing: 1px;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fffbeb;
+      color: #d97706;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      ion-icon { font-size: 14px; }
+    }
+  }
+
+  ion-card-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: $text-dark;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  ion-card-content { padding: 0 20px 20px; }
+
+  .recipe-desc {
+    font-size: 13px;
+    color: $text-light;
+    line-height: 1.6;
+    margin: 10px 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .recipe-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 12px 0;
+    border-top: 1px solid #f1f5f9;
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: $text-light;
+      font-size: 13px;
+      font-weight: 600;
+      ion-icon { font-size: 18px; color: $primary; }
+    }
+  }
+
+  .add-to-cart-btn::part(native) {
+    background: linear-gradient(135deg, #{$primary}, #{$primary-dark});
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(10, 225, 204, 0.22);
+    font-weight: 800;
+    margin: 0;
+    height: 52px;
+    font-size: 14px;
+    text-transform: none;
+    color: white;
+    &:hover { --box-shadow: 0 14px 28px rgba(10, 225, 204, 0.32); }
+  }
+}
+
+// =============================================
+// État vide
+// =============================================
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 30px;
+  text-align: center;
+  color: $text-light;
+
+  ion-icon { font-size: 80px; margin-bottom: 20px; color: #cbd5e1; opacity: 0.6; }
+  h3 { font-size: 20px; font-weight: 800; color: $text-dark; margin-bottom: 8px; }
+  p { font-size: 15px; max-width: 280px; margin: 0 auto; line-height: 1.5; }
+}
+
+// =============================================
+// Responsive
+// =============================================
+@media (max-width: 400px) {
+  .chips-row { gap: 6px; padding: 0 12px; }
+  .filter-chip { padding: 8px 10px; }
+  .pill { padding: 7px 12px; font-size: 12px; }
+  .search-wrap { margin: 12px 12px 10px; }
+  .header-title { font-size: 22px; }
+}

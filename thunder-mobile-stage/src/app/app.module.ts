@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { IonicStorageModule } from '@ionic/storage-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 //import { SwiperModule } from 'swiper/angular';
@@ -43,7 +44,8 @@ import { initializeApp } from 'firebase/app';
 import { Deeplinks } from '@awesome-cordova-plugins/deeplinks/ngx';
 import { LocationAccuracy } from "@awesome-cordova-plugins/location-accuracy/ngx";
 import { AdminComponent } from './pages/admin/admin/admin.component';
-
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { FooterComponent } from './shared/footer/footer.component';
 
 // Note we need a separate function as it's required
 // by the AOT compiler.
@@ -57,13 +59,16 @@ export function createTranslateLoader(http: HttpClient) {
   imports: [
     BrowserModule,
     IonicModule.forRoot({
-      innerHTMLTemplatesEnabled: true
+      innerHTMLTemplatesEnabled: true,
+      mode: 'md'
     }),
+    IonicStorageModule.forRoot(),
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
     SlickCarouselModule,
+    FooterComponent,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -74,9 +79,7 @@ export function createTranslateLoader(http: HttpClient) {
     }),
     // NgxSliderModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
+      enabled: environment.production && !window.location.origin.includes('localhost'),
       registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
@@ -103,6 +106,11 @@ export function createTranslateLoader(http: HttpClient) {
     WebView,
     Deeplinks,
     LocationAccuracy,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     {
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy,

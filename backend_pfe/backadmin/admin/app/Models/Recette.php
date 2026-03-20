@@ -16,9 +16,11 @@ class Recette extends Model
         'categorie',
         'prix',
         'ingredients',
+        'instructions',
     ];
 
     protected $casts = [
         'ingredients' => 'array',
+        'instructions' => 'array',
     ];
 }

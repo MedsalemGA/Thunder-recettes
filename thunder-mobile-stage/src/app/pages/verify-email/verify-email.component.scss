@@ -1,0 +1,67 @@
+@use '../../shared/styles/auth.shared.scss';
+
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.otp-field {
+  width: 44px;
+  height: 52px;
+  background: #f3f6f9;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  outline: none;
+  transition: all 0.2s;
+
+  &:focus {
+    border-color: #0ae1cc;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(10, 225, 204, 0.15);
+  }
+}
+
+.resend-box {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #64748b;
+
+  p { margin: 0 0 4px; }
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  color: #00A896;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+
+  &:disabled { color: #94a3b8; cursor: not-allowed; }
+}
+
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0ae1cc, #00A896);
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(10, 225, 204, 0.3);
+  margin-top: 10px;
+
+  &:disabled { opacity: 0.6; box-shadow: none; }
+}

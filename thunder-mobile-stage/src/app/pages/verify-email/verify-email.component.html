@@ -1,0 +1,59 @@
+<ion-content class="auth-content">
+  <div class="auth-wrapper">
+
+    <div class="auth-header">
+      <div class="auth-avatar">
+        <ion-icon name="mail-unread-outline"></ion-icon>
+      </div>
+      <h1 class="auth-title">Vérification</h1>
+      <p class="auth-sub">Entrez le code envoyé à votre adresse e-mail</p>
+    </div>
+
+    <div class="global-error" *ngIf="globalError">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ globalError }}
+    </div>
+
+    <div class="auth-card">
+      <div class="otp-inputs">
+        <input
+          *ngFor="let digit of [0,1,2,3,4,5]; let i = index"
+          type="tel"
+          maxlength="1"
+          class="otp-field"
+          [(ngModel)]="otpDigits[i]"
+          (keyup)="onKeyUp($event, i)"
+          id="otp-{{i}}"
+          autocomplete="one-time-code"
+        />
+      </div>
+
+      <button
+        class="submit-btn"
+        (click)="onVerify()"
+        [disabled]="isLoading || !isOtpComplete()"
+        [class.loading]="isLoading"
+      >
+        <span *ngIf="!isLoading">Vérifier</span>
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      </button>
+
+      <div class="resend-box">
+        <p>Vous n'avez pas reçu de code ?</p>
+        <button
+          class="link-btn"
+          (click)="onResend()"
+          [disabled]="resendCooldown > 0 || isResending"
+        >
+          <span *ngIf="resendCooldown === 0">Renvoyer le code</span>
+          <span *ngIf="resendCooldown > 0">Renvoyer dans {{ resendCooldown }}s</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-footer">
+      <button class="link-btn" (click)="goToLogin()">Retour à la connexion</button>
+    </div>
+
+  </div>
+</ion-content>

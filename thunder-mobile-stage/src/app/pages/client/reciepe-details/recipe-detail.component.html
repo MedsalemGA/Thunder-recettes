@@ -1,0 +1,260 @@
+<!-- ── Header transparent flottant ── -->
+<ion-header class="floating-header" [class.scrolled]="isScrolled">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <button class="nav-btn" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+    </ion-buttons>
+
+    <ion-title class="floating-title" [class.visible]="isScrolled">
+      {{ recipe?.name }}
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <button class="nav-btn" (click)="toggleFavorite()">
+        <ion-icon
+          [name]="isFavorite ? 'heart' : 'heart-outline'"
+          [class.active-fav]="isFavorite"
+        ></ion-icon>
+      </button>
+      <button class="nav-btn" (click)="shareRecipe()" *ngIf="recipe">
+        <ion-icon name="share-social-outline"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ══ Contenu principal ══ -->
+<ion-content
+  class="recipe-detail-content"
+  *ngIf="recipe && !isLoading"
+  (ionScroll)="onScroll($event)"
+  [scrollEvents]="true"
+>
+
+  <!-- ── Hero image pleine largeur ── -->
+  <div class="hero-image-wrap">
+    <img [src]="recipe.image" [alt]="recipe.name" class="hero-img" />
+    <div class="hero-gradient"></div>
+
+    <div class="hero-badges">
+      <span class="hero-badge cuisine-badge">{{ recipe.cuisine }}</span>
+      <span class="hero-badge" [ngClass]="'diff-' + recipe.difficulty">
+        {{ getDifficultyText() }}
+      </span>
+    </div>
+
+    <div class="hero-info">
+      <h1 class="hero-title">{{ recipe.name }}</h1>
+      <div class="hero-meta">
+        <span class="hero-stat">
+          <ion-icon name="star"></ion-icon>
+          {{ recipe.rating }}/5
+          <span class="reviews">({{ recipe.reviews }} avis)</span>
+        </span>
+        <span class="hero-dot"></span>
+        <span class="hero-stat">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ getTotalTime() }} min
+        </span>
+        <span class="hero-dot"></span>
+        <span class="hero-stat">
+          <ion-icon name="people-outline"></ion-icon>
+          {{ recipe.servings }} pers.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stats strip ── -->
+  <div class="stats-strip">
+    <div class="stat-item">
+      <ion-icon name="timer-outline"></ion-icon>
+      <span class="stat-val">{{ recipe.prepTime }}<small>min</small></span>
+      <span class="stat-lbl">Préparation</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <ion-icon name="flame-outline"></ion-icon>
+      <span class="stat-val">{{ recipe.cookTime }}<small>min</small></span>
+      <span class="stat-lbl">Cuisson</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <ion-icon name="flash-outline"></ion-icon>
+      <span class="stat-val">{{ ingredientStats.caloriesPerServing }}<small>kcal</small></span>
+      <span class="stat-lbl">/ portion</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <ion-icon name="pricetag-outline"></ion-icon>
+      <span class="stat-val price">{{ ingredientStats.totalPrice | currency:'TND':'symbol':'1.2-2' }}</span>
+      <span class="stat-lbl">Total</span>
+    </div>
+  </div>
+
+  <!-- ── Description ── -->
+  <p class="description-block" *ngIf="recipe.description">{{ recipe.description }}</p>
+
+  <!-- ── Segment pill-style ── -->
+  <div class="segment-wrap">
+    <div class="segment-pills">
+      <button class="seg-pill" [class.active]="activeSegment === 'ingredients'" (click)="activeSegment = 'ingredients'">
+        <ion-icon name="list-outline"></ion-icon> Ingrédients
+      </button>
+      <button class="seg-pill" [class.active]="activeSegment === 'instructions'" (click)="activeSegment = 'instructions'">
+        <ion-icon name="restaurant-outline"></ion-icon> Instructions
+      </button>
+      <button class="seg-pill" [class.active]="activeSegment === 'similar'" (click)="activeSegment = 'similar'">
+        <ion-icon name="grid-outline"></ion-icon> Similaires
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ INGRÉDIENTS ══ -->
+  <div class="segment-panel" *ngIf="activeSegment === 'ingredients'">
+
+    <div class="nutrition-row">
+      <div class="nutr-card">
+        <span class="nutr-icon">🔥</span>
+        <div>
+          <span class="nutr-val">{{ ingredientStats.caloriesPerServing }} kcal</span>
+          <span class="nutr-lbl">Par portion</span>
+        </div>
+      </div>
+      <div class="nutr-card">
+        <span class="nutr-icon">💰</span>
+        <div>
+          <span class="nutr-val">{{ ingredientStats.pricePerServing | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="nutr-lbl">Coût / portion</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bouton d'ajout sélectif ── -->
+    <div class="selection-actions" *ngIf="recipe.ingredients.length > 0">
+      <button 
+        class="add-selection-btn" 
+        [disabled]="checkedCount === 0"
+        (click)="addSelectedToCart()"
+      >
+        <ion-icon name="add-outline"></ion-icon>
+        Ajouter {{ checkedCount }} ingrédient{{ checkedCount > 1 ? 's' : '' }}
+      </button>
+    </div>
+
+    <div class="ingredients-block">
+      <div
+        *ngFor="let ingredient of recipe.ingredients; let last = last"
+        class="ingredient-row"
+        [class.checked]="checkedIngredients[ingredient.ingredientId]"
+        [class.last]="last"
+        (click)="toggleIngredient(ingredient.ingredientId)"
+      >
+        <span class="ing-check" [class.done]="checkedIngredients[ingredient.ingredientId]">
+          <ion-icon name="checkmark-outline"></ion-icon>
+        </span>
+        <div class="ing-info">
+          <span class="ing-name">{{ getIngredientName(ingredient.ingredientId) }}</span>
+          <span class="ing-qty">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
+        </div>
+        <span class="ing-price">
+          {{ (getIngredientPrice(ingredient.ingredientId) * ingredient.quantity) | currency:'TND':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <div
+      *ngFor="let ingredient of recipe.ingredients"
+    >
+      <div class="sub-alert" *ngIf="hasSubstitution(ingredient.ingredientId)">
+        <div class="sub-header">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+          <span>Substitution pour <strong>{{ getIngredientName(ingredient.ingredientId) }}</strong></span>
+        </div>
+        <span class="sub-name">→ {{ getSubstitution(ingredient.ingredientId)?.substitute }}</span>
+        <span class="sub-reason">{{ getSubstitution(ingredient.ingredientId)?.reason }}</span>
+        <div class="compat-wrap">
+          <div class="compat-track">
+            <div class="compat-fill" [style.width.%]="(getSubstitution(ingredient.ingredientId)?.compatibility || 0) * 100"></div>
+          </div>
+          <span class="compat-pct">{{ ((getSubstitution(ingredient.ingredientId)?.compatibility || 0) * 100) | number:'1.0-0' }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INSTRUCTIONS ══ -->
+  <div class="segment-panel" *ngIf="activeSegment === 'instructions'">
+    <div class="steps-list">
+      <div
+        *ngFor="let instruction of recipe.instructions; let i = index; let last = last"
+        class="step-item"
+        [class.last]="last"
+      >
+        <div class="step-left">
+          <div class="step-num">{{ i + 1 }}</div>
+          <div class="step-line" *ngIf="!last"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-text">{{ instruction }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SIMILAIRES ══ -->
+  <div class="segment-panel" *ngIf="activeSegment === 'similar'">
+    <div class="similar-grid" *ngIf="similarRecipes.length > 0">
+      <div class="similar-card" *ngFor="let r of similarRecipes">
+        <div class="similar-img-wrap">
+          <img [src]="r.image" [alt]="r.name" class="similar-img" />
+          <span class="similar-rating">
+            <ion-icon name="star"></ion-icon> {{ r.rating }}
+          </span>
+        </div>
+        <div class="similar-info">
+          <h4 class="similar-name">{{ r.name }}</h4>
+          <p class="similar-desc">{{ r.description }}</p>
+          <div class="similar-meta">
+            <span><ion-icon name="time-outline"></ion-icon> {{ r.prepTime + r.cookTime }} min</span>
+            <span><ion-icon name="people-outline"></ion-icon> {{ r.servings }} pers.</span>
+          </div>
+          <button class="similar-btn">Voir la recette</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-similar" *ngIf="similarRecipes.length === 0">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>Aucune recette similaire trouvée</p>
+    </div>
+  </div>
+
+  <div style="height: 96px;"></div>
+</ion-content>
+
+<!-- ── Bouton fixe bas ── -->
+<div class="bottom-cta" *ngIf="recipe && !isLoading">
+  <button class="cta-btn" *ngIf="!isInCart" (click)="addRecipeToCart()">
+    <ion-icon name="cart-outline"></ion-icon>
+    Ajouter au panier
+  </button>
+  <div class="cta-in-cart" *ngIf="isInCart">
+    <ion-icon name="checkmark-circle"></ion-icon>
+    <span>Déjà dans votre panier</span>
+    <button class="remove-btn" (click)="removeRecipeFromCart()">Retirer</button>
+  </div>
+</div>
+
+<!-- ── Skeleton ── -->
+<ion-content *ngIf="isLoading" class="skeleton-loading">
+  <ion-skeleton-text animated style="height: 280px; margin: 0;"></ion-skeleton-text>
+  <div style="padding: 16px; gap: 12px; display: flex; flex-direction: column;">
+    <ion-skeleton-text animated style="height: 24px; width: 70%; border-radius: 8px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="height: 16px; width: 50%; border-radius: 8px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="height: 90px; border-radius: 16px;"></ion-skeleton-text>
+    <ion-skeleton-text animated style="height: 200px; border-radius: 16px;"></ion-skeleton-text>
+  </div>
+</ion-content>

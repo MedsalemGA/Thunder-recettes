@@ -1,0 +1,193 @@
+<!-- ══════════════════════════════════════════
+     Searchbar flottante — sticky, au-dessus du contenu
+     Pas de ion-header du tout
+══════════════════════════════════════════ -->
+
+<!-- Search overlay backdrop -->
+<div class="search-overlay" *ngIf="showSearchOverlay" (click)="closeOverlay()">
+  <div class="search-panel" (click)="$event.stopPropagation()">
+
+    <!-- Loading -->
+    <div class="sp-loading" *ngIf="isSearching">
+      <div class="sp-spinner"></div>
+      <span>Recherche…</span>
+    </div>
+
+    <!-- Etat vide : recents + trending -->
+    <ng-container *ngIf="!isSearching && !searchQuery">
+
+      <ng-container *ngIf="recentSearches.length > 0">
+        <div class="sp-label">
+          <ion-icon name="time-outline"></ion-icon> Récents
+        </div>
+        <div class="sp-row" *ngFor="let s of recentSearches" (click)="applySearch(s)">
+          <ion-icon name="time-outline" class="sp-row-ico dim"></ion-icon>
+          <span>{{ s }}</span>
+          <button class="sp-del" (click)="removeRecent(s); $event.stopPropagation()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+      </ng-container>
+
+      <div class="sp-label" [style.margin-top]="recentSearches.length ? '12px' : '0'">
+        <ion-icon name="trending-up-outline"></ion-icon> Tendances
+      </div>
+      <div class="sp-row" *ngFor="let s of trendingSearches" (click)="applySearch(s)">
+        <ion-icon name="trending-up-outline" class="sp-row-ico teal"></ion-icon>
+        <span>{{ s }}</span>
+      </div>
+
+    </ng-container>
+
+    <!-- Résultats -->
+    <ng-container *ngIf="!isSearching && searchQuery">
+      <div class="sp-empty" *ngIf="searchResults.length === 0">
+        <span class="sp-empty-ico">🔍</span>
+        <p>Aucun résultat pour <strong>"{{ searchQuery }}"</strong></p>
+        <span>Essayez un autre mot-clé</span>
+      </div>
+
+      <ng-container *ngFor="let group of groupedResults">
+        <div class="sp-label">
+          <ion-icon [name]="group.icon"></ion-icon>
+          {{ group.label }}
+          <span class="sp-count">{{ group.items.length }}</span>
+        </div>
+        <div class="sp-result" *ngFor="let item of group.items" (click)="onResultClick(item)">
+          <div class="sp-thumb" [style.background]="item.color">{{ item.emoji }}</div>
+          <div class="sp-info">
+            <span class="sp-name">{{ item.name }}</span>
+            <span class="sp-meta">{{ item.meta }}</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="sp-arrow"></ion-icon>
+        </div>
+      </ng-container>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Content — ion-content sans header
+══════════════════════════════════════════ -->
+<ion-content class="home-content" [scrollEvents]="true" (ionScroll)="onScroll($event)">
+
+  <!-- ── Searchbar flottante sticky (dans le contenu, mais sticky) ── -->
+  <div class="float-search-wrap" [class.scrolled]="isScrolled">
+    <div class="float-brand" [class.hidden]="isScrolled">
+      <div class="float-logo">
+        <img src="assets/i18n/thunder.png" alt="Thunder" />
+      </div>
+      <div class="float-titles">
+        <span class="float-sub">Bienvenue sur</span>
+        <h1 class="float-name">Thunder Express</h1>
+      </div>
+      <button class="float-notif" (click)="onNotifClick()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="float-notif-dot" *ngIf="hasNotifications"></span>
+      </button>
+    </div>
+
+    <div class="search-box" [class.active]="searchFocused">
+      <ion-icon name="search-outline" class="search-ico"></ion-icon>
+      <input
+        #searchInput
+        class="search-inp"
+        type="text"
+        inputmode="search"
+        placeholder="Recettes, produits, ingrédients…"
+        autocomplete="off"
+        [(ngModel)]="searchQuery"
+        (focus)="onSearchFocus()"
+        (blur)="onSearchBlur()"
+        (input)="onSearchInput()"
+        (keydown.enter)="onSearchSubmit()"
+      />
+      <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()" type="button">
+        <ion-icon name="close-circle"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Promo Banner ── -->
+  <div class="promo-banner">
+    <div class="promo-content">
+      <span class="promo-badge">🎉 Offre du jour</span>
+      <h3 class="promo-title">Livraison offerte</h3>
+      <p class="promo-sub">Pour toute commande &gt; 1 500 DA</p>
+      <button class="promo-cta">Commander</button>
+    </div>
+    <div class="promo-visual">🚀</div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-val">50+</span>
+      <span class="stat-lbl">Recettes</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-val">200+</span>
+      <span class="stat-lbl">Produits</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-val">30 min</span>
+      <span class="stat-lbl">Livraison</span>
+    </div>
+  </div>
+
+  <!-- ── Section services ── -->
+  <div class="section-hdr">
+    <h2 class="section-ttl">Nos services</h2>
+  </div>
+
+  <div class="service-cards">
+
+    <div class="service-card" >
+      <a routerLink="/recipes">
+      <div class="svc-visual svc-visual--teal">
+        <span class="svc-emoji">🍲</span>
+        <div class="svc-bubble svc-bubble--1"></div>
+        <div class="svc-bubble svc-bubble--2"></div>
+        <span class="svc-cat-badge">🍽️ Cuisine</span>
+      </div>
+      <div class="svc-body">
+        <div class="svc-row">
+          <h3 class="svc-name">Recettes</h3>
+          <span class="svc-count">50+ plats</span>
+        </div>
+        <p class="svc-desc">Des recettes savoureuses préparées par nos chefs experts.</p>
+        <button class="svc-btn svc-btn--teal">
+          Explorer les recettes
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+      </a>
+    </div>
+    
+    <div class="service-card">
+      <div class="svc-visual svc-visual--gold">
+        <span class="svc-emoji">🛒</span>
+        <div class="svc-bubble svc-bubble--1"></div>
+        <div class="svc-bubble svc-bubble--2"></div>
+        <span class="svc-cat-badge">🛍️ Market</span>
+      </div>
+      <div class="svc-body">
+        <div class="svc-row">
+          <h3 class="svc-name">Supermarché</h3>
+          <span class="svc-count">200+ produits</span>
+        </div>
+        <p class="svc-desc">Vos courses livrées rapidement à votre porte.</p>
+        <button class="svc-btn svc-btn--gold">
+          Faire ses courses
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-space"></div>
+</ion-content>

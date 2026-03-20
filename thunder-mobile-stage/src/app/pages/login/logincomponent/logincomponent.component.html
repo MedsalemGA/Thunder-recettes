@@ -1,0 +1,73 @@
+<ion-content class="auth-content">
+  <div class="auth-wrapper">
+
+    <!-- Header -->
+    <div class="auth-header">
+      <div class="auth-avatar">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <h1 class="auth-title">Connexion</h1>
+      <p class="auth-sub">Accédez à votre compte</p>
+    </div>
+
+    <!-- Global error -->
+    <div class="global-error" *ngIf="globalError">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      {{ globalError }}
+    </div>
+
+    <!-- Form -->
+    <div class="auth-card">
+      <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          <div class="input-wrap" [class.error]="loginErrors.email">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input
+              type="email"
+              class="field-input"
+              placeholder="votre@email.com"
+              [(ngModel)]="form.email"
+              name="email"
+              autocomplete="email"
+            />
+          </div>
+          <span class="field-error" *ngIf="loginErrors.email">{{ loginErrors.email }}</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <div class="input-wrap" [class.error]="loginErrors.password">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="field-input"
+              placeholder="••••••••"
+              [(ngModel)]="form.password"
+              name="password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="eye-btn" (click)="showPassword = !showPassword; $event.preventDefault()">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="loginErrors.password">{{ loginErrors.password }}</span>
+        </div>
+
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Se connecter</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Link to register -->
+    <div class="auth-footer">
+      <span>Pas encore de compte ?</span>
+      <button class="link-btn" (click)="goToRegister()">Créer un compte</button>
+    </div>
+
+  </div>
+</ion-content>

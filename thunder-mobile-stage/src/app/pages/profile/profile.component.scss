@@ -1,0 +1,291 @@
+@use '../../shared/styles/auth.shared.scss';
+
+:host {
+  --teal:        #0ae1cc;
+  --teal-dark:   #00A896;
+  --teal-xdark:  #007F72;
+  --bg:          #f3f6f9;
+  --card-bg:     #ffffff;
+  --text-main:   #1a202c;
+  --text-sub:    #64748b;
+  --radius-lg:   20px;
+  --radius-md:   14px;
+  --danger:      #e53e3e;
+}
+
+.profile-content {
+  --background: var(--bg);
+}
+
+/* ── Profile Hero ── */
+.profile-hero {
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  padding: 40px 20px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  color: #fff;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  box-shadow: 0 4px 20px rgba(10, 225, 204, 0.2);
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.profile-hero-info {
+  text-align: center;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.profile-email {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 4px 0 0;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon { font-size: 22px; }
+}
+
+/* ── Sections ── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 20px 12px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edit-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--teal-dark);
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  ion-icon { font-size: 16px; }
+}
+
+/* ── Info Cards ── */
+.profile-card {
+  background: var(--card-bg);
+  margin: 0 16px;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child { border-bottom: none; }
+}
+
+.info-icon {
+  font-size: 20px;
+  color: var(--teal-dark);
+  width: 24px;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 11px;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 15px;
+  color: var(--text-main);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── Form specific ── */
+.divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 20px 0;
+}
+
+.section-note {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* ── Danger Zone ── */
+.danger-zone {
+  margin: 32px 16px 40px;
+}
+
+.danger-btn {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid var(--danger);
+  color: var(--danger);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.1);
+
+  ion-icon { font-size: 18px; }
+}
+
+/* ── Modals ── */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 30px 24px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  ion-icon { font-size: 32px; color: var(--text-sub); }
+
+  &.danger {
+    background: #fff5f5;
+    ion-icon { color: var(--danger); }
+  }
+}
+
+.modal-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 8px;
+}
+
+.modal-text {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.modal-cancel-btn {
+  flex: 1;
+  background: #f1f5f9;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.modal-confirm-btn {
+  flex: 1.5;
+  background: var(--danger);
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+
+  &.teal {
+    background: var(--teal-dark);
+    box-shadow: 0 4px 12px rgba(10, 168, 150, 0.3);
+  }
+}

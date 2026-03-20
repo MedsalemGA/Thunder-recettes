@@ -1,0 +1,42 @@
+<nav class="footer-bar" *ngIf="showFooter">
+
+  <!-- Home -->
+  <a class="footer-item" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <div class="footer-icon-wrap">
+      <ion-icon name="home-outline" class="icon-default"></ion-icon>
+      <ion-icon name="home"         class="icon-active"></ion-icon>
+    </div>
+    <span class="footer-label">Accueil</span>
+  </a>
+
+  <!-- Commandes -->
+  <a class="footer-item" routerLink="/commandes" routerLinkActive="active">
+    <div class="footer-icon-wrap">
+      <ion-icon name="receipt-outline" class="icon-default"></ion-icon>
+      <ion-icon name="receipt"         class="icon-active"></ion-icon>
+    </div>
+    <span class="footer-label">Commandes</span>
+  </a>
+
+  <!-- Panier -->
+  <a class="footer-item cart-item" routerLink="/smartcart" routerLinkActive="active">
+    <div class="cart-pill">
+      <ion-icon name="cart-outline" class="icon-default"></ion-icon>
+      <ion-icon name="cart"         class="icon-active"></ion-icon>
+      <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+    </div>
+    <span class="footer-label">Panier</span>
+  </a>
+
+  <!-- Profil → /profile si connecté, /login sinon -->
+  <a class="footer-item"
+     [routerLink]="isLoggedIn ? '/profile' : '/login'"
+     routerLinkActive="active">
+    <div class="footer-icon-wrap">
+      <ion-icon name="person-outline" class="icon-default"></ion-icon>
+      <ion-icon name="person"         class="icon-active"></ion-icon>
+    </div>
+    <span class="footer-label">{{ isLoggedIn ? 'Profil' : 'Connexion' }}</span>
+  </a>
+
+</nav>

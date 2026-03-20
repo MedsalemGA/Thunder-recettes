@@ -1,0 +1,179 @@
+<ion-content class="profile-content">
+  
+  <!-- ── Profile Hero ── -->
+  <div class="profile-hero">
+    <div class="profile-avatar">
+      <span>{{ currentUser?.name | slice:0:1 | uppercase }}</span>
+    </div>
+    <div class="profile-hero-info">
+      <h2 class="profile-name">{{ currentUser?.name }}</h2>
+      <p class="profile-email">{{ currentUser?.email }}</p>
+    </div>
+    <button class="logout-btn" (click)="confirmLogout()">
+      <ion-icon name="log-out-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Global error -->
+  <div class="global-error" *ngIf="globalError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    {{ globalError }}
+  </div>
+
+  <!-- ── Section header ── -->
+  <div class="section-header">
+    <span class="section-title">Informations personnelles</span>
+    <button class="edit-toggle-btn" (click)="toggleEdit()">
+      <ion-icon [name]="editMode ? 'close-outline' : 'create-outline'"></ion-icon>
+      {{ editMode ? 'Annuler' : 'Modifier' }}
+    </button>
+  </div>
+
+  <!-- ── Read-only view ── -->
+  <div class="profile-card" *ngIf="!editMode">
+    <div class="info-row" *ngFor="let f of profileFields">
+      <ion-icon [name]="f.icon" class="info-icon"></ion-icon>
+      <div class="info-content">
+        <span class="info-label">{{ f.label }}</span>
+        <span class="info-value">{{ f.value }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit form ── -->
+  <div class="profile-card" *ngIf="editMode">
+    <form (ngSubmit)="onSave()">
+
+      <div class="field-group">
+        <label class="field-label">Nom complet</label>
+        <div class="input-wrap" [class.error]="errors.name">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <input type="text" class="field-input" [(ngModel)]="editForm.name" name="name" />
+        </div>
+        <span class="field-error" *ngIf="errors.name">{{ errors.name }}</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <div class="input-wrap" [class.error]="errors.email">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <input type="email" class="field-input" [(ngModel)]="editForm.email" name="email" />
+        </div>
+        <span class="field-error" *ngIf="errors.email">{{ errors.email }}</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Téléphone</label>
+        <div class="input-wrap">
+          <ion-icon name="call-outline" class="input-icon"></ion-icon>
+          <input type="tel" class="field-input" [(ngModel)]="editForm.telephone" name="telephone" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Adresse / Région</label>
+        <div class="input-wrap select-wrap">
+          <ion-icon name="location-outline" class="input-icon"></ion-icon>
+          <select class="field-input field-select" [(ngModel)]="editForm.adresse" name="adresse">
+            <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+          </select>
+          <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p class="section-note">Laisser vide pour garder le mot de passe actuel</p>
+
+      <div class="field-group">
+        <label class="field-label">Nouveau mot de passe</label>
+        <div class="input-wrap">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <input [type]="showPwd ? 'text' : 'password'" class="field-input"
+            placeholder="Nouveau mot de passe"
+            [(ngModel)]="editForm.password" name="newPwd" />
+          <button type="button" class="eye-btn" (click)="showPwd = !showPwd">
+            <ion-icon [name]="showPwd ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <span class="field-error" *ngIf="errors.password">{{ errors.password }}</span>
+      </div>
+
+      <div class="field-group" *ngIf="editForm.password">
+        <label class="field-label">Confirmer le mot de passe</label>
+        <div class="input-wrap">
+          <ion-icon name="shield-checkmark-outline" class="input-icon"></ion-icon>
+          <input [type]="showConfirm ? 'text' : 'password'" class="field-input"
+            placeholder="Confirmer"
+            [(ngModel)]="editForm.password_confirmation" name="confirmPwd" />
+          <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
+            <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <span class="field-error" *ngIf="errors.confirmPassword">{{ errors.confirmPassword }}</span>
+      </div>
+
+      <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Sauvegarder</span>
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      </button>
+
+    </form>
+  </div>
+
+  <!-- ── Danger zone ── -->
+  <div class="danger-zone">
+    <button class="danger-btn" (click)="confirmDelete()">
+      <ion-icon name="trash-outline"></ion-icon>
+      Supprimer mon compte
+    </button>
+  </div>
+
+  <!-- ── Logout modal ── -->
+  <div class="modal-backdrop" *ngIf="showLogoutModal" (click)="showLogoutModal = false">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </div>
+      <h3 class="modal-title">Se déconnecter ?</h3>
+      <p class="modal-text">Vous serez redirigé vers la page de connexion.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="showLogoutModal = false">Annuler</button>
+        <button class="modal-confirm-btn teal" (click)="onLogout()" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Se déconnecter</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete modal ── -->
+  <div class="modal-backdrop" *ngIf="showDeleteModal" (click)="showDeleteModal = false">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon danger">
+        <ion-icon name="warning-outline"></ion-icon>
+      </div>
+      <h3 class="modal-title">Supprimer le compte ?</h3>
+      <p class="modal-text">Cette action est irréversible.</p>
+      <div class="field-group" style="padding: 0 4px">
+        <label class="field-label">Confirmez avec votre mot de passe</label>
+        <div class="input-wrap">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <input [type]="showDeletePwd ? 'text' : 'password'" class="field-input"
+            placeholder="Votre mot de passe" [(ngModel)]="deletePassword" name="deletePwd" />
+          <button type="button" class="eye-btn" (click)="showDeletePwd = !showDeletePwd">
+            <ion-icon [name]="showDeletePwd ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <span class="field-error" *ngIf="deleteError">{{ deleteError }}</span>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="showDeleteModal = false">Annuler</button>
+        <button class="modal-confirm-btn" (click)="onDelete()" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Supprimer</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
