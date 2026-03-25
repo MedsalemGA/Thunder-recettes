@@ -47,3 +47,6 @@ html {
   scroll-behavior: smooth;
 }
 /* Dans styles.scss / global styles.css ou dans un fichier importé partout */
+ion-content {
+  --padding-bottom: 70px; /* hauteur de votre footer */
+}

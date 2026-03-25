@@ -10,47 +10,66 @@ import { VerifyEmailComponent } from './pages/verify-email/verify-email.componen
 import { RecipesHomeComponent } from './pages/client/home-reciepe/recipes-home.component'
 import { SmartCartComponent } from './pages/client/smartcart/smart-cart.component'
 import { RecipeDetailComponent } from './pages/client/reciepe-details/recipe-detail.component'
-
+import { CommandesComponent } from './pages/commandes/commandes.component'
 const routes: Routes = [
-  {
-    path: 'admin',
-    component: AdminComponent,
-  },
+ {
+  path: 'admin',
+  loadComponent: () => import('./pages/admin/admin/admin.component')
+    .then(m => m.AdminComponent),
+},
   {
     path: 'admindashboard',
-    component: AdmindashboardComponent,
+    loadComponent: () => import('./pages/admin/admindashboard/admindashboard.component')
+    .then(m => m.AdmindashboardComponent),
   },
   {
     path: 'home',
-    component: HomeComponent,
+    loadComponent: () => import('./pages/home/home.component')
+    .then(m => m.HomeComponent),
   },
   {
     path: 'login',
-    component: LogincomponentComponent
+    loadComponent: () => import('./pages/login/logincomponent/logincomponent.component')
+    .then(m => m.LogincomponentComponent),
   },
   {
     path: 'register',
-    component: RegisterComponent
+    loadComponent: () => import('./pages/register/register/register.component')
+    .then(m => m.RegisterComponent),
   },
   {
     path: 'profile',
-    component: ProfileComponent
+    loadComponent: () => import('./pages/profile/profile.component')
+    .then(m => m.ProfileComponent),
   },
   {
     path: 'verify-email',
-    component: VerifyEmailComponent
+    loadComponent: () => import('./pages/verify-email/verify-email.component')
+    .then(m => m.VerifyEmailComponent),
   },
   {
    path: 'recipes',
-    component: RecipesHomeComponent,
+    loadComponent: () => import('./pages/client/home-reciepe/recipes-home.component')
+    .then(m => m.RecipesHomeComponent),
   },
   {
     path: 'smart-cart',
-    component: SmartCartComponent,
+    loadComponent: () => import('./pages/client/smartcart/smart-cart.component')
+    .then(m => m.SmartCartComponent),
   },
   {
-    path: 'recipes/:id',
-    component: RecipeDetailComponent,
+     path: 'commandes',
+     loadComponent: () => import('./pages/commandes/commandes.component')
+     .then(m => m.CommandesComponent),
+  },
+  {
+     path: 'recipes/:id',
+     loadComponent: () => import('./pages/client/reciepe-details/recipe-detail.component')
+     .then(m => m.RecipeDetailComponent),
+  },
+  {
+        path: 'scan-recipe',
+      loadChildren: () => import('./pages/scan-recipe/scan-recipe.module').then(m => m.ScanRecipePageModule)
   },
   {
     path: '',

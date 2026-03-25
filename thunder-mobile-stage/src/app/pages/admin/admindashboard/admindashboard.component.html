@@ -30,6 +30,15 @@
         </div>
         <span class="nav-text" [class.visible]="isSidebarOpen">Fournisseurs</span>
       </a>
+            <a (click)="navigateTo('produits')" class="nav-item" [class.active]="activeSection === 'produits'">
+        <div class="nav-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <span class="nav-text" [class.visible]="isSidebarOpen">Produits</span>
+      </a>
 
       <!-- Recettes -->
       <a (click)="navigateTo('recettes')" class="nav-item" [class.active]="activeSection === 'recettes'">
@@ -121,11 +130,20 @@
       <p class="section-subtitle">Gérez vos fournisseurs et partenaires</p>
     </div>
     <div class="content-card">
-      <div class="searchcontent" *ngIf="!isshowajouterfournisseur">
-           <input type="text" placeholder="Rechercher un fournisseur..." class="search-input" [(ngModel)]="query" (ngModelChange)="rechercherFournisseur($event)">
-          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 30 30"style="position: relative; left: -40px; top: 0px;">
-<path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
-</svg>
+      <div class="searchcontent recettes-toolbar">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher un fournisseur..."
+          [(ngModel)]="query"
+          (ngModelChange)="rechercherFournisseur($event)">
+      </div>
+     
+    
       <button class="ajouterfournisseur-button" (click)="showajouterfournisseur()" *ngIf="!isshowajouterfournisseur">Nouveau fournisseur</button>
       </div>
       <!-- Formulaire ajout / modification -->
@@ -556,6 +574,231 @@
       </div>
     </div>
   </section>
+     <section id="produits" class="page-section" *ngIf="activeSection === 'produits'">
+    <div class="section-header">
+      <h2 class="section-title">Produits</h2>
+      <p class="section-subtitle">Catalogue des produits par fournisseur</p>
+    </div>
+ 
+    <!-- Barre de recherche produits -->
+    <div class="produits-toolbar">
+      
+        <div class="searchcontent recettes-toolbar">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher un produit..."
+          [(ngModel)]="queryProduit"
+          (ngModelChange)="rechercherProduit($event)">
+      </div>
+       <div class="produits-stats">
+        <span class="produits-stat-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          {{ fournisseursAvecProduits.length }} fournisseurs
+        </span>
+        <span class="produits-stat-badge ">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          {{ totalProduits }} produits
+        </span>
+      </div>
+    
+        
+      </div>
+      
+    </div>
+ 
+    <!-- Liste accordion -->
+    <div class="fournisseur-accordion-list">
+ 
+      <!-- État vide -->
+      <div class="produits-empty" *ngIf="fournisseursAvecProduits.length === 0">
+        <div class="produits-empty__icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <p class="produits-empty__title">Aucun fournisseur trouvé</p>
+        <p class="produits-empty__sub">
+  Modifiez votre recherche ou 
+  <a (click)="navigateTo('fournisseurs')" class="custom-link">
+    ajoutez des fournisseurs.
+  </a>
+</p>
+      </div>
+ 
+      <!-- Ligne fournisseur (accordion item) -->
+      <div
+        class="accordion-item"
+        *ngFor="let item of fournisseursAvecProduits; let i = index"
+        [class.accordion-item--open]="expandedFournisseurId === item.fournisseur.id"
+      >
+        <!-- En-tête cliquable -->
+        <div class="accordion-header" (click)="toggleFournisseurProduits(item.fournisseur.id)">
+ 
+          <!-- Avatar + infos -->
+          <div class="accordion-header__left">
+            <div class="fournisseur-avatar">
+              <img
+                *ngIf="item.fournisseur.user?.photo"
+                [src]="item.fournisseur.user.photo"
+                [alt]="item.fournisseur.user?.name"
+                class="fournisseur-avatar__img"
+              />
+              <span *ngIf="!item.fournisseur.user?.photo" class="fournisseur-avatar__initials">
+                {{ getInitials(item.fournisseur.user?.name) }}
+              </span>
+            </div>
+ 
+            <div class="fournisseur-info">
+              <span class="fournisseur-info__name">{{ item.fournisseur.user?.name }}</span>
+              <span class="fournisseur-info__meta">
+                <span class="meta-tag meta-tag--specialite">{{ item.fournisseur.specialite }}</span>
+                <span class="meta-tag meta-tag--code">{{ item.fournisseur.code_commercial }}</span>
+              </span>
+            </div>
+          </div>
+ 
+          <!-- Droite : badge produits + chevron -->
+          <div class="accordion-header__right">
+            <span class="produits-count-badge">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+              {{ item.produits.length }} produit{{ item.produits.length !== 1 ? 's' : '' }}
+            </span>
+ 
+            <!-- Stock alert -->
+            <span class="stock-alert-badge" *ngIf="hasLowStock(item.produits)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              Stock bas
+            </span>
+ 
+            <div class="accordion-chevron" [class.accordion-chevron--open]="expandedFournisseurId === item.fournisseur.id">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Contenu déroulant : liste des produits -->
+        <div class="accordion-body" [class.accordion-body--open]="expandedFournisseurId === item.fournisseur.id">
+          <div class="accordion-body__inner">
+ 
+            <!-- État vide produits -->
+            <div class="produits-vide" *ngIf="item.produits.length === 0">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+              </svg>
+              <span>Aucun produit pour ce fournisseur</span>
+            </div>
+ 
+            <!-- Table produits -->
+            <table class="produits-table" *ngIf="item.produits.length > 0">
+              <thead>
+                <tr>
+                  <th class="col-nom">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                    Nom du produit
+                  </th>
+                  <th class="col-prix">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Prix
+                  </th>
+                  <th class="col-stock">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                    </svg>
+                    Stock
+                  </th>
+                  <th class="col-statut">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  class="produit-row"
+                  *ngFor="let produit of item.produits; let j = index"
+                  [style.animation-delay]="(j * 0.05) + 's'"
+                >
+                  <!-- Nom -->
+                  <td class="col-nom">
+                    <div class="produit-nom-cell">
+                      <div class="produit-dot"></div>
+                      <span class="produit-nom">{{ produit.nom }}</span>
+                    </div>
+                  </td>
+ 
+                  <!-- Prix -->
+                  <td class="col-prix">
+                    <span class="prix-badge">
+                      {{ produit.prix | number:'1.2-2' }} <span class="prix-devise">DT</span>
+                    </span>
+                  </td>
+ 
+                  <!-- Quantité stock -->
+                  <td class="col-stock">
+                    <div class="stock-cell">
+                      <div class="stock-bar-wrap">
+                        <div
+                          class="stock-bar"
+                          [class.stock-bar--low]="produit.quantite_stock <= 10"
+                          [class.stock-bar--medium]="produit.quantite_stock > 10 && produit.quantite_stock <= 50"
+                          [class.stock-bar--high]="produit.quantite_stock > 50"
+                          [style.width]="getStockBarWidth(produit.quantite_stock) + '%'"
+                        ></div>
+                      </div>
+                      <span class="stock-value" [class.stock-value--low]="produit.quantite_stock <= 10">
+                        {{ produit.quantite_stock }}
+                      </span>
+                    </div>
+                  </td>
+ 
+                  <!-- Statut stock -->
+                  <td class="col-statut">
+                    <span
+                      class="statut-pill"
+                      [class.statut-pill--low]="produit.quantite_stock <= 10"
+                      [class.statut-pill--medium]="produit.quantite_stock > 10 && produit.quantite_stock <= 50"
+                      [class.statut-pill--ok]="produit.quantite_stock > 50"
+                    >
+                      <span class="statut-dot"></span>
+                      {{ produit.quantite_stock === 0 ? 'Indisponible' : produit.quantite_stock <= 10 ? 'Stock bas' : produit.quantite_stock <= 50 ? 'Moyen' : 'Disponible' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- /accordion-item -->
+ 
+    </div>
+  </section>
+      
 
   <section id="messages" class="page-section" *ngIf="activeSection === 'messages'">
     <div class="section-header">

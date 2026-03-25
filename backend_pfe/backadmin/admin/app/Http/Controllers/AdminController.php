@@ -217,9 +217,9 @@ public function ajouterfournisseur(Request $request){
         "message" => "Fournisseur created successfully",
         "data"    => $fournisseur
     ], 201);}
-    public function getallfournisseurs()
+public function getallfournisseurs()
 {
-    $fournisseurs = Fournisseur::with('user')
+    $fournisseurs = Fournisseur::with(['user', 'produits'])
         ->whereHas('user', function ($query) {
             $query->where('role', 'fournisseur');
         })
@@ -231,6 +231,7 @@ public function ajouterfournisseur(Request $request){
         "data"    => $fournisseurs,
     ], 200);
 }
+
 public function deletefournisseurs(Request $request){
     $fournisseurs = User::findOrFail($request->id);
     $fournisseurs->delete();
@@ -326,5 +327,6 @@ public function deleterecettes(Request $request){
         "data"    => $recettes,
     ], 200);
 }
+
 
 }

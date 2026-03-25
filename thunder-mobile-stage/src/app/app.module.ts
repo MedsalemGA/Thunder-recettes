@@ -37,7 +37,7 @@ import { BackgroundMode } from '@awesome-cordova-plugins/background-mode/ngx';
 import { Diagnostic } from '@awesome-cordova-plugins/diagnostic/ngx';
 import { ForegroundService } from '@awesome-cordova-plugins/foreground-service/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { WebView } from '@awesome-cordova-plugins/ionic-webview/ngx';
+
 import { Market } from '@awesome-cordova-plugins/market/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { initializeApp } from 'firebase/app';
@@ -55,8 +55,9 @@ export function createTranslateLoader(http: HttpClient) {
 }
 
  @NgModule({
-  declarations: [AppComponent,AdminComponent],
+  declarations: [AppComponent],
   imports: [
+    AdminComponent,
     BrowserModule,
     IonicModule.forRoot({
       innerHTMLTemplatesEnabled: true,
@@ -103,7 +104,7 @@ export function createTranslateLoader(http: HttpClient) {
     Market,
     SocialSharing,
     AndroidPermissions,
-    WebView,
+    
     Deeplinks,
     LocationAccuracy,
     {

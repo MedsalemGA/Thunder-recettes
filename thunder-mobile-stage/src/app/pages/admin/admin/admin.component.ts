@@ -1,12 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { AlertController, IonicModule, ToastController } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
+  standalone: true,
+  imports: [RouterModule,
+    CommonModule,
+    FormsModule,
+    IonicModule,
+  ],
 })
 export class AdminComponent  implements OnInit {
   // ── Étape 1 : credentials ──────────────────────────────────────────────────

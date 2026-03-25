@@ -1,420 +1,873 @@
-$primary-color: #FF6B6B;
-$secondary-color: #4ECDC4;
-$accent-color: #FFE66D;
-$text-dark: #2C3E50;
-$text-light: #7F8C8D;
-$bg-light: #F8F9FA;
-$shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-$success-color: #4CAF50;
-$warning-color: #FF9800;
+// ═══════════════════════════════════════════
+//  SMART CART — Fresh Light Design System
+//  Palette: Teal / Slate / White
+// ═══════════════════════════════════════════
 
-ion-content.cart-content {
-  --background: #F8F9FA;
-  padding-bottom: 80px;
-}
+// ── Brand Palette ────────────────────────
+$primary:      #0ae1cc;
+$primary-dark: #00A896;
+$primary-glow: rgba(10, 225, 204, 0.18);
+$primary-soft: rgba(10, 225, 204, 0.10);
 
-// Résumé du panier
-.cart-summary {
-  margin: 12px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, $primary-color, $secondary-color);
-  box-shadow: $shadow;
-  border: none;
+$text-dark:    #1a202c;
+$text-light:   #64748b;
+$text-hint:    #94a3b8;
+$bg-page:      #f8fafc;
+$bg-white:     #ffffff;
+$bg-surface:   #f1f5f9;
+$border:       #e2e8f0;
+$success:      #10b981;
+$success-soft: rgba(16, 185, 129, 0.12);
+$warning:      #f59e0b;
+$warning-soft: rgba(245, 158, 11, 0.12);
+$danger:       #ef4444;
+$danger-soft:  rgba(239, 68, 68, 0.10);
 
-  ion-card-content {
-    padding: 20px;
+$shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
+$shadow-md:    0 8px 24px rgba(0,0,0,0.08);
+$shadow-teal:  0 6px 24px rgba(10, 225, 204, 0.28);
+
+$radius-card:  18px;
+$radius-sm:    10px;
+$radius-xs:    7px;
+
+$font-display: 'Sora', 'SF Pro Display', system-ui, sans-serif;
+$font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
+
+
+// ═══════════════════════════════════════════
+//  HEADER — Redesigned
+// ═══════════════════════════════════════════
+
+.cart-header {
+  ion-toolbar {
+    --background: #{$bg-white};
+    --border-color: transparent;
+    --min-height: 64px;
+    padding: 0 6px;
+    box-shadow: 0 1px 0 $border;
   }
 
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+  .back-btn {
+    --color: #{$text-light};
 
-    @media (max-width: 600px) {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .summary-item {
+    &::part(native) {
+      width: 38px;
+      height: 38px;
+      background: $bg-surface;
+      border-radius: 50%;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      color: white;
-
-      .summary-label {
-        font-size: 12px;
-        opacity: 0.9;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .summary-value {
-        font-size: 24px;
-        font-weight: 700;
-        margin-top: 6px;
-      }
+      justify-content: center;
     }
+
+    ion-icon { font-size: 20px; }
+  }
+
+  ion-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .header-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    color: $primary-dark;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    font-family: $font-body;
+  }
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .header-title {
+    font-family: $font-display;
+    font-size: 18px;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.5px;
+  }
+
+  .header-badge {
+    background: $primary;
+    color: $text-dark;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $font-body;
+    box-shadow: 0 2px 8px rgba(10, 225, 204, 0.4);
+  }
+
+  .export-btn {
+    --color: #{$primary-dark};
+
+    &::part(native) {
+      width: 38px;
+      height: 38px;
+      background: $primary-soft;
+      border-radius: 50%;
+    }
+
+    ion-icon { font-size: 18px; }
   }
 }
 
-// Carte de suggestions
-.suggestions-card {
-  margin: 12px;
-  border-radius: 16px;
-  box-shadow: $shadow;
-  border-left: 4px solid $warning-color;
 
-  ion-card-header {
-    padding: 16px;
-    border-bottom: 1px solid #EFEFEF;
+// ═══════════════════════════════════════════
+//  CONTENT BASE
+// ═══════════════════════════════════════════
 
-    h3 {
+.cart-content {
+  --background: #{$bg-page};
+  font-family: $font-body;
+}
+
+
+// ═══════════════════════════════════════════
+//  HERO SUMMARY
+// ═══════════════════════════════════════════
+
+.cart-hero {
+  position: relative;
+  margin: 16px 16px 0;
+  border-radius: $radius-card;
+  overflow: hidden;
+  background: $primary-dark;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(10, 225, 204, 0.35) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-bg-blur { display: none; }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 24px 20px 20px;
+  }
+
+  .hero-stat.main-stat {
+    text-align: center;
+    margin-bottom: 20px;
+
+    .main-price {
+      display: block;
+      font-family: $font-display;
+      font-size: 44px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .main-label {
+      display: block;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      margin-top: 7px;
+      font-weight: 600;
+    }
+  }
+
+  .hero-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin-bottom: 18px;
+  }
+
+  .hero-secondary-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .mini-stat {
+    text-align: center;
+    flex: 1;
+
+    .mini-value {
+      display: block;
       font-size: 16px;
       font-weight: 700;
+      color: $primary;
+      font-family: $font-display;
+    }
+
+    .mini-label {
+      display: block;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+  }
+
+  .mini-sep {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.12);
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  AI SUGGESTIONS
+// ═══════════════════════════════════════════
+
+.suggestions-strip {
+  margin: 14px 16px 0;
+
+  .suggestions-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    .ai-badge {
+      background: linear-gradient(135deg, $primary, $primary-dark);
       color: $text-dark;
-      margin: 0;
-    }
-  }
-
-  .suggestions-list {
-    .suggestion-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #EFEFEF;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      ion-icon {
-        font-size: 20px;
-        flex-shrink: 0;
-        margin-top: 2px;
-      }
-
-      span {
-        font-size: 13px;
-        color: $text-dark;
-        line-height: 1.5;
-      }
-    }
-  }
-}
-
-// Segments
-ion-segment {
-  margin: 12px;
-  --background: white;
-  border-radius: 12px;
-  box-shadow: $shadow;
-  padding: 4px;
-
-  ion-segment-button {
-    --indicator-color: $primary-color;
-    font-weight: 600;
-    font-size: 13px;
-  }
-}
-
-// Groupement par recette
-.recipe-group {
-  padding: 12px;
-
-  .recipe-group-card {
-    border-radius: 16px;
-    box-shadow: $shadow;
-    border: none;
-
-    ion-card-header {
-      padding: 16px;
-      border-bottom: 1px solid #EFEFEF;
-
-      .recipe-group-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        h3 {
-          font-size: 16px;
-          font-weight: 700;
-          color: $text-dark;
-          margin: 0;
-        }
-
-        ion-button {
-          --border-radius: 8px;
-          height: 32px;
-          font-size: 12px;
-        }
-      }
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
     }
 
-    .items-list {
-      .cart-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 0;
-        border-bottom: 1px solid #EFEFEF;
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        .item-info {
-          flex: 1;
-
-          .item-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: $text-dark;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            .substitution-badge {
-              font-size: 12px;
-              background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 193, 7, 0.2));
-              padding: 2px 8px;
-              border-radius: 4px;
-              color: $warning-color;
-              font-weight: 700;
-            }
-          }
-
-          .item-note {
-            font-size: 11px;
-            color: $text-light;
-            margin-top: 4px;
-            font-style: italic;
-          }
-        }
-
-        .item-controls {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-
-          .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: $bg-light;
-            padding: 4px;
-            border-radius: 8px;
-
-            ion-button {
-              --border-radius: 6px;
-              height: 28px;
-              width: 28px;
-              min-width: 28px;
-            }
-
-            .quantity {
-              font-size: 12px;
-              font-weight: 600;
-              color: $text-dark;
-              min-width: 50px;
-              text-align: center;
-            }
-          }
-
-          .item-price {
-            font-size: 14px;
-            font-weight: 700;
-            color: $primary-color;
-            min-width: 70px;
-            text-align: right;
-          }
-
-          ion-button {
-            --border-radius: 6px;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Boutons d'action
-.action-buttons {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 12px;
-
-  ion-button {
-    --border-radius: 12px;
-    height: 44px;
-  }
-}
-
-// État vide
-.empty-cart,
-.empty-recipes {
-  margin: 40px 12px;
-  border-radius: 16px;
-  text-align: center;
-  padding: 40px 20px;
-  box-shadow: $shadow;
-  border: 2px dashed #E0E0E0;
-
-  .empty-illustration {
-    margin-bottom: 24px;
-
-    ion-icon {
-      font-size: 64px;
+    .suggestions-title {
+      font-size: 13px;
       color: $text-light;
-      opacity: 0.5;
+      font-weight: 600;
     }
   }
 
-  h2 {
-    color: $text-dark;
+  .suggestions-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .suggestion-chip {
+    flex-shrink: 0;
+    background: $bg-white;
+    border: 1px solid $border;
+    border-left: 3px solid $primary;
+    color: $text-light;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: $radius-sm;
+    white-space: normal;
+    max-width: 240px;
+    line-height: 1.4;
+    box-shadow: $shadow-sm;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+
+.tabs-container {
+  display: flex;
+  gap: 6px;
+  padding: 14px 16px 0;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: $radius-sm;
+  background: $bg-white;
+  border: 1.5px solid $border;
+  color: $text-light;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: $font-body;
+  cursor: pointer;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+
+  .tab-icon { font-size: 15px; }
+
+  .tab-count {
+    background: $bg-surface;
+    color: $text-hint;
+    font-size: 10px;
     font-weight: 700;
-    margin: 16px 0 8px 0;
+    padding: 1px 6px;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+
+  &.active {
+    background: $primary-soft;
+    border-color: $primary;
+    color: $primary-dark;
+    box-shadow: none;
+
+    .tab-count {
+      background: $primary;
+      color: $text-dark;
+    }
+  }
+
+  &:active { transform: scale(0.97); }
+}
+
+
+// ═══════════════════════════════════════════
+//  RECIPE GROUPS
+// ═══════════════════════════════════════════
+
+.recipe-group {
+  margin: 14px 16px 0;
+  background: $bg-white;
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-bottom: 1px solid $border;
+  background: $bg-surface;
+
+  .group-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+
+    .group-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: $primary;
+      box-shadow: 0 0 0 3px $primary-soft;
+      flex-shrink: 0;
+    }
+
+    .group-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: $text-dark;
+      font-family: $font-display;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .group-count {
+      font-size: 11px;
+      color: $text-hint;
+      flex-shrink: 0;
+      background: $bg-page;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid $border;
+    }
+  }
+
+  .remove-recipe-btn {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: $danger;
+    background: $danger-soft;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: $font-body;
+    &:active { opacity: 0.65; }
+  }
+}
+
+.items-container { padding: 0 16px; }
+
+
+// ═══════════════════════════════════════════
+//  ITEM ROW
+// ═══════════════════════════════════════════
+
+.item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid $border;
+  &.item-last { border-bottom: none; }
+}
+
+.item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.item-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-xs;
+  background: $primary-soft;
+  border: 1.5px solid rgba(10, 225, 204, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: $primary-dark;
+  font-family: $font-display;
+  flex-shrink: 0;
+}
+
+.item-details {
+  min-width: 0;
+
+  .item-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-dark;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sub-badge { font-size: 13px; flex-shrink: 0; }
+
+  .item-note {
+    display: block;
+    font-size: 11px;
+    color: $text-hint;
+    margin-top: 3px;
+    font-style: italic;
+  }
+}
+
+.item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.qty-stepper {
+  display: flex;
+  align-items: center;
+  background: $bg-surface;
+  border-radius: $radius-xs;
+  overflow: hidden;
+  border: 1.5px solid $border;
+
+  .stepper-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: $primary-dark;
+    font-size: 18px;
+    font-weight: 400;
+    cursor: pointer;
+    line-height: 1;
+    &:active { background: $primary-soft; }
+  }
+
+  .qty-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: $text-dark;
+    min-width: 46px;
+    text-align: center;
+    font-family: $font-display;
+
+    .qty-unit {
+      font-size: 10px;
+      color: $text-hint;
+      font-weight: 500;
+    }
+  }
+}
+
+.item-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: $primary-dark;
+  font-family: $font-display;
+}
+
+.delete-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: $text-hint;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  &:active {
+    color: $danger;
+    background: $danger-soft;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  UTILITY ACTIONS
+// ═══════════════════════════════════════════
+
+.utility-actions {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px 8px;
+}
+
+.util-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 12px;
+  border-radius: $radius-sm;
+  background: $bg-white;
+  border: 1.5px solid $border;
+  color: $text-light;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: $font-body;
+  box-shadow: $shadow-sm;
+
+  span:first-child { font-size: 15px; }
+  &:active { opacity: 0.7; }
+
+  &.danger {
+    color: $danger;
+    border-color: rgba(239, 68, 68, 0.25);
+    background: $danger-soft;
+    box-shadow: none;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  EMPTY STATE
+// ═══════════════════════════════════════════
+
+.empty-state {
+  text-align: center;
+  padding: 60px 32px 40px;
+
+  .empty-icon {
+    font-size: 52px;
+    margin-bottom: 20px;
+    display: block;
+    opacity: 0.45;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+    margin: 0 0 10px;
+    letter-spacing: -0.4px;
   }
 
   p {
+    font-size: 14px;
     color: $text-light;
-    margin: 0 0 20px 0;
+    margin: 0 0 28px;
+    line-height: 1.6;
   }
 
-  ion-button {
-    --border-radius: 10px;
+  .cta-outline {
+    background: transparent;
+    border: 1.5px solid $primary;
+    color: $primary-dark;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $font-body;
+    &:active { background: $primary-soft; }
   }
 }
 
-// Liste de recettes
-.recipes-list {
-  padding: 12px;
 
-  .recipe-overview-card {
-    margin-bottom: 12px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: $shadow;
+// ═══════════════════════════════════════════
+//  RECIPES
+// ═══════════════════════════════════════════
 
-    img {
+.recipes-grid {
+  padding: 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recipe-card {
+  background: $bg-white;
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+
+  .recipe-img-wrapper {
+    position: relative;
+    height: 150px;
+
+    .recipe-img {
       width: 100%;
-      height: 160px;
+      height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    ion-card-header {
-      padding: 12px;
-
-      ion-card-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: $text-dark;
-        margin: 0;
-      }
-
-      ion-card-subtitle {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        font-size: 12px;
-        color: $text-light;
-        margin-top: 8px;
-
-        span {
-          background: $bg-light;
-          padding: 4px 10px;
-          border-radius: 6px;
-        }
-      }
+    .recipe-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,32,44,0.65) 0%, transparent 55%);
     }
 
-    ion-card-content {
-      padding: 8px 12px;
+    .recipe-rating {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.92);
+      color: $text-dark;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: $shadow-sm;
+    }
+  }
 
-      p {
-        font-size: 12px;
-        color: $text-light;
-        margin: 0 0 12px 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+  .recipe-body {
+    padding: 14px 16px 16px;
 
-      ion-button {
-        --border-radius: 10px;
-        height: 36px;
-        font-size: 12px;
+    .recipe-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: $text-dark;
+      font-family: $font-display;
+      margin: 0 0 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .recipe-desc {
+      font-size: 12px;
+      color: $text-light;
+      margin: 0 0 12px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .recipe-meta {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .meta-pill {
+      font-size: 11px;
+      color: $text-light;
+      background: $bg-surface;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid $border;
+    }
+
+    .recipe-detail-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: $radius-sm;
+      background: transparent;
+      border: 1.5px solid $border;
+      color: $text-light;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: $font-body;
+
+      &:active {
+        border-color: $primary;
+        color: $primary-dark;
+        background: $primary-soft;
       }
     }
   }
 }
 
-// Section commande
-.checkout-section {
+
+// ═══════════════════════════════════════════
+//  CHECKOUT BAR
+// ═══════════════════════════════════════════
+
+.checkout-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  padding: 12px 16px 24px;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px 28px;
+  background: $bg-white;
+  border-top: 1px solid $border;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+  z-index: 100;
+
+  .checkout-info {
+    display: flex;
+    flex-direction: column;
+
+    .checkout-items {
+      font-size: 11px;
+      color: $text-hint;
+    }
+
+    .checkout-price {
+      font-size: 20px;
+      font-weight: 800;
+      color: $text-dark;
+      font-family: $font-display;
+      letter-spacing: -0.5px;
+    }
+  }
 
   .checkout-btn {
-    --border-radius: 12px;
-    height: 50px;
-    font-weight: 700;
-    font-size: 16px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 20px;
+    border-radius: 14px;
+    background: $primary;
+    border: none;
+    color: $text-dark;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: $font-display;
+    letter-spacing: -0.3px;
+    box-shadow: $shadow-teal;
+
+    .btn-arrow { font-size: 16px; }
+
+    &:active {
+      transform: scale(0.97);
+      box-shadow: none;
+    }
   }
 }
 
-// Skeleton loading
-.skeleton-loading {
+
+// ═══════════════════════════════════════════
+//  SKELETON
+// ═══════════════════════════════════════════
+
+.skeleton-wrapper {
   padding: 16px;
 
-  ion-skeleton-text {
-    margin: 16px 0;
-    border-radius: 12px;
-  }
-}
-
-// Responsive
-@media (max-width: 600px) {
-  ion-content.cart-content {
-    padding-bottom: 100px;
+  @keyframes shimmer {
+    0%   { background-position: -500px 0; }
+    100% { background-position: 500px 0; }
   }
 
-  .recipe-group {
-    padding: 8px;
-
-    .recipe-group-card {
-      ion-card-header {
-        .recipe-group-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 12px;
-
-          ion-button {
-            width: 100%;
-          }
-        }
-      }
-    }
+  %skeleton-base {
+    background: linear-gradient(
+      90deg,
+      $bg-surface 25%,
+      $border 50%,
+      $bg-surface 75%
+    );
+    background-size: 500px 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 16px;
   }
 
-  .cart-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-
-    .item-controls {
-      width: 100%;
-      flex-wrap: wrap;
-    }
-  }
+  .skeleton-hero   { @extend %skeleton-base; height: 145px; margin-bottom: 12px; }
+  .skeleton-tabs   { @extend %skeleton-base; height: 44px; margin-bottom: 16px; border-radius: 10px; }
+  .skeleton-card   { @extend %skeleton-base; height: 140px; margin-bottom: 12px; &.short { height: 88px; } }
 }

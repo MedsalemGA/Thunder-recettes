@@ -35,7 +35,7 @@ Route::group(['prefix' => 'client'], function () {
         Route::delete('/user/account',   [ProfileController::class, 'deleteAccount']);
 
         // Recipes & Orders
-        Route::get('/ingredients/details', [RecipeController::class, 'getIngredientDetails']);
+        
         Route::get('/recipes',           [RecipeController::class, 'index']);
         Route::get('/recipes/{id}',      [RecipeController::class, 'show']);
         Route::post('/smart-order',      [OrderController::class, 'smartOrder']);
@@ -44,6 +44,7 @@ Route::group(['prefix' => 'client'], function () {
         // User History/Activities
         Route::get('/activities',        [UserActivityController::class, 'index']);
         Route::post('/activities',       [UserActivityController::class, 'store']);
+        Route::get('/ingredients/details', [RecipeController::class, 'getIngredientDetails']);
     });
 });
 Route::post('/ajouterfournisseur',[AdminController::class,'ajouterfournisseur']);
@@ -55,3 +56,4 @@ Route::get('/getallrecettes',[AdminController::class,'getallrecettes']);
 Route::post('/ajouterrecettes',[AdminController::class,'ajouterrecettes']);
 Route::patch('/updaterecettes',[AdminController::class,'updaterecettes']);
 Route::delete('/deleterecettes',[AdminController::class,'deleterecettes']);
+

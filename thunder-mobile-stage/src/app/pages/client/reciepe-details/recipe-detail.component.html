@@ -189,16 +189,19 @@
   <div class="segment-panel" *ngIf="activeSegment === 'instructions'">
     <div class="steps-list">
       <div
-        *ngFor="let instruction of recipe.instructions; let i = index; let last = last"
+        *ngFor="let instruction of recipe.instructions; "
         class="step-item"
-        [class.last]="last"
+        
       >
-        <div class="step-left">
+       
+        <div class="step-body">
+          <div class="step-text" *ngFor="let step of instruction['tips']  let i = index; let last = last" class="step-item"
+        [class.last]="last">{{ step }}
+             <div class="step-left">
           <div class="step-num">{{ i + 1 }}</div>
           <div class="step-line" *ngIf="!last"></div>
         </div>
-        <div class="step-body">
-          <div class="step-text">{{ instruction }}</div>
+          </div>
         </div>
       </div>
     </div>

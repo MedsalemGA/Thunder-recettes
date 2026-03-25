@@ -19,9 +19,7 @@ const config: CapacitorConfig = {
     }
   },
   plugins: {
-    FirebaseMessaging: {
-      presentationOptions: ["badge", "sound", "alert"],
-    },
+    
     CapacitorHttp: {
       enabled: false
     },
@@ -41,7 +39,7 @@ const config: CapacitorConfig = {
     },
     SplashScreen: {
       launchShowDuration: 3000,
-      launchAutoHide: false,
+      launchAutoHide: true,
       backgroundColor: "#ffffffff", // white
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
@@ -76,7 +74,7 @@ const config: CapacitorConfig = {
   },
   server: {
     hostname: "localhost",
-    androidScheme: "https",
+    androidScheme: "http",
     allowNavigation: [
       "*.thunder-express.com",
       "*.googleusercontent.com",

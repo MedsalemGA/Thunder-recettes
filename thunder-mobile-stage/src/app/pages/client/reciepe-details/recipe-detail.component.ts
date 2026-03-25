@@ -17,6 +17,7 @@ import { catchError } from 'rxjs/operators';
 import { SmartCartService } from '../../../services/smart-cart.service';
 import { UserActivityService } from '../../../services/user-activity.service';
 import { addIcons } from 'ionicons';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   heart, heartOutline, cartOutline, flashOutline,
   timeOutline, peopleOutline, star, chevronForwardOutline,
@@ -47,7 +48,7 @@ import {
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.scss']
 })
-export class RecipeDetailComponent implements OnInit {
+export class RecipeDetailComponent implements ViewWillEnter {
 
   recipe: Recipe | undefined;
   similarRecipes: Recipe[] = [];
@@ -89,11 +90,21 @@ export class RecipeDetailComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.loadRecipeDetails(params['id']);
-    });
-  }
+ ionViewWillEnter() {
+  this.isLoading = true;
+
+  this.route.paramMap.subscribe(params => {
+    const id = params.get('id');
+
+    if (!id) {
+      console.error("ID manquant");
+      this.isLoading = false;
+      return;
+    }
+
+    this.loadRecipeDetails(id);
+  });
+}
 
   // ════════════════════════════════════════════════════
   // Chargement

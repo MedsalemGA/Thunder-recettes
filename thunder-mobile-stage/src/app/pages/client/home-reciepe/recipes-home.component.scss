@@ -520,14 +520,17 @@ ion-toolbar {
 
   .add-to-cart-btn::part(native) {
     background: linear-gradient(135deg, #{$primary}, #{$primary-dark});
+    
+    border: none;
     border-radius: 16px;
-    box-shadow: 0 10px 22px rgba(10, 225, 204, 0.22);
     font-weight: 800;
     margin: 0;
     height: 52px;
     font-size: 14px;
     text-transform: none;
     color: white;
+    width: 100%;
+    
     &:hover { --box-shadow: 0 14px 28px rgba(10, 225, 204, 0.32); }
   }
 }
@@ -558,4 +561,7 @@ ion-toolbar {
   .pill { padding: 7px 12px; font-size: 12px; }
   .search-wrap { margin: 12px 12px 10px; }
   .header-title { font-size: 22px; }
+}
+ion-content {
+  --padding-bottom: 70px; /* hauteur de votre footer */
 }

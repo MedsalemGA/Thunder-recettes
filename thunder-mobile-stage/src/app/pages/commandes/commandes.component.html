@@ -1,16 +1,209 @@
-<ion-content>
-  <div class="commande-content">
-    <div class="commande-header">
-      <h1 class="commande-title">Mes commandes</h1>
+<ion-header class="orders-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="back-btn" routerLink="/home">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="header-title-group">
+        <span class="header-eyebrow">Historique</span>
+        <span class="header-title">Mes Commandes</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="orders-content">
+
+  <!-- Stats rapides -->
+  <div class="stats-row">
+    <div class="stat-pill">
+      <span class="stat-val">{{ orders.length }}</span>
+      <span class="stat-lbl">Total</span>
     </div>
-    <div class="commande-filters">
-      <div class="commande-filter">
-        <ion-select placeholder="Toutes les commandes" interface="popover">
-          <ion-select-option value="all">Toutes les commandes</ion-select-option>
-          <ion-select-option value="in-progress">En cours</ion-select-option>
-          <ion-select-option value="completed">Terminées</ion-select-option>
-        </ion-select>
+    <div class="stat-sep"></div>
+    <div class="stat-pill">
+      <span class="stat-val">{{ getOrdersByStatus('delivered').length }}</span>
+      <span class="stat-lbl">Livrées</span>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-pill accent">
+      <span class="stat-val">{{ getOrdersByStatus('in_progress').length + getOrdersByStatus('confirmed').length }}</span>
+      <span class="stat-lbl">En cours</span>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-pill">
+      <span class="stat-val">{{ getTotalSpent() | currency:'TND':'symbol':'1.0-0' }}</span>
+      <span class="stat-lbl">Dépensé</span>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-scroll">
+    <button
+      *ngFor="let f of filters"
+      class="filter-chip"
+      [class.active]="activeFilter === f.value"
+      (click)="setFilter(f.value)">
+      <span class="filter-dot" [class]="f.value"></span>
+      {{ f.label }}
+    </button>
+  </div>
+
+  <!-- Liste vide -->
+  <div *ngIf="getFilteredOrders().length === 0" class="empty-state">
+    <div class="empty-icon">📦</div>
+    <h3>Aucune commande</h3>
+    <p>Vous n'avez pas encore de commande dans cette catégorie.</p>
+    <button class="cta-outline" routerLink="/home">Découvrir les recettes</button>
+  </div>
+
+  <!-- Commandes -->
+  <div class="orders-list" *ngIf="getFilteredOrders().length > 0">
+    <div
+      *ngFor="let order of getFilteredOrders(); let i = index"
+      class="order-card"
+      [class.expanded]="expandedOrderId === order.id"
+      (click)="toggleOrder(order.id)"
+      [style.animation-delay]="(i * 60) + 'ms'">
+
+      <!-- Card Header -->
+      <div class="order-card-header">
+        <div class="order-meta">
+          <div class="order-id-row">
+            <span class="order-id">#{{ order.id }}</span>
+            <span class="order-status-badge" [class]="order.status">
+              {{ getStatusIcon(order.status) }} {{ getStatusLabel(order.status) }}
+            </span>
+          </div>
+          <div class="order-date">{{ order.date | date:'EEEE d MMMM yyyy':'':'fr' }}</div>
+        </div>
+        <div class="order-right">
+          <span class="order-total">{{ order.total | currency:'TND':'symbol':'1.2-2' }}</span>
+          <ion-icon
+            name="chevron-down-outline"
+            class="expand-icon"
+            [class.rotated]="expandedOrderId === order.id">
+          </ion-icon>
+        </div>
+      </div>
+
+      <!-- Recettes résumé (toujours visible) -->
+      <div class="order-recipes-preview">
+        <span *ngFor="let r of order.recipes.slice(0, 2)" class="recipe-tag">{{ r.name }}</span>
+        <span *ngIf="order.recipes.length > 2" class="recipe-tag more">
+          +{{ order.recipes.length - 2 }}
+        </span>
+      </div>
+
+      <!-- Détail expandable -->
+      <div class="order-detail" *ngIf="expandedOrderId === order.id">
+
+        <!-- Timeline statut -->
+        <div class="status-timeline">
+          <div class="timeline-step" [class.done]="isStepDone(order.status, 'confirmed')">
+            <div class="step-dot"></div>
+            <div class="step-info">
+              <span class="step-label">Confirmée</span>
+              <span class="step-time">{{ order.date | date:'HH:mm' }}</span>
+            </div>
+          </div>
+          <div class="timeline-line" [class.done]="isStepDone(order.status, 'in_progress')"></div>
+          <div class="timeline-step" [class.done]="isStepDone(order.status, 'in_progress')">
+            <div class="step-dot"></div>
+            <div class="step-info">
+              <span class="step-label">En préparation</span>
+              <span class="step-time" *ngIf="isStepDone(order.status, 'in_progress')">{{ order.prepTime }}</span>
+            </div>
+          </div>
+          <div class="timeline-line" [class.done]="isStepDone(order.status, 'shipped')"></div>
+          <div class="timeline-step" [class.done]="isStepDone(order.status, 'shipped')">
+            <div class="step-dot"></div>
+            <div class="step-info">
+              <span class="step-label">En livraison</span>
+              <span class="step-time" *ngIf="isStepDone(order.status, 'shipped')">{{ order.shipTime }}</span>
+            </div>
+          </div>
+          <div class="timeline-line" [class.done]="isStepDone(order.status, 'delivered')"></div>
+          <div class="timeline-step" [class.done]="isStepDone(order.status, 'delivered')">
+            <div class="step-dot"></div>
+            <div class="step-info">
+              <span class="step-label">Livrée</span>
+              <span class="step-time" *ngIf="isStepDone(order.status, 'delivered')">{{ order.deliveryTime }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Articles -->
+        <div class="detail-section">
+          <h4 class="section-title">Articles commandés</h4>
+          <div class="items-list">
+            <div *ngFor="let item of order.items" class="detail-item">
+              <div class="detail-item-left">
+                <span class="detail-avatar">{{ item.name.charAt(0) }}</span>
+                <span class="detail-item-name">{{ item.name }}</span>
+              </div>
+              <div class="detail-item-right">
+                <span class="detail-qty">{{ item.qty }} {{ item.unit }}</span>
+                <span class="detail-price">{{ item.price | currency:'TND':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Adresse livraison -->
+        <div class="detail-section">
+          <h4 class="section-title">Livraison</h4>
+          <div class="address-row">
+            <ion-icon name="location-outline" class="addr-icon"></ion-icon>
+            <span class="addr-text">{{ order.address }}</span>
+          </div>
+        </div>
+
+        <!-- Récap prix -->
+        <div class="price-recap">
+          <div class="price-row">
+            <span>Sous-total</span>
+            <span>{{ order.subtotal | currency:'TND':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="price-row">
+            <span>Livraison</span>
+            <span>{{ order.deliveryFee | currency:'TND':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="price-row total-row">
+            <span>Total</span>
+            <span>{{ order.total | currency:'TND':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="order-actions">
+          <button
+            class="action-btn secondary"
+            *ngIf="order.status === 'delivered'"
+            (click)="reorder(order); $event.stopPropagation()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            Commander à nouveau
+          </button>
+          <button
+            class="action-btn danger"
+            *ngIf="order.status === 'confirmed'"
+            (click)="cancelOrder(order); $event.stopPropagation()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            Annuler
+          </button>
+          <button
+            class="action-btn primary"
+            *ngIf="order.status === 'in_progress' || order.status === 'shipped'"
+            (click)="trackOrder(order); $event.stopPropagation()">
+            <ion-icon name="navigate-outline"></ion-icon>
+            Suivre la livraison
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
+  <div style="height: 32px"></div>
 </ion-content>

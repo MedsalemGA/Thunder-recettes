@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonTitle, IonButtons, 
   IonButton, IonIcon, IonBadge, IonContent, IonCard, 
-  IonCardContent, IonCardHeader, IonCardTitle
+  IonCardContent, IonCardHeader, IonCardTitle, IonChip
 } from '@ionic/angular/standalone';
 import { ModalController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -17,11 +17,13 @@ import { addIcons } from 'ionicons';
 import { 
   cartOutline, searchOutline, heart, heartOutline, 
   star, timeOutline, peopleOutline, flashOutline,
-  chevronDownOutline, closeOutline, swapVerticalOutline 
-} from 'ionicons/icons';
+  chevronDownOutline, closeOutline, swapVerticalOutline, cameraOutline } from 'ionicons/icons';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
+
+
 
 // ── Interface pour les tags actifs ──────────────────
 interface ActiveFilter {
@@ -38,12 +40,12 @@ interface ActiveFilter {
     RouterModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonIcon, IonBadge, IonContent, IonCard, IonCardContent,
-    IonCardHeader, IonCardTitle
+    IonCardHeader, IonCardTitle, IonChip,
   ],
   templateUrl: './recipes-home.component.html',
   styleUrls: ['./recipes-home.component.scss']
 })
-export class RecipesHomeComponent implements OnInit {
+export class RecipesHomeComponent implements ViewWillEnter {
 
   recipes: Recipe[] = [];
   filteredRecipes: Recipe[] = [];
@@ -82,14 +84,10 @@ export class RecipesHomeComponent implements OnInit {
     private router: Router,
     private userActivityService: UserActivityService
   ) {
-    addIcons({
-      cartOutline, searchOutline, closeOutline, chevronDownOutline,
-      swapVerticalOutline, star, timeOutline, peopleOutline,
-      flashOutline, heart, heartOutline
-    });
+    addIcons({searchOutline,closeOutline,swapVerticalOutline,chevronDownOutline,cameraOutline,star,timeOutline,peopleOutline,cartOutline,flashOutline,heart,heartOutline});
   }
 
-  ngOnInit(): void {
+  ionViewWillEnter(): void {
     this.loadRecipes();
     this.loadTopRated();
   }
@@ -365,5 +363,8 @@ export class RecipesHomeComponent implements OnInit {
 
   private async presentErrorToast(message: string) {
     alert(message);
+  }
+   goToScan() {
+    this.router.navigate(['/scan-recipe']);
   }
 }

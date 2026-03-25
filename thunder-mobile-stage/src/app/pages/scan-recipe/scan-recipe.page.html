@@ -1,0 +1,339 @@
+<!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
+<!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/recipes" text="Retour"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Analyser un plat</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scan-page">
+
+  <!-- ══ ÉTAPE 1 : CAPTURE IMAGE ══ -->
+  <div class="step-block" *ngIf="step === 'capture'">
+
+    <!-- Zone de drop / preview -->
+    <div class="image-zone" (click)="selectImageSource()">
+      <ng-container *ngIf="!imagePreview; else previewTpl">
+        <div class="image-placeholder">
+          <ion-icon name="camera-outline" class="cam-icon"></ion-icon>
+          <p class="hint-title">Photographier un plat</p>
+          <p class="hint-sub">Prenez une photo ou choisissez depuis votre galerie<br>Le système identifiera le plat et ses ingrédients</p>
+        </div>
+      </ng-container>
+      <ng-template #previewTpl>
+        <img [src]="imagePreview" class="preview-img" alt="Plat analysé">
+        <div class="preview-overlay">
+          <ion-icon name="refresh-outline"></ion-icon>
+          Changer l'image
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Boutons source -->
+    <div class="source-btns" *ngIf="!imagePreview">
+      <ion-button expand="block" color="primary" (click)="takePhoto()">
+        <ion-icon name="camera" slot="start"></ion-icon>
+        Prendre une photo
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="primary" (click)="pickFromGallery()">
+        <ion-icon name="images-outline" slot="start"></ion-icon>
+        Choisir depuis la galerie
+      </ion-button>
+    </div>
+
+    <!-- Analyser -->
+    <ion-button
+      *ngIf="imagePreview"
+      expand="block"
+      color="primary"
+      class="analyze-btn"
+      [disabled]="isAnalyzing"
+      (click)="analyzeImage()">
+      <ion-spinner *ngIf="isAnalyzing" name="crescent" slot="start"></ion-spinner>
+      <ion-icon *ngIf="!isAnalyzing" name="scan-outline" slot="start"></ion-icon>
+      {{ isAnalyzing ? 'Analyse en cours...' : 'Analyser avec Gemini Vision' }}
+    </ion-button>
+
+    <!-- Info Gemini -->
+    <div class="info-banner">
+      <ion-icon name="sparkles-outline"></ion-icon>
+      <span>Gemini Vision identifie le plat, ses ingrédients et génère la recette</span>
+    </div>
+  </div>
+
+  <!-- ══ ÉTAPE 2 : VÉRIFICATION INGRÉDIENTS ══ -->
+  <div class="step-block" *ngIf="step === 'verify'">
+
+    <!-- Résultat analyse -->
+    <div class="dish-result-card">
+      <img [src]="imagePreview" class="dish-thumb" alt="">
+      <div class="dish-info">
+        <div class="dish-label">Plat identifié</div>
+        <div class="dish-name">{{ dishAnalysis?.dishName }}</div>
+        <div class="dish-meta">
+          <span class="meta-chip">{{ dishAnalysis?.cuisine }}</span>
+          <span class="meta-chip">{{ dishAnalysis?.cookingTime }}</span>
+          <span class="meta-chip" [class.easy]="dishAnalysis?.difficulty === 'Facile'">
+            {{ dishAnalysis?.difficulty }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste ingrédients à vérifier -->
+    <div class="section-header">
+      <span>Ingrédients détectés</span>
+      <span class="count-badge">{{ activeIngredients.length }} sélectionnés</span>
+    </div>
+
+    <div class="ingr-verify-list">
+      <div
+        *ngFor="let ing of dishAnalysis?.ingredients"
+        class="ingr-item"
+        [class.inactive]="!isIngredientActive(ing.name)"
+        (click)="toggleIngredient(ing.name)">
+        <div class="ingr-check">
+          <ion-checkbox
+            [checked]="isIngredientActive(ing.name)"
+            (click)="$event.stopPropagation()"
+            (ionChange)="toggleIngredient(ing.name)">
+          </ion-checkbox>
+        </div>
+        <span class="ingr-name">{{ ing.name }}</span>
+        <span class="ingr-qty" *ngIf="ing.quantity">{{ ing.quantity }}</span>
+        <div class="ingr-prob">
+          <div class="prob-bar">
+            <div class="prob-fill" [style.width.%]="ing.probability * 100"
+                 [class.high]="ing.probability >= 0.8"
+                 [class.mid]="ing.probability >= 0.5 && ing.probability < 0.8">
+            </div>
+          </div>
+          <span class="prob-pct">{{ (ing.probability * 100).toFixed(0) }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ajouter manuellement -->
+    <div class="add-manual">
+      <ion-input
+        [(ngModel)]="manualIngredient"
+        placeholder="Ajouter un ingrédient..."
+        (keyup.enter)="addManualIngredient()"
+        class="manual-input">
+      </ion-input>
+      <ion-button fill="clear" (click)="addManualIngredient()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Actions -->
+    <ion-button
+      expand="block"
+      color="primary"
+      class="search-btn"
+      [disabled]="activeIngredients.length === 0 || isSearching"
+      (click)="searchInDatabase()">
+      <ion-spinner *ngIf="isSearching" name="crescent" slot="start"></ion-spinner>
+      <ion-icon *ngIf="!isSearching" name="search-outline" slot="start"></ion-icon>
+      {{ isSearching ? 'Recherche en cours...' : 'Rechercher dans la base de recettes' }}
+    </ion-button>
+  </div>
+
+  <!-- ══ ÉTAPE 3 : RÉSULTATS MATCHING ══ -->
+  <div class="step-block" *ngIf="step === 'results'">
+
+    <!-- ── CAS A : Recette trouvée en BDD ── -->
+    <ng-container *ngIf="matchedRecipe">
+      <div class="found-header">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <span>Recette trouvée dans la base</span>
+        <span class="match-score">{{ matchedRecipe.matchScore }}% de correspondance</span>
+      </div>
+
+      <!-- Carte recette BDD -->
+      <div class="recipe-ai-card">
+        <div class="recipe-header">
+          <div class="recipe-emoji">🍽</div>
+          <div>
+            <h2 class="recipe-title">{{ matchedRecipe.nom }}</h2>
+            <p class="recipe-sub">{{ matchedRecipe.description }}</p>
+          </div>
+        </div>
+
+        <div class="recipe-meta-row">
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ matchedRecipe.temps_preparation || '—' }}</span>
+            <small>Préparation</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="flame-outline"></ion-icon>
+            <span>{{ matchedRecipe.temps_cuisson || '—' }}</span>
+            <small>Cuisson</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ matchedRecipe.nombre_personnes || '—' }}</span>
+            <small>Personnes</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <span>{{ matchedRecipe.difficulte || '—' }}</span>
+            <small>Difficulté</small>
+          </div>
+        </div>
+
+        <div class="section-header"><span>Ingrédients</span></div>
+        <div class="ingr-grid">
+          <div *ngFor="let ing of getIngredientsArray(matchedRecipe)" class="ingr-grid-item">
+            <span class="ingr-grid-name">{{ getIngrName(ing) }}</span>
+            <span class="ingr-grid-qty">{{ getIngrQty(ing) }}</span>
+          </div>
+        </div>
+
+        <div class="section-header"><span>Instructions</span></div>
+        <ol class="instructions-list">
+          <li *ngFor="let step of getStepsArray(matchedRecipe); let i = index">
+            <div class="step-num">{{ i + 1 }}</div>
+            <span>{{ step }}</span>
+          </li>
+        </ol>
+
+        <ion-button expand="block" color="success" class="cart-btn" (click)="addMatchedToCart()">
+          <ion-icon name="cart-outline" slot="start"></ion-icon>
+          Ajouter les ingrédients au panier
+        </ion-button>
+      </div>
+
+      <ion-button expand="block" fill="outline" (click)="generateWithAI()">
+        <ion-icon name="sparkles-outline" slot="start"></ion-icon>
+        Voir aussi la version générée par IA
+      </ion-button>
+    </ng-container>
+
+    <!-- ── CAS B : Non trouvé ── -->
+    <ng-container *ngIf="!matchedRecipe && !generatedRecipe">
+      <div class="not-found-card">
+        <ion-icon name="search-circle-outline" class="nf-icon"></ion-icon>
+        <h3>Recette non trouvée</h3>
+        <p>
+          Aucune recette correspondant à
+          <strong>{{ dishAnalysis?.dishName }}</strong>
+          n'a été trouvée dans notre base de données.
+        </p>
+        <ion-button
+          expand="block"
+          color="primary"
+          [disabled]="isGenerating"
+          (click)="generateWithAI()">
+          <ion-spinner *ngIf="isGenerating" name="crescent" slot="start"></ion-spinner>
+          <ion-icon *ngIf="!isGenerating" name="sparkles-outline" slot="start"></ion-icon>
+          {{ isGenerating ? 'Génération en cours...' : 'Générer la recette avec l\'IA' }}
+        </ion-button>
+      </div>
+    </ng-container>
+
+    <!-- ── CAS C : Recette générée par IA ── -->
+    <ng-container *ngIf="generatedRecipe">
+
+      <!-- Bannière avertissement IA -->
+      <div class="ai-warning-banner">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <div>
+          <strong>Recette générée par IA (Gemini)</strong>
+          <p>Cette recette a été créée par intelligence artificielle.
+             Elle peut contenir des inexactitudes. Elle sera soumise à
+             notre équipe pour validation.</p>
+        </div>
+      </div>
+
+      <!-- Carte recette IA (même présentation que les recettes BDD) -->
+      <div class="recipe-ai-card">
+
+        <!-- Header recette -->
+        <div class="recipe-header">
+          <div class="recipe-emoji">🤖</div>
+          <div>
+            <h2 class="recipe-title">{{ generatedRecipe.nom }}</h2>
+            <p class="recipe-sub">{{ generatedRecipe.description }}</p>
+          </div>
+        </div>
+
+        <!-- Méta -->
+        <div class="recipe-meta-row">
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ generatedRecipe.temps_preparation }}</span>
+            <small>Préparation</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="flame-outline"></ion-icon>
+            <span>{{ generatedRecipe.temps_cuisson }}</span>
+            <small>Cuisson</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ generatedRecipe.nombre_personnes }}</span>
+            <small>Personnes</small>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <span>{{ generatedRecipe.difficulte }}</span>
+            <small>Difficulté</small>
+          </div>
+        </div>
+
+        <!-- Ingrédients -->
+        <div class="section-header">
+          <span>Ingrédients</span>
+        </div>
+        <div class="ingr-grid">
+          <div *ngFor="let ing of getIngredientsArray(generatedRecipe)" class="ingr-grid-item">
+            <span class="ingr-grid-name">{{ getIngrName(ing) }}</span>
+            <span class="ingr-grid-qty">{{ getIngrQty(ing) }}</span>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="section-header">
+          <span>Instructions de préparation</span>
+        </div>
+        <ol class="instructions-list">
+          <li *ngFor="let step of getStepsArray(generatedRecipe); let i = index">
+            <div class="step-num">{{ i + 1 }}</div>
+            <span>{{ step }}</span>
+          </li>
+        </ol>
+
+        <!-- Note du chef IA -->
+        <div class="chef-note" *ngIf="dishAnalysis?.notes">
+          <ion-icon name="bulb-outline"></ion-icon>
+          <span>{{ dishAnalysis?.notes }}</span>
+        </div>
+
+        <!-- Ajouter au panier -->
+        <ion-button expand="block" color="success" class="cart-btn" (click)="addGeneratedToCart()">
+          <ion-icon name="cart-outline" slot="start"></ion-icon>
+          Ajouter les ingrédients au panier
+        </ion-button>
+
+        <!-- Feedback -->
+        <ion-button expand="block" fill="outline" color="medium" (click)="sendFeedback()">
+          <ion-icon name="flag-outline" slot="start"></ion-icon>
+          Signaler une erreur dans cette recette
+        </ion-button>
+      </div>
+    </ng-container>
+
+    <!-- Recommencer -->
+    <ion-button expand="block" fill="clear" (click)="restart()">
+      <ion-icon name="camera-outline" slot="start"></ion-icon>
+      Analyser une autre image
+    </ion-button>
+  </div>
+
+</ion-content>

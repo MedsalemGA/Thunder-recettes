@@ -1,4 +1,19 @@
 /* Admin Layout Container */
+:root {
+  --teal-dark:    #00A896;
+  --teal-mid:     #0ae1cc;
+  --teal-light:   #e0faf7;
+  --teal-glass:   rgba(10, 225, 204, 0.08);
+ 
+  --text-primary: #111827;
+  --text-muted:   #6b7280;
+  --border:       rgba(0, 168, 150, 0.15);
+  --shadow-sm:    0 2px 8px rgba(0, 168, 150, 0.08);
+  --shadow-md:    0 8px 32px rgba(0, 168, 150, 0.12);
+  --radius-lg:    18px;
+  --radius-md:    12px;
+  --radius-sm:    8px;
+}
 .admin-layout {
   display: flex;
   min-height: 100vh;
@@ -2071,4 +2086,484 @@ html {
   letter-spacing: 0.04em;
   margin: 0;
   text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+
+
+ 
+/* Badges stats */
+.produits-stats {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+ 
+.produits-stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  background: #f3f4f6;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+ 
+  svg { width: 14px; height: 14px; }
+ 
+  &--teal {
+    background: var(--teal-glass);
+    color: var(--teal-dark);
+  }
+}
+ 
+/* ── État vide section produits ── */
+.produits-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1rem;
+  gap: 0.75rem;
+ 
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--teal-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg { width: 28px; height: 28px; stroke: var(--teal-dark); }
+  }
+ 
+  &__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+ 
+  &__sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    text-align: center;
+  }
+}
+ 
+/* ── Liste accordion ── */
+.fournisseur-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+ 
+/* ── Item accordion ── */
+.accordion-item {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.25s, border-color 0.25s;
+ 
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(10, 225, 204, 0.3);
+  }
+ 
+  &--open {
+    border-color: var(--teal-mid);
+    box-shadow: 0 0 0 2px rgba(10,225,204,0.15), var(--shadow-md);
+  }
+}
+ 
+/* ── En-tête accordion ── */
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  gap: 1rem;
+ 
+  &:hover { background: rgba(10, 225, 204, 0.04); }
+ 
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+ 
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+}
+ 
+/* Avatar fournisseur */
+.fournisseur-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,168,150,0.25);
+ 
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+ 
+  &__initials {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+}
+ 
+/* Infos fournisseur dans l'en-tête */
+.fournisseur-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+ 
+  &__name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+}
+ 
+.meta-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.18rem 0.6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+ 
+  &--specialite {
+    background: rgba(10, 225, 204, 0.12);
+    color: var(--teal-dark);
+  }
+ 
+  &--code {
+    background: #f3f4f6;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+  }
+}
+ 
+/* Badge nombre de produits */
+.produits-count-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--teal-glass);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  white-space: nowrap;
+ 
+  svg { width: 13px; height: 13px; }
+}
+ 
+/* Badge alerte stock */
+.stock-alert-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-low);
+  white-space: nowrap;
+  animation: warnPulse 2s ease-in-out infinite;
+ 
+  svg { width: 13px; height: 13px; }
+}
+ 
+@keyframes warnPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+ 
+/* Chevron */
+.accordion-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  transition: transform 0.3s ease, background 0.2s;
+ 
+  svg { width: 14px; height: 14px; stroke: var(--text-muted); }
+ 
+  &--open {
+    transform: rotate(180deg);
+    background: var(--teal-glass);
+    svg { stroke: var(--teal-dark); }
+  }
+}
+ 
+/* ── Corps accordion ── */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+ 
+  &--open {
+    max-height: 900px; // valeur haute pour accueillir tout contenu
+  }
+}
+ 
+.accordion-body__inner {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem;
+}
+ 
+/* État vide produits à l'intérieur */
+.produits-vide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+ 
+  svg { width: 20px; height: 20px; opacity: 0.5; }
+}
+ 
+/* ── Table produits ── */
+.produits-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+ 
+  thead {
+    tr {
+      border-bottom: 2px solid rgba(10, 225, 204, 0.15);
+    }
+ 
+    th {
+      padding: 0.6rem 0.9rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--teal-dark);
+      white-space: nowrap;
+      display: table-cell;
+ 
+      display: table-cell; // override flex
+      svg {
+        display: inline-block;
+        vertical-align: middle;
+        width: 13px;
+        height: 13px;
+        margin-right: 4px;
+        stroke: var(--teal-dark);
+      }
+    }
+  }
+ 
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.15s;
+ 
+    &:last-child { border-bottom: none; }
+    &:hover { background: rgba(10, 225, 204, 0.04); }
+  }
+ 
+  td {
+    padding: 0.75rem 0.9rem;
+    vertical-align: middle;
+  }
+}
+ 
+/* Colonne Nom */
+.produit-nom-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+ 
+.produit-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+  flex-shrink: 0;
+}
+ 
+.produit-nom {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+ 
+/* Colonne Prix */
+.prix-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  background: var(--teal-glass);
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+}
+ 
+.prix-devise {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+ 
+/* Colonne Stock — barre */
+.stock-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+ 
+.stock-bar-wrap {
+  flex: 1;
+  max-width: 100px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+ 
+.stock-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+ 
+  &--low    { background: #ef4444; }
+  &--medium { background: #f59e0b }
+  &--high   { background: #22c55e; }
+}
+ 
+.stock-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 28px;
+ 
+  &--low { color: var(--accent-low); }
+}
+ 
+/* Colonne Statut — pilule */
+.statut-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+ 
+  .statut-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: block;
+    flex-shrink: 0;
+  }
+ 
+  &--low {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-low);
+    .statut-dot { background: var(--accent-low); animation: pulse 1.8s infinite; }
+  }
+ 
+  &--medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--accent-warn);
+    .statut-dot { background: var(--accent-warn); }
+  }
+ 
+  &--ok {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--accent-ok);
+    .statut-dot { background: var(--accent-ok); }
+  }
+}
+ 
+/* Animation entrée lignes produits */
+.produit-row {
+  animation: rowFadeIn 0.2s ease both;
+}
+ 
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* Largeurs colonnes */
+.col-nom    { width: 40%; }
+.col-prix   { width: 20%; }
+.col-stock  { width: 25%; }
+.col-statut { width: 15%; }
+ 
+/* ══════════════════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .mobile-menu-toggle { display: flex; }
+  .main-content { margin-left: 0; width: 100%; }
+  .page-section { padding: 1rem; }
+  .produits-toolbar { flex-direction: column; align-items: stretch; }
+  .produits-stats { justify-content: flex-start; }
+  .accordion-header { flex-wrap: wrap; }
+  .col-stock, .col-statut { display: none; }
+  .recette-form-body .form-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+ 
+@media (max-width: 480px) {
+  .fournisseur-info__name { font-size: 0.9rem; }
+  .meta-tag { font-size: 0.68rem; }
+  .accordion-header__right { gap: 0.4rem; }
+  .produits-count-badge, .stock-alert-badge { font-size: 0.72rem; padding: 0.28rem 0.55rem; }
+}
+.custom-link {
+  color: #0ae1cc;
+  text-decoration: underline;
+  cursor: pointer;
 }

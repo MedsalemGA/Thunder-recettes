@@ -45,6 +45,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   showmodifyfournisseur=false;
   useridtemp=0;
   query="";
+  queryProduit="";
 
   // ── Recettes ───────────────────────────────────────────────────────────
   recettes: any[] = [
@@ -67,7 +68,21 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   recette_temps_preparation: number | null = null;
   recette_nombre_personnes: number | null = null;
   recette_ingredients: { nom: string; quantite: string }[] = [];
-
+  expandedFournisseurId: number | null = null;
+ 
+  /** Terme de recherche dans la section produits */
+ 
+ 
+  /**
+   * Liste de { fournisseur, produits[] } après filtrage.
+   * On conserve tous les fournisseurs (même sans produits) pour l'affichage.
+   */
+  fournisseursAvecProduits: { fournisseur: any; produits: any[] }[] = [];
+ 
+  /** Total de produits affichés (pour le badge stats) */
+  get totalProduits(): number {
+    return this.fournisseursAvecProduits.reduce((acc, f) => acc + f.produits.length, 0);
+  }
 
   constructor(
     private http: HttpClient,
@@ -84,6 +99,8 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     this.showfournisseurs();
     this.getallrecettes();
     this.restRecettes = [...this.recettes];
+   
+    
   }
 
   ngOnDestroy() {}
@@ -146,6 +163,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
       this.fournisseurs = res.data;
       this.rechercherFournisseur(this.query);
       this.isLoading = false;
+      this.buildFournisseursAvecProduits();
     },
     () => {
       this.fournisseurs = [];
@@ -598,4 +616,85 @@ rechercherFournisseur(query: string) {
   });
   await confirm.present();
 }
+ //  PRODUITS — méthodes
+  // ══════════════════════════════════════════════════════════════════════
+ 
+  /**
+   * Construit la liste { fournisseur, produits[] } à partir de this.fournisseurs.
+   * Chaque fournisseur expose ses produits via fournisseur.produits (adapter selon l'API).
+   */
+  buildFournisseursAvecProduits() {
+    
+    this.fournisseursAvecProduits = this.fournisseurs.map(f => ({
+      fournisseur: f,
+      produits: f.produits ?? []   // adapter la clé selon la réponse API
+    }));
+    
+    // Appliquer le filtre courant
+    this.rechercherProduit(this.queryProduit);
+    
+  }
+ 
+  /** Ouvre/ferme le panneau produits d'un fournisseur */
+  toggleFournisseurProduits(fournisseurId: number) {
+    if (this.expandedFournisseurId === fournisseurId) {
+      this.expandedFournisseurId = null;
+    } else {
+      this.expandedFournisseurId = fournisseurId;
+    }
+  }
+ 
+  /**
+   * Filtre les fournisseurs (et leurs produits) selon le terme de recherche.
+   * Garde un fournisseur si son nom correspond OU si l'un de ses produits correspond.
+   */
+  rechercherProduit(query: string) {
+    const value = query.toLowerCase().trim();
+    const source = this.fournisseurs.map(f => ({
+      fournisseur: f,
+      produits: f.produits ?? []
+    }));
+ 
+    if (!value) {
+      this.fournisseursAvecProduits = source;
+      return;
+    }
+ 
+    this.fournisseursAvecProduits = source
+      .map(item => ({
+        fournisseur: item.fournisseur,
+        produits: item.produits.filter((p: any) =>
+          p.nom?.toLowerCase().includes(value)
+        )
+      }))
+      .filter(item =>
+        item.fournisseur.user?.name?.toLowerCase().includes(value) ||
+        item.fournisseur.specialite?.toLowerCase().includes(value) ||
+        item.produits.length > 0
+      );
+  }
+ 
+  /** Retourne les initiales d'un nom (ex: "Mohamed Amine" → "MA") */
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(w => w[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+ 
+  /** Vérifie si un fournisseur a au moins un produit avec stock bas (≤ 10) */
+  hasLowStock(produits: any[]): boolean {
+    return produits.some(p => p.quantite_stock <= 10);
+  }
+ 
+  /**
+   * Calcule la largeur de la barre de progression du stock.
+   * On considère 100 unités comme stock plein (adaptable).
+   */
+  getStockBarWidth(quantite: number): number {
+    const max = 100;
+    return Math.min((quantite / max) * 100, 100);
+  }
 }

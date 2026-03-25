@@ -1,0 +1,688 @@
+// ═══════════════════════════════════════════
+//  ORDERS PAGE — Cohérent avec Smart Cart
+//  Palette: Teal / Slate / White
+// ═══════════════════════════════════════════
+
+$primary:      #0ae1cc;
+$primary-dark: #00A896;
+$primary-soft: rgba(10, 225, 204, 0.10);
+$primary-glow: rgba(10, 225, 204, 0.22);
+
+$text-dark:    #1a202c;
+$text-light:   #64748b;
+$text-hint:    #94a3b8;
+$bg-page:      #f8fafc;
+$bg-white:     #ffffff;
+$bg-surface:   #f1f5f9;
+$border:       #e2e8f0;
+$success:      #10b981;
+$success-soft: rgba(16, 185, 129, 0.12);
+$warning:      #f59e0b;
+$warning-soft: rgba(245, 158, 11, 0.12);
+$danger:       #ef4444;
+$danger-soft:  rgba(239, 68, 68, 0.10);
+$shipped:      #6366f1;
+$shipped-soft: rgba(99, 102, 241, 0.10);
+
+$shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
+$shadow-md:    0 8px 24px rgba(0,0,0,0.08);
+
+$radius-card:  18px;
+$radius-sm:    10px;
+$radius-xs:    7px;
+
+$font-display: 'Sora', 'SF Pro Display', system-ui, sans-serif;
+$font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
+
+
+// ═══════════════════════════════════════════
+//  HEADER
+// ═══════════════════════════════════════════
+
+.orders-header {
+  ion-toolbar {
+    --background: #{$bg-white};
+    --border-color: transparent;
+    --min-height: 64px;
+    padding: 0 6px;
+    box-shadow: 0 1px 0 $border;
+  }
+
+  .back-btn {
+    --color: #{$text-light};
+
+    &::part(native) {
+      width: 38px;
+      height: 38px;
+      background: $bg-surface;
+      border-radius: 50%;
+    }
+
+    ion-icon { font-size: 20px; }
+  }
+
+  ion-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .header-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    color: $primary-dark;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    font-family: $font-body;
+  }
+
+  .header-title {
+    font-family: $font-display;
+    font-size: 18px;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.5px;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  CONTENT
+// ═══════════════════════════════════════════
+
+.orders-content {
+  --background: #{$bg-page};
+  font-family: $font-body;
+}
+
+
+// ═══════════════════════════════════════════
+//  STATS ROW
+// ═══════════════════════════════════════════
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  background: $bg-white;
+  margin: 16px 16px 0;
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
+  padding: 16px 0;
+  overflow: hidden;
+}
+
+.stat-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+
+  .stat-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+    letter-spacing: -0.5px;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: $text-hint;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+
+  &.accent .stat-val {
+    color: $primary-dark;
+  }
+}
+
+.stat-sep {
+  width: 1px;
+  height: 32px;
+  background: $border;
+}
+
+
+// ═══════════════════════════════════════════
+//  FILTERS
+// ═══════════════════════════════════════════
+
+.filters-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 50px;
+  background: $bg-white;
+  border: 1.5px solid $border;
+  color: $text-light;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: $font-body;
+  transition: all 0.18s ease;
+  box-shadow: $shadow-sm;
+
+  .filter-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $text-hint;
+    flex-shrink: 0;
+    transition: background 0.18s;
+
+    &.confirmed   { background: $warning; }
+    &.in_progress { background: $primary-dark; }
+    &.shipped     { background: $shipped; }
+    &.delivered   { background: $success; }
+    &.cancelled   { background: $danger; }
+  }
+
+  &.active {
+    background: $primary-soft;
+    border-color: $primary;
+    color: $primary-dark;
+    box-shadow: none;
+  }
+
+  &:active { transform: scale(0.95); }
+}
+
+
+// ═══════════════════════════════════════════
+//  ORDERS LIST
+// ═══════════════════════════════════════════
+
+.orders-list {
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ── Order Card ────────────────────────────
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.order-card {
+  background: $bg-white;
+  border-radius: $radius-card;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: slideIn 0.35s ease both;
+
+  &.expanded {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px $primary-glow, $shadow-md;
+  }
+
+  &:active { transform: scale(0.995); }
+}
+
+// ── Card Header ───────────────────────────
+
+.order-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px 0;
+}
+
+.order-meta {
+  .order-id-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .order-id {
+    font-size: 15px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+    letter-spacing: -0.3px;
+  }
+
+  .order-date {
+    font-size: 11px;
+    color: $text-hint;
+    margin-top: 5px;
+    text-transform: capitalize;
+  }
+}
+
+.order-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 2px;
+
+  .order-total {
+    font-size: 16px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+    letter-spacing: -0.4px;
+  }
+
+  .expand-icon {
+    color: $text-hint;
+    font-size: 16px;
+    transition: transform 0.25s ease;
+
+    &.rotated { transform: rotate(180deg); }
+  }
+}
+
+// ── Status Badge ──────────────────────────
+
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  &.confirmed {
+    background: $warning-soft;
+    color: darken($warning, 10%);
+  }
+  &.in_progress {
+    background: $primary-soft;
+    color: $primary-dark;
+  }
+  &.shipped {
+    background: $shipped-soft;
+    color: $shipped;
+  }
+  &.delivered {
+    background: $success-soft;
+    color: darken($success, 8%);
+  }
+  &.cancelled {
+    background: $danger-soft;
+    color: $danger;
+  }
+}
+
+// ── Recipes Preview ───────────────────────
+
+.order-recipes-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 14px;
+}
+
+.recipe-tag {
+  font-size: 11px;
+  color: $text-light;
+  background: $bg-surface;
+  border: 1px solid $border;
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  &.more {
+    background: $primary-soft;
+    border-color: rgba(10, 225, 204, 0.25);
+    color: $primary-dark;
+    font-weight: 700;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  ORDER DETAIL (expandable)
+// ═══════════════════════════════════════════
+
+.order-detail {
+  border-top: 1px solid $border;
+  padding: 0 16px 16px;
+  animation: slideIn 0.2s ease both;
+}
+
+// ── Status Timeline ───────────────────────
+
+.status-timeline {
+  display: flex;
+  align-items: flex-start;
+  padding: 18px 0 16px;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  .step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $border;
+    border: 2px solid $bg-surface;
+    transition: all 0.25s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 70px;
+
+    .step-label {
+      font-size: 10px;
+      color: $text-hint;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .step-time {
+      font-size: 10px;
+      color: $primary-dark;
+      font-weight: 700;
+      font-family: $font-display;
+    }
+  }
+
+  &.done {
+    .step-dot {
+      background: $primary;
+      border-color: $primary-soft;
+      box-shadow: 0 0 0 4px $primary-glow;
+    }
+
+    .step-label { color: $text-dark; }
+  }
+}
+
+.timeline-line {
+  flex: 1;
+  height: 2px;
+  background: $border;
+  margin-top: 5px;
+  min-width: 20px;
+  transition: background 0.3s ease;
+  align-self: flex-start;
+
+  &.done { background: $primary; }
+}
+
+// ── Section commun ────────────────────────
+
+.detail-section {
+  margin-top: 16px;
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: $text-hint;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 10px;
+  }
+}
+
+// ── Items List ────────────────────────────
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: $bg-surface;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  border: 1px solid $border;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid $border;
+
+  &:last-child { border-bottom: none; }
+
+  .detail-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .detail-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: $primary-soft;
+      border: 1px solid rgba(10, 225, 204, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: $primary-dark;
+      font-family: $font-display;
+    }
+
+    .detail-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+
+  .detail-item-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .detail-qty {
+      font-size: 12px;
+      color: $text-hint;
+      background: $bg-white;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid $border;
+    }
+
+    .detail-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: $primary-dark;
+      font-family: $font-display;
+      min-width: 52px;
+      text-align: right;
+    }
+  }
+}
+
+// ── Adresse ───────────────────────────────
+
+.address-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: $bg-surface;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 12px;
+
+  .addr-icon {
+    color: $primary-dark;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .addr-text {
+    font-size: 13px;
+    color: $text-light;
+    line-height: 1.5;
+  }
+}
+
+// ── Prix recap ────────────────────────────
+
+.price-recap {
+  margin-top: 16px;
+  background: $bg-surface;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid $border;
+  font-size: 13px;
+  color: $text-light;
+
+  &:last-child { border-bottom: none; }
+
+  &.total-row {
+    background: $bg-white;
+    font-size: 14px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+
+    span:last-child { color: $primary-dark; }
+  }
+}
+
+// ── Actions ───────────────────────────────
+
+.order-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 14px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: $font-body;
+  border: none;
+  transition: all 0.15s;
+
+  ion-icon { font-size: 15px; }
+
+  &:active { transform: scale(0.97); }
+
+  &.primary {
+    background: $primary;
+    color: $text-dark;
+    box-shadow: 0 4px 14px rgba(10, 225, 204, 0.28);
+  }
+
+  &.secondary {
+    background: $bg-surface;
+    color: $text-dark;
+    border: 1.5px solid $border;
+  }
+
+  &.danger {
+    background: $danger-soft;
+    color: $danger;
+    border: 1.5px solid rgba(239, 68, 68, 0.2);
+  }
+}
+
+
+// ═══════════════════════════════════════════
+//  EMPTY STATE
+// ═══════════════════════════════════════════
+
+.empty-state {
+  text-align: center;
+  padding: 60px 32px 40px;
+
+  .empty-icon {
+    font-size: 52px;
+    margin-bottom: 20px;
+    display: block;
+    opacity: 0.4;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: $text-dark;
+    font-family: $font-display;
+    margin: 0 0 10px;
+    letter-spacing: -0.4px;
+  }
+
+  p {
+    font-size: 14px;
+    color: $text-light;
+    margin: 0 0 28px;
+    line-height: 1.6;
+  }
+
+  .cta-outline {
+    background: transparent;
+    border: 1.5px solid $primary;
+    color: $primary-dark;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $font-body;
+    &:active { background: $primary-soft; }
+  }
+}
