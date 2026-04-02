@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-  IonIcon, IonContent, IonBadge,
+  IonIcon, IonContent,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle,
   IonSkeletonText, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem,
   IonCheckbox, IonFooter, IonSpinner
@@ -12,8 +12,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Location } from '@angular/common';
 import { RecipeService } from '../../../services/recipe.service';
 import { AiRecommendationService, Recipe, IngredientSubstitution } from '../../../services/ai-recommendation.service';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { SmartCartService } from '../../../services/smart-cart.service';
 import { UserActivityService } from '../../../services/user-activity.service';
 import { addIcons } from 'ionicons';
@@ -28,19 +26,16 @@ import {
   timerOutline, flameOutline, pricetagOutline,
   listOutline, restaurantOutline, gridOutline,
   swapHorizontalOutline, searchOutline,
-  chevronDownOutline, checkmarkOutline,
-  addOutline
+  chevronDownOutline, checkmarkOutline, addOutline
 } from 'ionicons/icons';
 
 @Component({
   selector: 'app-recipe-detail',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
+    CommonModule, FormsModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-    IonIcon, IonContent, IonBadge,
+    IonIcon, IonContent,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle,
     IonSkeletonText, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem,
     IonCheckbox, IonFooter, IonSpinner
@@ -50,21 +45,23 @@ import {
 })
 export class RecipeDetailComponent implements ViewWillEnter {
 
-  recipe: Recipe | undefined;
-  similarRecipes: Recipe[] = [];
+  recipe: any;
+  similarRecipes: Recipe[]                            = [];
   substitutions: Map<string, IngredientSubstitution> = new Map();
-  ingredientStats: any = {};
+  ingredientStats: any                               = {};
 
   activeSegment = 'ingredients';
-  isLoading = true;
-  isFavorite = false;
-  isInCart = false;
-  isScrolled = false;
+  isLoading     = true;
+  isFavorite    = false;
+  isInCart      = false;
+  isScrolled    = false;
+  totalPrice    = 0;
+  calories      = 0;
 
-  // Suivi des ingrédients cochés
+  // Clé = nom_ingredient → coché ou non
   checkedIngredients: Record<string, boolean> = {};
-  
-  // Cache pour les informations d'ingrédients du backend
+
+  // Cache prix depuis getIngredientDetails (optionnel si backend enrichi plus tard)
   ingredientDetails: Record<string, any> = {};
 
   constructor(
@@ -85,26 +82,22 @@ export class RecipeDetailComponent implements ViewWillEnter {
       timerOutline, flameOutline, pricetagOutline,
       listOutline, restaurantOutline, gridOutline,
       swapHorizontalOutline, searchOutline,
-      chevronDownOutline, checkmarkOutline,
-      addOutline
+      chevronDownOutline, checkmarkOutline, addOutline
     });
   }
 
- ionViewWillEnter() {
-  this.isLoading = true;
+  // ════════════════════════════════════════════════════
+  // Lifecycle
+  // ════════════════════════════════════════════════════
 
-  this.route.paramMap.subscribe(params => {
-    const id = params.get('id');
-
-    if (!id) {
-      console.error("ID manquant");
-      this.isLoading = false;
-      return;
-    }
-
-    this.loadRecipeDetails(id);
-  });
-}
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (!id) { this.isLoading = false; return; }
+      this.loadRecipeDetails(id);
+    });
+  }
 
   // ════════════════════════════════════════════════════
   // Chargement
@@ -114,49 +107,33 @@ export class RecipeDetailComponent implements ViewWillEnter {
     this.isLoading = true;
 
     this.recipeService.getRecipeById(recipeId).subscribe({
-      next: (recipe) => {
-        if (recipe) {
-          // Normaliser les ingrédients si c'est un tableau de chaînes
-          let normalizedIngredients = recipe.ingredients;
-          if (recipe.ingredients && recipe.ingredients.length > 0 && typeof recipe.ingredients[0] === 'string') {
-            normalizedIngredients = (recipe.ingredients as any[]).map(ingName => ({
-              ingredientId: ingName,
-              quantity: 1,
-              unit: 'pcs'
-            }));
+      next: (recipe: any) => {
+        if (!recipe) { this.isLoading = false; return; }
+
+        this.recipe    = recipe;
+        this.calories  = recipe.calories ?? 0;
+        this.totalPrice = parseFloat(recipe.price) ?? 0;
+        console.log(recipe);
+        this.isFavorite = this.recipeService.isFavorite(recipe.id);
+        this.isInCart   = this.cartService.isRecipeInCart(recipe.id);
+
+        // Cocher par défaut les ingrédients disponibles
+        this.checkedIngredients = {};
+        recipe.ingredients.forEach((ing: any) => {
+          if (ing.disponible) {
+            this.checkedIngredients[ing.nom] = true;
           }
+        });
 
-          this.recipe = {
-            ...recipe,
-            ingredients: normalizedIngredients
-          };
+        this.ingredientStats = this.aiService.getRecipeStats(recipe);
 
-          this.isFavorite = this.recipeService.isFavorite(this.recipe.id);
-          this.isInCart   = this.cartService.isRecipeInCart(this.recipe.id);
+        const available = this.aiService
+          .getIngredientDatabase()
+          .filter((i: any) => i.available)
+          .map((i: any) => i.id);
 
-          // Initialiser tous les ingrédients comme cochés par défaut
-          this.recipe.ingredients.forEach(ing => {
-            this.checkedIngredients[ing.ingredientId] = true;
-          });
+        this.substitutions = this.aiService.findSubstitutions(recipe, available);
 
-          // Charger les détails réels de chaque ingrédient depuis le backend
-          this.loadAllIngredientDetails(this.recipe.ingredients.map(i => i.ingredientId));
-
-          this.userActivityService.logActivity('view_recipe', {
-            recipe_id: this.recipe.id,
-            recipe_name: this.recipe.name
-          });
-
-          this.similarRecipes  = this.aiService.getSimilarRecipes(this.recipe.id, 3);
-          this.ingredientStats = this.aiService.getRecipeStats(this.recipe);
-
-          const available = this.aiService
-            .getIngredientDatabase()
-            .filter(i => i.available)
-            .map(i => i.id);
-
-          this.substitutions = this.aiService.findSubstitutions(this.recipe, available);
-        }
         this.isLoading = false;
       },
       error: (err) => {
@@ -166,55 +143,141 @@ export class RecipeDetailComponent implements ViewWillEnter {
     });
   }
 
-  /**
-   * Charger les détails de tous les ingrédients de la recette
-   */
-  loadAllIngredientDetails(names: string[]): void {
-    const requests = names.map(name => 
-      this.recipeService.getIngredientDetails(name).pipe(
-        catchError(() => of({ name, price: 0, available: false }))
-      )
-    );
+  // ════════════════════════════════════════════════════
+  // Prix & Calories dynamiques (quand quantité change)
+  // ════════════════════════════════════════════════════
 
-    forkJoin(requests).subscribe(details => {
-      details.forEach((d: any) => {
-        if (d && d.name) {
-          this.ingredientDetails[d.name] = d;
-        }
-      });
+  updateTotalPrice(): void {
+  if (!this.recipe) return;
+
+  this.totalPrice = this.recipe.ingredients.reduce((total: number, ing: any) => {
+
+    if (!this.checkedIngredients[ing.nom]) return total;
+    if (!ing.disponible) return total;
+
+    const quantite = parseFloat(ing.quantite) || 0;
+
+    if (!ing.variantes || ing.variantes.length === 0) {
+      return total;
+    }
+
+    let bestPrice = Infinity;
+
+    ing.variantes.forEach((v: any) => {
+
+      const qty = this.convertToSameUnit(quantite, ing.unite, v.unite);
+
+      if (qty === null) return;
+
+      const nb = Math.ceil(qty / v.quantite);
+      const prix = nb * v.prix;
+
+      if (prix < bestPrice) {
+        bestPrice = prix;
+      }
     });
+
+    return total + (bestPrice === Infinity ? 0 : bestPrice);
+
+  }, 0);
+}
+  updateCalories(): void {
+  if (!this.recipe) return;
+
+  this.calories = this.recipe.ingredients.reduce((total: number, ing: any) => {
+
+    // ✅ ignorer si décoché
+    if (!this.checkedIngredients[ing.nom]) return total;
+
+    // ✅ ignorer si indisponible
+    if (!ing.disponible) return total;
+
+    const quantite = parseFloat(ing.quantite) || 0;
+
+    let cal = 0;
+
+    // ✅ recalcul dynamique basé sur calories_100g
+    if (ing.calories_100g) {
+      cal = (ing.calories_100g * quantite) / 100;
+    }
+
+    return total + cal;
+
+  }, 0);
+}
+ 
+ // Prix depuis cache ingredientDetails (appelé si getIngredientDetails est utilisé)
+getIngredientPrice(ingredient: any): number {
+
+  if (!this.checkedIngredients[ingredient.nom]) return 0;
+  if (!ingredient.disponible) return 0;
+
+  const quantite = parseFloat(ingredient["quantite"]) || 0;
+  
+  if (!ingredient.variantes || ingredient.variantes.length === 0) {
+    return 0;
   }
 
-  // ════════════════════════════════════════════════════
-  // Scroll — header transparent → opaque
-  // ════════════════════════════════════════════════════
+  let bestPrice = Infinity;
 
-  onScroll(event: any): void {
-    this.isScrolled = event.detail.scrollTop > 200;
-  }
+  ingredient.variantes.forEach((v: any) => {
 
+    const qty = this.convertToSameUnit(quantite, String(ingredient["unite"]), String(v["unite"]));
+    
+    if (qty === null) return;
+
+    const nb = Math.ceil(qty / v["quantite"]);
+    const prix = nb * v.prix;
+
+    if (prix < bestPrice) {
+      bestPrice = prix;
+    }
+  });
+
+  return bestPrice === Infinity ? 0 : bestPrice;
+}
+convertToSameUnit(qty: number, from: string, to: string): number | null {
+
+  // Poids
+  if (from === 'g' && to === 'kg') return qty / 1000;
+  if (from === 'kg' && to === 'g') return qty * 1000;
+  if (from === to && (from === 'g' || from === 'kg')) return qty;
+
+  // Liquide
+  if (from === 'ml' && to === 'L') return qty / 1000;
+  if (from === 'L' && to === 'ml') return qty * 1000;
+  if (from === to && (from === 'ml' || from === 'l')) return qty;
+
+  // Unités fixes (pas de conversion)
+  if (from === to) return qty;
+
+  // ❌ incompatible
+  return null;
+}
   // ════════════════════════════════════════════════════
   // Ingrédients
   // ════════════════════════════════════════════════════
 
-  toggleIngredient(ingredientId: string): void {
-    this.checkedIngredients[ingredientId] = !this.checkedIngredients[ingredientId];
+  toggleIngredient(nom: string): void {
+    const ing = this.recipe?.ingredients.find((i: any) => i.nom === nom);
+    if (!ing || !ing.disponible) return;
+    this.checkedIngredients[nom] = !this.checkedIngredients[nom];
+    this.updateTotalPrice();
+    this.updateCalories();
   }
 
-  getIngredientName(ingredientId: string): string {
-    return this.ingredientDetails[ingredientId]?.name ?? ingredientId;
+  isChecked(nom: string): boolean {
+    return this.checkedIngredients[nom] ?? false;
   }
 
-  getIngredientPrice(ingredientId: string): number {
-    return this.ingredientDetails[ingredientId]?.price ?? 0;
+ 
+
+  hasSubstitution(nom: string): boolean {
+    return this.substitutions.has(nom);
   }
 
-  hasSubstitution(ingredientId: string): boolean {
-    return this.substitutions.has(ingredientId);
-  }
-
-  getSubstitution(ingredientId: string): IngredientSubstitution | undefined {
-    return this.substitutions.get(ingredientId);
+  getSubstitution(nom: string): IngredientSubstitution | undefined {
+    return this.substitutions.get(nom);
   }
 
   get checkedCount(): number {
@@ -222,45 +285,38 @@ export class RecipeDetailComponent implements ViewWillEnter {
   }
 
   // ════════════════════════════════════════════════════
+  // Scroll
+  // ════════════════════════════════════════════════════
+
+  onScroll(event: any): void {
+    this.isScrolled = event.detail.scrollTop > 200;
+  }
+
+  // ════════════════════════════════════════════════════
   // Panier
   // ════════════════════════════════════════════════════
 
-  /**
-   * Ajouter uniquement les ingrédients sélectionnés au panier
-   */
   addSelectedToCart(): void {
     if (!this.recipe) return;
-
-    const selectedIngredients = this.recipe.ingredients.filter(ing => 
-      this.checkedIngredients[ing.ingredientId]
+    const selectedIngredients = this.recipe.ingredients.filter(
+      (ing: any) => this.checkedIngredients[ing.nom]
     );
-
     if (selectedIngredients.length === 0) return;
-
-    // Créer une version temporaire de la recette avec uniquement les ingrédients sélectionnés
-    const tempRecipe: Recipe = {
-      ...this.recipe,
-      ingredients: selectedIngredients
-    };
-
+    const tempRecipe = { ...this.recipe, ingredients: selectedIngredients };
     this.cartService.addRecipeToCart(tempRecipe, this.substitutions);
     this.isInCart = true;
-    
-    // Feedback visuel (Toast/Alert) pourrait être ajouté ici
   }
 
   addRecipeToCart(): void {
-    if (this.recipe) {
-      this.cartService.addRecipeToCart(this.recipe, this.substitutions);
-      this.isInCart = true;
-    }
+    if (!this.recipe) return;
+    this.cartService.addRecipeToCart(this.recipe, this.substitutions);
+    this.isInCart = true;
   }
 
   removeRecipeFromCart(): void {
-    if (this.recipe) {
-      this.cartService.removeRecipeFromCart(this.recipe.id);
-      this.isInCart = false;
-    }
+    if (!this.recipe) return;
+    this.cartService.removeRecipeFromCart(this.recipe.id);
+    this.isInCart = false;
   }
 
   // ════════════════════════════════════════════════════
@@ -300,12 +356,16 @@ export class RecipeDetailComponent implements ViewWillEnter {
   // ════════════════════════════════════════════════════
 
   getDifficultyText(): string {
-    const map: Record<string, string> = { easy: 'Facile', medium: 'Moyen', hard: 'Difficile' };
+    const map: Record<string, string> = {
+      easy: 'Facile', medium: 'Moyen', hard: 'Difficile'
+    };
     return map[this.recipe?.difficulty ?? ''] ?? '';
   }
 
   getDifficultyColor(): string {
-    const map: Record<string, string> = { easy: 'success', medium: 'warning', hard: 'danger' };
+    const map: Record<string, string> = {
+      easy: 'success', medium: 'warning', hard: 'danger'
+    };
     return map[this.recipe?.difficulty ?? ''] ?? 'medium';
   }
 

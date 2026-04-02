@@ -1,30 +1,49 @@
 // src/app/pages/scan-recipe/scan-recipe.page.ts
 // src/app/pages/scan-recipe/scan-recipe.page.ts
 
+// src/app/pages/scan-recipe/scan-recipe.page.ts
+
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   ActionSheetController,
   AlertController,
   LoadingController,
   ToastController,
-  NavController,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   cameraOutline, camera, imagesOutline, scanOutline, sparklesOutline,
-  checkmarkCircle, searchCircleOutline, timeOutline, flameOutline,
-  peopleOutline, barChartOutline, cartOutline, flagOutline, bulbOutline,
-  refreshOutline, addCircleOutline,
+  timeOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
+  flagOutline, bulbOutline, refreshOutline, addCircleOutline,
+  textOutline, restaurantOutline, chevronDownOutline, chevronUpOutline,
+  hardwareChipOutline, informationCircleOutline, searchOutline,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { environment } from '../../../environments/environment';
-import { RecipeMatchService } from '../../services/recipe-match.service';
 import { SmartCartService } from '../../services/smart-cart.service';
-import { DishAnalysis, Recipe } from '../../models/reciepe.model';
+import { DishAnalysis } from '../../models/reciepe.model';
 
-// ── Types internes ──────────────────────────────────────────────
-type Step = 'capture' | 'verify' | 'results';
+// ── Types ────────────────────────────────────────────────────────
+
+type Step      = 'capture' | 'verify' | 'results';
+type InputMode = 'image' | 'text';
+
+export interface RecipeResult {
+  nom: string;
+  description: string;
+  temps_preparation: string;
+  temps_cuisson: string;
+  nombre_personnes: number;
+  difficulte: string;
+  categorie?: string;
+  ingredients: any[];
+  instructions: string[];
+  matchScore: number;       // 0–100
+  matchReason?: string;     // courte explication du score
+  source: 'ai_generated';
+}
+
+// ── Component ────────────────────────────────────────────────────
 
 @Component({
   selector: 'app-scan-recipe',
@@ -33,29 +52,33 @@ type Step = 'capture' | 'verify' | 'results';
 })
 export class ScanRecipePage implements OnInit {
 
-  // État de la page
+  // ── UI state ──────────────────────────────────────────────────
   step: Step = 'capture';
+  inputMode: InputMode = 'image';
 
-  // Image
+  // ── Image mode ────────────────────────────────────────────────
   imagePreview: string | null = null;
   imageBase64: string | null = null;
   imageMime: string = 'image/jpeg';
 
-  // Analyse Gemini
+  // ── Text mode ─────────────────────────────────────────────────
+  dishNameInput = '';
+  dishSuggestions = ['Couscous', 'Tajine de poulet', 'Pastilla', 'Harira', 'Chakchouka'];
+
+  // ── Analysis ──────────────────────────────────────────────────
   dishAnalysis: DishAnalysis | null = null;
   isAnalyzing = false;
 
-  // Ingrédients vérifiés
+  // ── Ingredients verification ──────────────────────────────────
   activeIngredients: string[] = [];
   manualIngredient = '';
-  isSearching = false;
-
-  // Résultats
-  matchedRecipe: Recipe | null = null;
   isGenerating = false;
-  generatedRecipe: Recipe | null = null;
 
-  // Config Gemini
+  // ── Results ───────────────────────────────────────────────────
+  recipeResults: RecipeResult[] = [];
+  expandedIndex: number | null = 0;
+
+  // ── Gemini config ─────────────────────────────────────────────
   private readonly geminiUrl =
     `https://generativelanguage.googleapis.com/v1beta/models/${environment.geminiModel}:generateContent?key=${environment.geminiApiKey}`;
 
@@ -64,32 +87,45 @@ export class ScanRecipePage implements OnInit {
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
-    private navCtrl: NavController,
-    private matchService: RecipeMatchService,
     private cartService: SmartCartService,
   ) {
     addIcons({
       cameraOutline, camera, imagesOutline, scanOutline, sparklesOutline,
-      checkmarkCircle, searchCircleOutline, timeOutline, flameOutline,
-      peopleOutline, barChartOutline, cartOutline, flagOutline, bulbOutline,
-      refreshOutline, addCircleOutline,
+      timeOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
+      flagOutline, bulbOutline, refreshOutline, addCircleOutline,
+      textOutline, restaurantOutline, chevronDownOutline, chevronUpOutline,
+      hardwareChipOutline, informationCircleOutline, searchOutline,
     });
   }
 
   ngOnInit() {}
 
-  // ══════════════════════════════════════════════════════════════
-  // 1. CAPTURE D'IMAGE
-  // ══════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════
+  // MODE SWITCH
+  // ════════════════════════════════════════════════════════════════
+
+  setMode(mode: InputMode) {
+    this.inputMode = mode;
+    this.imagePreview = null;
+    this.imageBase64 = null;
+    this.dishNameInput = '';
+  }
+
+  setDishSuggestion(name: string) {
+    this.dishNameInput = name;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // IMAGE CAPTURE
+  // ════════════════════════════════════════════════════════════════
 
   async selectImageSource() {
     if (this.imagePreview) {
-      // Déjà une image → proposer de changer
       const sheet = await this.actionSheet.create({
         buttons: [
-          { text: 'Prendre une photo', icon: 'camera', handler: () => this.takePhoto() },
-          { text: 'Galerie', icon: 'images', handler: () => this.pickFromGallery() },
-          { text: 'Annuler', role: 'cancel' },
+          { text: 'Prendre une photo', icon: 'camera',         handler: () => this.takePhoto() },
+          { text: 'Galerie',           icon: 'images-outline', handler: () => this.pickFromGallery() },
+          { text: 'Annuler',           role: 'cancel' },
         ],
       });
       await sheet.present();
@@ -108,9 +144,7 @@ export class ScanRecipePage implements OnInit {
       });
       this.setImage(photo);
     } catch (e: any) {
-      if (!e.message?.includes('cancelled')) {
-        this.showToast('Erreur lors de la capture', 'danger');
-      }
+      if (!e.message?.includes('cancelled')) this.showToast('Erreur lors de la capture', 'danger');
     }
   }
 
@@ -124,9 +158,7 @@ export class ScanRecipePage implements OnInit {
       });
       this.setImage(photo);
     } catch (e: any) {
-      if (!e.message?.includes('cancelled')) {
-        this.showToast('Erreur lors de la sélection', 'danger');
-      }
+      if (!e.message?.includes('cancelled')) this.showToast('Erreur lors de la sélection', 'danger');
     }
   }
 
@@ -136,27 +168,23 @@ export class ScanRecipePage implements OnInit {
     this.imagePreview = `data:${this.imageMime};base64,${this.imageBase64}`;
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // 2. ANALYSE GEMINI VISION → Nom + Ingrédients
-  // ══════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════
+  // ANALYSE IMAGE → DishAnalysis + step 'verify'
+  // ════════════════════════════════════════════════════════════════
 
   async analyzeImage() {
     if (!this.imageBase64) return;
 
     this.isAnalyzing = true;
-    const loading = await this.loadingCtrl.create({
-      message: 'Gemini Vision analyse l\'image...',
-      spinner: 'crescent',
-    });
-    await loading.present();
+    const loading = await this.showLoading('Analyse de l\'image en cours...');
 
     const prompt = `Tu es un expert culinaire. Analyse cette image de plat alimentaire.
-Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans backticks, sans texte autour.
+Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans backticks.
 
 Structure exacte :
 {
   "dishName": "Nom précis du plat en français",
-  "cuisine": "Type de cuisine (algérienne, française, italienne...)",
+  "cuisine": "Type de cuisine (algérienne, française, etc.)",
   "confidence": 0.95,
   "ingredients": [
     {"name": "nom ingrédient", "probability": 0.95, "quantity": "quantité estimée ou null"}
@@ -166,45 +194,20 @@ Structure exacte :
   "notes": "Conseil ou variante utile"
 }
 
-Règles :
 - Identifie le plat RÉEL visible dans l'image
-- Liste au minimum 5 ingrédients avec leur probabilité de présence (0.0 à 1.0)
-- Sois précis (ex: "Couscous aux légumes" pas juste "Couscous")
+- Liste au minimum 5 ingrédients avec probabilité (0.0 à 1.0)
 - Réponds EN JSON PUR uniquement`;
 
     try {
-      const response = await fetch(this.geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: this.imageMime, data: this.imageBase64 } },
-              { text: prompt },
-            ],
-          }],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 1500 },
-        }),
-      });
+      const data = await this.callGemini([{
+        parts: [
+          { inline_data: { mime_type: this.imageMime, data: this.imageBase64 } },
+          { text: prompt },
+        ],
+      }], 0.1, 1500);
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || `Erreur Gemini ${response.status}`);
-      }
-
-      const data = await response.json();
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (!raw) throw new Error('Réponse Gemini vide');
-
-      let parsed: DishAnalysis;
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
-      }
-
+      const parsed: DishAnalysis = this.parseJSON(data);
       this.dishAnalysis = parsed;
-      // Activer tous les ingrédients avec probabilité ≥ 50%
       this.activeIngredients = parsed.ingredients
         .filter(i => i.probability >= 0.5)
         .map(i => i.name.toLowerCase());
@@ -212,23 +215,49 @@ Règles :
       this.step = 'verify';
 
     } catch (e: any) {
-      console.error('Gemini error:', e);
-      let msg = 'Erreur lors de l\'analyse. Réessayez.';
-      if (e.message?.includes('quota') || e.message?.includes('429')) {
-        msg = 'Limite Gemini atteinte. Réessayez dans 1 minute.';
-      } else if (e.message?.includes('API_KEY')) {
-        msg = 'Clé Gemini invalide. Vérifiez environment.ts';
-      }
-      this.showToast(msg, 'danger');
+      this.showToast(this.geminiErrorMsg(e), 'danger');
     } finally {
       this.isAnalyzing = false;
       await loading.dismiss();
     }
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // 3. VÉRIFICATION INGRÉDIENTS
-  // ══════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════
+  // ANALYSE PAR NOM → skip 'verify', générer directement
+  // ════════════════════════════════════════════════════════════════
+
+  async analyzeByName() {
+    const name = this.dishNameInput.trim();
+    if (!name) return;
+
+    this.isAnalyzing = true;
+    const loading = await this.showLoading('Génération des recettes...');
+
+    // Construire un DishAnalysis minimal pour le nom
+    this.dishAnalysis = {
+      dishName: name,
+      cuisine: '',
+      confidence: 1,
+      ingredients: [],
+      cookingTime: '',
+      difficulty: '',
+      notes: '',
+    };
+
+    try {
+      await this._generateMultiple(name, []);
+      this.step = 'results';
+    } catch (e: any) {
+      this.showToast(this.geminiErrorMsg(e), 'danger');
+    } finally {
+      this.isAnalyzing = false;
+      await loading.dismiss();
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // INGREDIENT VERIFICATION
+  // ════════════════════════════════════════════════════════════════
 
   isIngredientActive(name: string): boolean {
     return this.activeIngredients.includes(name.toLowerCase());
@@ -237,11 +266,8 @@ Règles :
   toggleIngredient(name: string) {
     const n = name.toLowerCase();
     const idx = this.activeIngredients.indexOf(n);
-    if (idx >= 0) {
-      this.activeIngredients.splice(idx, 1);
-    } else {
-      this.activeIngredients.push(n);
-    }
+    if (idx >= 0) this.activeIngredients.splice(idx, 1);
+    else this.activeIngredients.push(n);
   }
 
   addManualIngredient() {
@@ -249,159 +275,147 @@ Règles :
     if (!name) return;
     if (!this.activeIngredients.includes(name)) {
       this.activeIngredients.push(name);
-      // Ajouter aussi dans dishAnalysis pour l'affichage
       this.dishAnalysis?.ingredients.push({ name, probability: 1.0, quantity: null as any });
     }
     this.manualIngredient = '';
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // 4. RECHERCHE EN BASE DE DONNÉES LARAVEL
-  //    GET /api/client/recipes
-  // ══════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════
+  // GENERATE MULTIPLE RECIPES (called from verify step button)
+  // ════════════════════════════════════════════════════════════════
 
-  async searchInDatabase() {
-    if (!this.activeIngredients.length || !this.dishAnalysis) return;
-
-    this.isSearching = true;
-    const loading = await this.loadingCtrl.create({
-      message: 'Recherche dans la base de recettes...',
-      spinner: 'crescent',
-    });
-    await loading.present();
-
-    try {
-      const match = await this.matchService.findMatch(this.dishAnalysis);
-      this.matchedRecipe = match;
-      this.generatedRecipe = null;
-      this.step = 'results';
-
-      if (match) {
-        this.showToast(`✓ ${match.nom} trouvée — ${match.matchScore}% de correspondance`, 'success');
-      } else {
-        // Aucun match suffisant → on reste sur results, l'UI propose de générer
-        this.showToast('Aucune recette correspondante. Vous pouvez générer avec l\'IA.', 'warning');
-      }
-    } catch (e: any) {
-      this.showToast('Erreur lors de la recherche : ' + e.message, 'danger');
-    } finally {
-      this.isSearching = false;
-      await loading.dismiss();
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // 5. GÉNÉRATION PAR IA (Gemini) si pas en BDD
-  // ══════════════════════════════════════════════════════════════
-
-  async generateWithAI() {
-    if (!this.dishAnalysis) return;
+  async generateMultipleRecipes() {
+    if (!this.dishAnalysis || !this.activeIngredients.length) return;
 
     this.isGenerating = true;
-    const loading = await this.loadingCtrl.create({
-      message: 'Gemini génère la recette...',
-      spinner: 'crescent',
-    });
-    await loading.present();
-
-    const ingredients = this.dishAnalysis.ingredients
-      .filter(i => this.isIngredientActive(i.name))
-      .map(i => i.name)
-      .join(', ');
-
-    const prompt = `Tu es un chef culinaire expert. Génère une recette complète et détaillée pour : "${this.dishAnalysis.dishName}".
-Ingrédients détectés dans l'image : ${ingredients}
-
-Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans backticks :
-{
-  "nom": "${this.dishAnalysis.dishName}",
-  "description": "Description appétissante du plat",
-  "temps_preparation": "15 min",
-  "temps_cuisson": "30 min",
-  "nombre_personnes": 4,
-  "difficulte": "Facile",
-  "categorie": "Plat principal",
-  "ingredients": [
-    {"name": "nom", "quantity": "200", "unite": "g"},
-    {"name": "nom", "quantity": "2", "unite": "pièces"}
-  ],
-  "instructions": [
-    "Étape 1 : description détaillée...",
-    "Étape 2 : ...",
-    "Étape 3 : ..."
-  ]
-}`;
+    const loading = await this.showLoading('Génération de plusieurs recettes...');
 
     try {
-      const response = await fetch(this.geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2000 },
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || `Erreur Gemini ${response.status}`);
-      }
-
-      const data = await response.json();
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (!raw) throw new Error('Réponse Gemini vide');
-
-      let parsed: any;
-      try { parsed = JSON.parse(raw); }
-      catch { parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()); }
-
-      this.generatedRecipe = { ...parsed, source: 'ai_generated' };
+      await this._generateMultiple(this.dishAnalysis.dishName, this.activeIngredients);
       this.step = 'results';
-
     } catch (e: any) {
-      this.showToast('Erreur lors de la génération : ' + e.message, 'danger');
+      this.showToast(this.geminiErrorMsg(e), 'danger');
     } finally {
       this.isGenerating = false;
       await loading.dismiss();
     }
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // 6. PANIER
-  // ══════════════════════════════════════════════════════════════
+  // ── Core generation logic ─────────────────────────────────────
 
-  addMatchedToCart() {
-    if (this.matchedRecipe) {
-      this.cartService.addRecipeToCart(this.matchedRecipe as any);
-      this.showToast('Ingrédients ajoutés au panier', 'success');
-    }
+  private async _generateMultiple(dishName: string, ingredients: string[]) {
+    const ingrList = ingredients.length
+      ? `Ingrédients disponibles : ${ingredients.join(', ')}.`
+      : '';
+
+    const prompt = `Tu es un chef culinaire expert. Génère 3 variantes différentes de recette pour : "${dishName}".
+${ingrList}
+
+Chaque variante doit avoir un degré de correspondance différent (matchScore).
+Varie : les ingrédients principaux, la technique de cuisson, la région/style, la difficulté.
+
+Réponds UNIQUEMENT avec un JSON valide sans markdown :
+[
+  {
+    "nom": "Nom complet et précis",
+    "description": "Description appétissante en 1-2 phrases",
+    "temps_preparation": "15 min",
+    "temps_cuisson": "30 min",
+    "nombre_personnes": 4,
+    "difficulte": "Facile",
+    "categorie": "Plat principal",
+    "matchScore": 95,
+    "matchReason": "Recette traditionnelle authentique avec tous les ingrédients clés",
+    "ingredients": [
+      {"name": "nom", "quantity": "200", "unite": "g"}
+    ],
+    "instructions": [
+      "Étape 1 détaillée...",
+      "Étape 2 détaillée..."
+    ]
+  },
+  { ... deuxième variante, matchScore 75-85 ... },
+  { ... troisième variante, matchScore 55-70 ... }
+]
+
+Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
+
+    const data = await this.callGemini([{ parts: [{ text: prompt }] }], 0.4, 3000);
+
+    let parsed: RecipeResult[] = this.parseJSON(data);
+    if (!Array.isArray(parsed)) parsed = [parsed];
+
+    this.recipeResults = parsed
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .map(r => ({ ...r, source: 'ai_generated' as const }));
+
+    this.expandedIndex = 0;
   }
 
-  addGeneratedToCart() {
-    if (this.generatedRecipe) {
-      this.cartService.addRecipeToCart(this.generatedRecipe as any);
-      this.showToast('Ingrédients de la recette IA ajoutés au panier', 'success');
-    }
+  // ════════════════════════════════════════════════════════════════
+  // UI INTERACTIONS
+  // ════════════════════════════════════════════════════════════════
+
+  toggleExpand(i: number) {
+    this.expandedIndex = this.expandedIndex === i ? null : i;
   }
 
-  // ── Helpers template : gèrent les types union de Laravel ─────
+  /** SVG circle stroke-dasharray for score ring (circumference = 2πr = 94.25) */
+  getScoreDash(score: number): string {
+    const circ = 2 * Math.PI * 15; // r=15
+    const fill = (score / 100) * circ;
+    return `${fill.toFixed(2)} ${circ.toFixed(2)}`;
+  }
 
-  getIngredientsArray(recipe: Recipe | null): any[] {
+  addToCart(recipe: RecipeResult) {
+    this.cartService.addRecipeToCart(recipe as any);
+    this.showToast(`✓ Ingrédients de "${recipe.nom}" ajoutés au panier`, 'success');
+  }
+
+  async sendFeedback(recipe: RecipeResult) {
+    const alert = await this.alertCtrl.create({
+      header: 'Signaler une erreur',
+      message: `Décrivez le problème avec "${recipe.nom}" :`,
+      inputs: [{ name: 'feedback', type: 'textarea', placeholder: 'Ex: Les quantités sont incorrectes...' }],
+      buttons: [
+        { text: 'Annuler', role: 'cancel' },
+        { text: 'Envoyer', handler: () => this.showToast('Merci pour votre retour !', 'success') },
+      ],
+    });
+    await alert.present();
+  }
+
+  restart() {
+    this.step = 'capture';
+    this.imagePreview = null;
+    this.imageBase64 = null;
+    this.dishNameInput = '';
+    this.dishAnalysis = null;
+    this.activeIngredients = [];
+    this.recipeResults = [];
+    this.expandedIndex = null;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // TEMPLATE HELPERS
+  // ════════════════════════════════════════════════════════════════
+
+  getIngredientsArray(recipe: RecipeResult | null): any[] {
     if (!recipe?.ingredients) return [];
     if (typeof recipe.ingredients === 'string') {
       try { return JSON.parse(recipe.ingredients); }
-      catch { return recipe.ingredients.split(/[\n,;]+/).map(s => ({ nom: s.trim() })); }
+      catch { return (recipe.ingredients as string).split(/[\n,;]+/).map(s => ({ nom: s.trim() })); }
     }
     return recipe.ingredients as any[];
   }
 
-  getStepsArray(recipe: Recipe | null): string[] {
+  getStepsArray(recipe: RecipeResult | null): string[] {
     if (!recipe?.instructions) return [];
     if (typeof recipe.instructions === 'string') {
       try {
-        const parsed = JSON.parse(recipe.instructions);
-        return Array.isArray(parsed) ? parsed : [recipe.instructions];
-      } catch { return recipe.instructions.split(/\n+/).filter(s => s.trim()); }
+        const p = JSON.parse(recipe.instructions);
+        return Array.isArray(p) ? p : [recipe.instructions];
+      } catch { return (recipe.instructions as string).split(/\n+/).filter(s => s.trim()); }
     }
     return recipe.instructions as string[];
   }
@@ -413,56 +427,55 @@ Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans backticks :
 
   getIngrQty(ing: any): string {
     if (typeof ing === 'string') return '';
-    const qty  = ing?.quantity || ing?.quantite || '';
-    const unit = ing?.unite    || ing?.unit     || '';
+    const qty  = ing?.quantity  || ing?.quantite || '';
+    const unit = ing?.unite     || ing?.unit     || '';
     return qty ? `${qty}${unit ? ' ' + unit : ''}` : '';
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // 7. FEEDBACK
-  // ══════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════
+  // PRIVATE UTILS
+  // ════════════════════════════════════════════════════════════════
 
-  async sendFeedback() {
-    const alert = await this.alertCtrl.create({
-      header: 'Signaler une erreur',
-      message: 'Décrivez le problème avec cette recette générée par IA :',
-      inputs: [{ name: 'feedback', type: 'textarea', placeholder: 'Ex: Les quantités sont incorrectes...' }],
-      buttons: [
-        { text: 'Annuler', role: 'cancel' },
-        {
-          text: 'Envoyer',
-          handler: (data) => {
-            // TODO: envoyer le feedback à Laravel
-            // this.http.post('/api/client/feedback', { recipe: this.generatedRecipe, message: data.feedback })
-            this.showToast('Merci pour votre retour !', 'success');
-          },
-        },
-      ],
+  private async callGemini(contents: any[], temperature = 0.3, maxTokens = 2000): Promise<string> {
+    const response = await fetch(this.geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        generationConfig: { temperature, maxOutputTokens: maxTokens },
+      }),
     });
-    await alert.present();
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `Erreur Gemini ${response.status}`);
+    }
+
+    const data = await response.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error('Réponse Gemini vide');
+    return raw;
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // UTILS
-  // ══════════════════════════════════════════════════════════════
-
-  restart() {
-    this.step = 'capture';
-    this.imagePreview = null;
-    this.imageBase64 = null;
-    this.dishAnalysis = null;
-    this.activeIngredients = [];
-    this.matchedRecipe = null;
-    this.generatedRecipe = null;
+  private parseJSON(raw: string): any {
+    try { return JSON.parse(raw); }
+    catch { return JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()); }
   }
 
-  private async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 3000,
-      position: 'bottom',
-      color,
-    });
+  private geminiErrorMsg(e: any): string {
+    if (e.message?.includes('quota') || e.message?.includes('429')) return 'Limite Gemini atteinte. Réessayez dans 1 minute.';
+    if (e.message?.includes('API_KEY')) return 'Clé Gemini invalide. Vérifiez environment.ts';
+    return e.message || 'Une erreur est survenue.';
+  }
+
+  private async showLoading(message: string) {
+    const loading = await this.loadingCtrl.create({ message, spinner: 'crescent' });
+    await loading.present();
+    return loading;
+  }
+
+  private async showToast(message: string, color = 'primary') {
+    const toast = await this.toastCtrl.create({ message, duration: 3000, position: 'bottom', color });
     await toast.present();
   }
 }

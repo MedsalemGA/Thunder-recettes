@@ -562,6 +562,31 @@ ion-toolbar {
   .search-wrap { margin: 12px 12px 10px; }
   .header-title { font-size: 22px; }
 }
-ion-content {
-  --padding-bottom: 70px; /* hauteur de votre footer */
+#AImessage {
+  margin-top: 20px;
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: none;
+  color: rgb(126, 126, 126);
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: 0 2px 6px rgb(255, 234, 0);
+  cursor: pointer;
+  transition: all 0.25s;
+  animation: pulse 1.1s infinite ease-in-out forwards;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+#AImessage span {
+  color: #ffaa00;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Arial', sans-serif;
+  
 }

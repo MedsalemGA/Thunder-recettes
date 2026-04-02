@@ -12,6 +12,9 @@ use Laravel\Sanctum\PersonalAccessToken;
 use App\Mail\AdminOtpMail;
 use Carbon\Carbon;
 use App\Models\Recette;
+use App\Models\RecetteIngredient;
+use App\Models\Produit;
+use App\Models\ProduitVariante;
 class AdminController extends Controller
 {
     public function login(Request $request)
@@ -219,7 +222,7 @@ public function ajouterfournisseur(Request $request){
     ], 201);}
 public function getallfournisseurs()
 {
-    $fournisseurs = Fournisseur::with(['user', 'produits'])
+    $fournisseurs = Fournisseur::with(['user', 'produits.variantes'])
         ->whereHas('user', function ($query) {
             $query->where('role', 'fournisseur');
         })
@@ -282,40 +285,155 @@ public function updatefournisseurs(Request $request)
 }
 public function getallrecettes()
 {
-    $recettes = Recette::all();
-    return response()->json([
-        "status"  => "success",
-        "message" => "Recettes found",
-        "data"    => $recettes,
-    ], 200);
+    // Retourne le même format que RecipeController::index()
+    // afin que le frontend Angular reçoive les champs name, cuisine, calories, ingredients structurés
+    $recettes = Recette::with('ingredients.produit.variantes')->get()->map(function ($r) {
+
+        $ingredientsEnrichis = $r->ingredients->map(function ($ing) {
+            $variantes    = $ing->produit?->variantes ?? collect();
+            $varMeilleure = $variantes->sortBy('prix')->first();
+
+            $cal100g = (float)$ing->calories_100g;
+            if ($cal100g === 0.0 && $ing->produit !== null) {
+                $cal100g = (float)$ing->produit->calories_100g;
+            }
+
+            return [
+                'nom_ingredient' => $ing->nom_ingredient,
+                'nom'            => $ing->nom_ingredient, // alias frontend
+                'quantite'       => $ing->quantite,
+                'unite'          => $ing->unite,
+                'produit_id'     => $ing->produit_id,
+                'disponible'     => $ing->produit?->quantite_stock > 0,
+                'price_ing'      => $varMeilleure?->prix ?? 0,
+                'calories_100g'  => $cal100g,
+                'calories'       => round($cal100g * (float)$ing->quantite / 100, 1),
+                'variantes'      => $variantes->map(fn($v) => [
+                    'id'       => $v->id,
+                    'quantite' => $v->quantite,
+                    'unite'    => $v->unite,
+                    'prix'     => $v->prix,
+                ])->values(),
+            ];
+        });
+
+        $caloriesTotales = round($ingredientsEnrichis->sum('calories'), 1);
+
+        return [
+            'id'           => $r->id,
+            'name'         => $r->nom,
+            'nom'          => $r->nom,
+            'description'  => $r->description,
+            'image'        => $r->image,
+            'cuisine'      => $r->categorie,
+            'categorie'    => $r->categorie,
+            'difficulty'   => $r->difficulte ?? 'medium',
+            'difficulte'   => $r->difficulte ?? 'medium',
+            'prepTime'     => $r->temps_preparation,
+            'temps_preparation' => $r->temps_preparation,
+            'cookTime'     => $r->temps_cuisson,
+            'temps_cuisson'=> $r->temps_cuisson,
+            'servings'     => $r->nombre_personnes,
+            'nombre_personnes' => $r->nombre_personnes,
+            'rating'       => $r->rating ?? 4.5,
+            'prix'         => $r->prix,
+            'calories'     => $caloriesTotales,
+            'instructions' => $r->instructions ?? [],
+            'ingredients'  => $ingredientsEnrichis->values(),
+        ];
+    });
+
+    return response()->json($recettes, 200);
 }
 public function ajouterrecettes(Request $request){
     $validated = $request->validate([
-        "nom" => "required",
-        "description" => "required",
-        "image"=> "required",
-        "temps_preparation" => "required",
-        "nombre_personnes" => "required",
-        "categorie" => "required",
-        "prix" => "required",
+        'nom'               => 'required|string',
+        'description'       => 'required|string',
+        'image'             => 'nullable|string',
+        'temps_preparation' => 'nullable|integer',
+        'temps_cuisson'     => 'nullable|integer',
+        'nombre_personnes'  => 'nullable|integer',
+        'categorie'         => 'required|string',
+        'difficulte'        => 'nullable|string|in:easy,medium,hard',
+        'prix'              => 'required|numeric',
+        'instructions'      => 'nullable|array',
+        // ingredients est maintenant un tableau d'objets structurés
+        'ingredients'              => 'nullable|array',
+        'ingredients.*.nom_ingredient' => 'required|string',
+        'ingredients.*.quantite'       => 'required|numeric|min:0',
+        'ingredients.*.unite'          => 'required|string',
+        'ingredients.*.produit_id'     => 'nullable|integer|exists:produits,id',
     ]);
-    $recette = Recette::create($validated);
+
+    // Créer la recette (sans le champ calories ni ingredients bruts)
+    $recette = Recette::create([
+        'nom'               => $validated['nom'],
+        'description'       => $validated['description'],
+        'image'             => $validated['image'] ?? null,
+        'temps_preparation' => $validated['temps_preparation'] ?? null,
+        'temps_cuisson'     => $validated['temps_cuisson'] ?? null,
+        'nombre_personnes'  => $validated['nombre_personnes'] ?? null,
+        'categorie'         => $validated['categorie'],
+        'difficulte'        => $validated['difficulte'] ?? 'medium',
+        'prix'              => $validated['prix'],
+        'instructions'      => $validated['instructions'] ?? [],
+        'calories'          => 0, // sera calculé dynamiquement via accessor
+    ]);
+
+    // Insérer les ingrédients dans recette_ingredients
+    // calories_100g absent de la table — lue dynamiquement depuis produits
+    foreach ($validated['ingredients'] ?? [] as $ing) {
+        RecetteIngredient::create([
+            'recette_id'     => $recette->id,
+            'produit_id'     => $ing['produit_id'] ?? null,
+            'nom_ingredient' => $ing['nom_ingredient'],
+            'quantite'       => $ing['quantite'],
+            'unite'          => $ing['unite'],
+        ]);
+    }
+
     return response()->json([
-        "status"  => "success",
-        "message" => "Recette created successfully",
-        "data"    => $recette
+        'status'  => 'success',
+        'message' => 'Recette créée avec succès',
+        'data'    => $recette->load('ingredients'),
     ], 201);
 }
 public function updaterecettes(Request $request)
 {
     $recette = Recette::findOrFail($request->id);
 
-    $recette->update($request->except('id'));
+    // Champs scalaires autorisés (pas ingredients, pas calories)
+    $scalaires = $request->only([
+        'nom', 'description', 'image', 'categorie', 'difficulte',
+        'prix', 'temps_preparation', 'temps_cuisson', 'nombre_personnes', 'instructions',
+    ]);
+
+    if (!empty($scalaires)) {
+        $recette->update($scalaires);
+    }
+
+    // Sync des ingrédients : supprimer les anciens puis recréer
+    if ($request->has('ingredients')) {
+        $recette->ingredients()->delete();
+
+        foreach ($request->input('ingredients', []) as $ing) {
+            if (empty($ing['nom_ingredient']) || !isset($ing['quantite'])) continue;
+
+            RecetteIngredient::create([
+                'recette_id'     => $recette->id,
+                'produit_id'     => $ing['produit_id'] ?? null,
+                'nom_ingredient' => $ing['nom_ingredient'],
+                'quantite'       => $ing['quantite'],
+                'unite'          => $ing['unite'] ?? 'g',
+                // calories_100g lue dynamiquement depuis produits
+            ]);
+        }
+    }
 
     return response()->json([
-        "status"  => "success",
-        "message" => "Recette updated",
-        "data"    => $recette
+        'status'  => 'success',
+        'message' => 'Recette modifiée avec succès',
+        'data'    => $recette->load('ingredients'),
     ], 200);
 }
 public function deleterecettes(Request $request){
@@ -328,5 +446,117 @@ public function deleterecettes(Request $request){
     ], 200);
 }
 
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  PRODUITS
+    // ══════════════════════════════════════════════════════════════════════
+
+    public function getallproduits()
+    {
+        $produits = Produit::with(['variantes', 'fournisseur'])->get();
+        return response()->json($produits, 200);
+    }
+
+    public function ajouterproduit(Request $request)
+    {
+        $validated = $request->validate([
+            'nom'            => 'required|string',
+            'description'    => 'nullable|string',
+            'prix'           => 'required|numeric|min:0',
+            'quantite_stock' => 'required|integer|min:0',
+            'calories_100g'  => 'nullable|numeric|min:0',
+            'fournisseur_id' => 'required|integer|exists:fournisseurs,id',
+            'image'          => 'nullable|string',
+        ]);
+
+        $produit = Produit::create($validated);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Produit créé avec succès',
+            'data'    => $produit,
+        ], 201);
+    }
+
+    public function updateproduit(Request $request)
+    {
+        $produit = Produit::findOrFail($request->id);
+
+        $produit->update($request->only([
+            'nom', 'description', 'prix', 'quantite_stock', 'calories_100g', 'image',
+        ]));
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Produit modifié avec succès',
+            'data'    => $produit->load('variantes'),
+        ], 200);
+    }
+
+    public function deleteproduit(Request $request)
+    {
+        $produit = Produit::findOrFail($request->id);
+        $produit->delete(); // CASCADE supprime aussi les variantes
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Produit supprimé',
+        ], 200);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  VARIANTES
+    // ══════════════════════════════════════════════════════════════════════
+
+    public function getvariantes(Request $request)
+    {
+        $variantes = ProduitVariante::where('produit_id', $request->produit_id)
+            ->orderBy('prix')
+            ->get();
+
+        return response()->json($variantes, 200);
+    }
+
+    public function ajoutervariante(Request $request)
+    {
+        $validated = $request->validate([
+            'produit_id' => 'required|integer|exists:produits,id',
+            'quantite'   => 'required|numeric|min:0',
+            'unite'      => 'required|string',
+            'prix'       => 'required|numeric|min:0',
+        ]);
+
+        $variante = ProduitVariante::create($validated);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Variante ajoutée avec succès',
+            'data'    => $variante,
+        ], 201);
+    }
+
+    public function updatevariante(Request $request)
+    {
+        $variante = ProduitVariante::findOrFail($request->id);
+
+        $variante->update($request->only(['quantite', 'unite', 'prix']));
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Variante modifiée avec succès',
+            'data'    => $variante,
+        ], 200);
+    }
+
+    public function deletevariante(Request $request)
+    {
+        $variante = ProduitVariante::findOrFail($request->id);
+        $variante->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Variante supprimée',
+        ], 200);
+    }
 
 }

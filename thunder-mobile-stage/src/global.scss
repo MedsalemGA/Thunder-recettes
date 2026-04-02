@@ -106,7 +106,9 @@ html, body {
 .smart-cart-modal .modal-wrapper {
   background: white;
 }
-
+ion-content {
+  --padding-bottom: 170px; /* hauteur de votre footer */
+}
 /* =============================================
    Ionic Alert — Modern Design
    ============================================= */

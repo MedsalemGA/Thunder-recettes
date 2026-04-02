@@ -1,8 +1,9 @@
 // =============================================
-// Variables
+// Variables — calées sur le design system
 // =============================================
 $primary:      #0ae1cc;
 $primary-dark: #00A896;
+$primary-soft: rgba(10, 225, 204, 0.10);
 
 $text-dark:    #1a202c;
 $text-light:   #64748b;
@@ -13,32 +14,31 @@ $bg-surface:   #f1f5f9;
 $border:       #e2e8f0;
 $success:      #10b981;
 $warning:      #f59e0b;
+$danger:       #ef4444;
+$danger-soft:  rgba(239,68,68,0.08);
+
 $shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
 $shadow-md:    0 8px 24px rgba(0,0,0,0.08);
+
+$font-display: 'Sora', 'SF Pro Display', system-ui, sans-serif;
+$font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
 
 // =============================================
 // Host & Content
 // =============================================
 :host { display: block; }
 
-ion-content.recipe-detail-content {
-  --background: #{$bg-page};
-}
+ion-content.recipe-detail-content { --background: #{$bg-page}; }
 
 // =============================================
-// Header flottant transparent → opaque au scroll
+// Header flottant
 // =============================================
 ion-header.floating-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 100;
 
   ion-toolbar {
     --background: transparent;
-    --border-width: 0;
-    --box-shadow: none;
+    --border-width: 0; --box-shadow: none;
     transition: background 0.25s ease, box-shadow 0.25s ease;
   }
 
@@ -49,149 +49,86 @@ ion-header.floating-header {
 }
 
 .nav-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 0 4px;
-  transition: all 0.2s;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
+  border: none; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; margin: 0 4px; transition: all 0.2s;
 
-  ion-icon {
-    font-size: 20px;
-    color: $text-dark;
-  }
-
-  .active-fav { color: #ef4444; }
-
-  &:hover { background: $bg-white; transform: scale(1.05); }
+  ion-icon { font-size: 20px; color: $text-dark; }
+  .active-fav { color: $danger; }
   &:active { transform: scale(0.95); }
 }
 
-// Header scrolled : icônes sans fond blanc (toolbar est déjà blanc)
-.floating-header.scrolled .nav-btn {
-  background: $bg-surface;
-}
+.floating-header.scrolled .nav-btn { background: $bg-surface; }
 
 .floating-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: $text-dark;
-  opacity: 0;
-  transform: translateY(6px);
+  font-family: $font-display; font-size: 16px;
+  font-weight: 700; color: $text-dark;
+  opacity: 0; transform: translateY(6px);
   transition: all 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 
-  &.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  &.visible { opacity: 1; transform: translateY(0); }
 }
 
 // =============================================
-// Hero image
+// Hero
 // =============================================
 .hero-image-wrap {
-  position: relative;
-  height: 340px;
-  overflow: hidden;
-  background: #e2e8f0;
+  position: relative; height: 320px; overflow: hidden; background: $bg-surface;
+  @media (max-width: 480px) { height: 260px; }
 
-  @media (max-width: 480px) { height: 280px; }
+  .hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  .hero-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px; background: $bg-surface;
   }
 
   .hero-gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(0,0,0,0.08) 0%,
-      transparent 35%,
-      rgba(0,0,0,0.65) 100%
-    );
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, transparent 35%, rgba(0,0,0,0.65) 100%);
   }
 
   .hero-badges {
-    position: absolute;
-    top: 56px;
-    left: 16px;
-    display: flex;
-    gap: 8px;
+    position: absolute; top: 56px; left: 16px; display: flex; gap: 8px;
   }
 
   .hero-badge {
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    backdrop-filter: blur(10px);
-    color: white;
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    backdrop-filter: blur(10px); color: white;
 
-    &.cuisine-badge {
-      background: rgba(10, 225, 204, 0.75);
-      border: 1px solid rgba(10, 225, 204, 0.5);
-    }
-    &.diff-easy   { background: rgba(16, 185, 129, 0.8); }
-    &.diff-medium { background: rgba(245, 158, 11, 0.8); }
-    &.diff-hard   { background: rgba(239, 68, 68, 0.8); }
+    &.cuisine-badge { background: rgba(10,225,204,0.75); border: 1px solid rgba(10,225,204,0.5); }
+    &.diff-facile   { background: rgba(16,185,129,0.8); }
+    &.diff-moyen    { background: rgba(245,158,11,0.8); }
+    &.diff-difficile{ background: rgba(239,68,68,0.8); }
+    &.diff-easy     { background: rgba(16,185,129,0.8); }
+    &.diff-medium   { background: rgba(245,158,11,0.8); }
+    &.diff-hard     { background: rgba(239,68,68,0.8); }
   }
 
   .hero-info {
-    position: absolute;
-    bottom: 0;
-    left: 0; right: 0;
-    padding: 24px 20px 20px;
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 20px 20px;
 
     .hero-title {
-      font-size: 26px;
-      font-weight: 800;
-      color: white;
-      margin: 0 0 10px;
-      line-height: 1.2;
-      letter-spacing: -0.5px;
+      font-size: 26px; font-weight: 800; color: white;
+      margin: 0 0 10px; line-height: 1.2; letter-spacing: -0.5px;
       text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-
+      font-family: $font-display;
       @media (max-width: 480px) { font-size: 22px; }
     }
 
-    .hero-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .hero-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .hero-stat {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9);
       ion-icon { font-size: 14px; color: $primary; }
-      .reviews { font-weight: 400; opacity: 0.75; }
     }
 
-    .hero-dot {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.5);
-    }
+    .hero-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.5); }
   }
 }
 
@@ -199,122 +136,67 @@ ion-header.floating-header {
 // Stats strip
 // =============================================
 .stats-strip {
-  display: flex;
-  align-items: stretch;
-  background: $bg-white;
-  margin: 0 16px;
-  margin-top: -20px;
-  border-radius: 20px;
-  box-shadow: $shadow-md;
-  position: relative;
-  z-index: 2;
-  overflow: hidden;
+  display: flex; align-items: stretch;
+  background: $bg-white; margin: 0 16px;
+  margin-top: -20px; border-radius: 20px;
+  box-shadow: $shadow-md; position: relative; z-index: 2; overflow: hidden;
 }
 
 .stat-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 8px;
-  gap: 4px;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 14px 6px; gap: 4px;
 
-  ion-icon {
-    font-size: 20px;
-    color: $primary;
-    margin-bottom: 2px;
-  }
+  ion-icon { font-size: 18px; color: $primary; margin-bottom: 2px; }
 
   .stat-val {
-    font-size: 16px;
-    font-weight: 800;
-    color: $text-dark;
-    line-height: 1;
-
-    small {
-      font-size: 10px;
-      font-weight: 600;
-      color: $text-light;
-      margin-left: 1px;
-    }
-
-    &.price { font-size: 13px; }
+    font-size: 14px; font-weight: 800; color: $text-dark; line-height: 1;
+    font-family: $font-display;
+    small { font-size: 9px; font-weight: 600; color: $text-light; margin-left: 1px; }
+    &.price { font-size: 12px; }
   }
 
   .stat-lbl {
-    font-size: 10px;
-    font-weight: 600;
-    color: $text-hint;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    text-align: center;
+    font-size: 9px; font-weight: 600; color: $text-hint;
+    text-transform: uppercase; letter-spacing: 0.4px; text-align: center;
   }
 }
 
-.stat-divider {
-  width: 1px;
-  background: $border;
-  margin: 12px 0;
-}
+.stat-divider { width: 1px; background: $border; margin: 12px 0; }
 
 // =============================================
 // Description
 // =============================================
 .description-block {
-  font-size: 14px;
-  color: $text-light;
-  line-height: 1.7;
-  padding: 20px 20px 4px;
-  margin: 0;
+  font-size: 14px; color: $text-light; line-height: 1.7;
+  padding: 20px 20px 4px; margin: 0; font-family: $font-body;
 }
 
 // =============================================
 // Segment pills
 // =============================================
-.segment-wrap {
-  padding: 16px 16px 4px;
-}
+.segment-wrap { padding: 16px 16px 4px; }
 
 .segment-pills {
-  display: flex;
-  gap: 8px;
-  background: $bg-surface;
-  border-radius: 16px;
-  padding: 5px;
+  display: flex; gap: 8px; background: $bg-surface;
+  border-radius: 16px; padding: 5px;
 }
 
 .seg-pill {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 9px 12px;
-  border-radius: 12px;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-light;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 5px; padding: 9px 10px; border-radius: 12px;
+  border: none; background: transparent;
+  font-size: 12px; font-weight: 600; color: $text-light;
+  cursor: pointer; transition: all 0.2s ease;
+  white-space: nowrap; font-family: $font-body;
 
-  ion-icon { font-size: 15px; }
+  ion-icon { font-size: 14px; }
 
-  &.active {
-    background: $bg-white;
-    color: $primary-dark;
-    box-shadow: $shadow-sm;
-  }
-
-  &:hover:not(.active) {
-    color: $text-dark;
-  }
+  &.active { background: $bg-white; color: $primary-dark; box-shadow: $shadow-sm; }
+  &:hover:not(.active) { color: $text-dark; }
 }
 
 // =============================================
-// Segment panel wrapper
+// Segment panel
 // =============================================
 .segment-panel {
   padding: 16px 16px 0;
@@ -327,444 +209,427 @@ ion-header.floating-header {
 }
 
 // =============================================
-// Nutrition summary
+// Nutrition cards
 // =============================================
-.nutrition-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-}
+.nutrition-row { display: flex; gap: 12px; margin-bottom: 16px; }
 
 .nutr-card {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: $bg-white;
-  border: 1px solid $border;
-  border-radius: 16px;
-  padding: 14px;
+  flex: 1; display: flex; align-items: center; gap: 12px;
+  background: $bg-white; border: 1px solid $border;
+  border-radius: 16px; padding: 14px;
 
   .nutr-icon { font-size: 22px; line-height: 1; }
+  .nutr-val { display: block; font-size: 15px; font-weight: 800; color: $text-dark; line-height: 1.2; font-family: $font-display; }
+  .nutr-lbl { display: block; font-size: 10px; color: $text-hint; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+}
 
-  .nutr-val {
-    display: block;
-    font-size: 16px;
-    font-weight: 800;
-    color: $text-dark;
-    line-height: 1.2;
-  }
+// =============================================
+// Selection actions
+// =============================================
+.selection-actions { margin-bottom: 14px; }
 
-  .nutr-lbl {
-    display: block;
-    font-size: 11px;
-    color: $text-hint;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
+.add-selection-btn {
+  width: 100%; background: $primary; color: #04342C;
+  border: none; border-radius: 14px;
+  padding: 13px 20px; font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 6px 20px rgba(10,225,204,0.3);
+  cursor: pointer; font-family: $font-display; letter-spacing: -0.2px;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 18px; }
+  &:active { transform: scale(0.98); }
+  &:disabled { background: $text-hint; box-shadow: none; color: white; cursor: not-allowed; opacity: 0.6; transform: none; }
 }
 
 // =============================================
 // Ingredients list
 // =============================================
 .ingredients-block {
-  background: $bg-white;
-  border-radius: 20px;
-  border: 1px solid $border;
-  overflow: hidden;
-  margin-bottom: 12px;
+  background: $bg-white; border-radius: 20px;
+  border: 1px solid $border; overflow: hidden; margin-bottom: 12px;
 }
 
 .ingredient-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid $border;
-  cursor: pointer;
-  transition: background 0.15s;
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-bottom: 1px solid $border;
+  cursor: pointer; transition: background 0.15s;
 
   &.last { border-bottom: none; }
-
   &:hover { background: $bg-surface; }
 
   &.checked {
     background: #f0fdf4;
-    .ing-name { text-decoration: line-through; color: $text-hint; }
+    .ing-name { color: $text-hint; }
     .ing-check { background: $success; border-color: $success; color: white; }
   }
+
+ 
 }
 
 .ing-check {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 2px solid $border;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  color: transparent;
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid $border;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s; color: transparent;
 
   ion-icon { font-size: 13px; }
+
+  &.done { background: $success; border-color: $success; color: white; }
+  &.unavail-check { background: $danger-soft; border-color: $danger; color: $danger; }
 }
 
-.ing-info {
-  flex: 1;
-  .ing-name {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: $text-dark;
-    margin-bottom: 2px;
-    transition: all 0.2s;
-  }
-  .ing-qty {
-    font-size: 12px;
-    color: $text-hint;
-    font-weight: 500;
-  }
+.ing-info { flex: 1; min-width: 0; }
+
+.ing-name {
+  display: block; font-size: 14px; font-weight: 600; color: $text-dark;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
+.ing-meta-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+
+.ing-qty { font-size: 12px; color: $text-hint; font-weight: 500; }
+
+.ing-unavail-badge {
+  font-size: 10px; font-weight: 700; color: $danger;
+  background: $danger-soft; padding: 2px 8px; border-radius: 20px;
+}
+
+.ing-stock { font-size: 11px; color: $text-hint; }
 
 .ing-price {
+  font-size: 13px; font-weight: 700; color: $primary-dark;
+  flex-shrink: 0; font-family: $font-display;
+}
+
+.ing-price-unavail { font-size: 13px; color: $text-hint; flex-shrink: 0; }
+// =============================================
+// Ingrédients — nouveaux styles (refacto backend)
+// =============================================
+
+// Wrapper droite : input quantité + prix + calories
+.ing-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+// Input quantité modifiable
+.ing-qty-input {
+  width: 52px;
+  text-align: center;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 4px 6px;
   font-size: 13px;
+  font-weight: 600;
+  color: $text-dark;
+  background: $bg-surface;
+  font-family: $font-display;
+  outline: none;
+  transition: border 0.15s;
+
+  &:focus { border-color: $primary; background: white; }
+}
+
+// Calories par ingrédient
+.ing-calories {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-hint;
+  text-align: right;
+}
+
+// Badge "Non disponible" inline
+.ing-unavailable {
+  font-size: 11px;
   font-weight: 700;
-  color: $primary-dark;
+  color: $danger;
+  background: $danger-soft;
+  padding: 3px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
   white-space: nowrap;
 }
 
+// État non disponible sur la ligne
+.ingredient-row.unavailable {
+  opacity: 0.65;
+  cursor: default;
+
+  &:hover { background: transparent; }
+
+  .ing-check {
+    background: $danger-soft;
+    border-color: $danger;
+    color: $danger;
+  }
+}
+
 // =============================================
-// Substitution alert
+// Instructions
 // =============================================
-.sub-alert {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-left: 3px solid $warning;
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 10px;
+.empty-instructions {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 50px 20px; color: $text-hint; text-align: center;
+  ion-icon { font-size: 48px; margin-bottom: 14px; }
+  p { font-size: 14px; margin: 0; }
+}
 
-  .sub-header {
+// Variables de design
+$line-height: 32px; // Hauteur d'une ligne
+$line-color: #d1e1f0; // Bleu clair d'écolier
+$margin-color: #ff8585; // Rouge marge
+$text-color: #334455;
+
+.segment-panel {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.step-item {
+  display: flex;
+  position: relative;
+  margin-bottom: $line-height; // Espace entre deux étapes
+  
+  .step-left {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    width: 40px;
+    margin-right: 20px;
+    z-index: 2;
 
-    ion-icon { font-size: 16px; color: $warning; flex-shrink: 0; }
-    span { font-size: 13px; font-weight: 600; color: $text-dark; }
-    strong { color: $primary-dark; }
-  }
-
-  .sub-name {
-    display: block;
-    font-size: 14px;
-    font-weight: 700;
-    color: $text-dark;
-    margin-bottom: 4px;
-  }
-
-  .sub-reason {
-    display: block;
-    font-size: 12px;
-    color: $text-light;
-    font-style: italic;
-    margin-bottom: 10px;
-  }
-
-  .compat-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .compat-track {
-    flex: 1;
-    height: 6px;
-    background: #fde68a;
-    border-radius: 3px;
-    overflow: hidden;
-
-    .compat-fill {
-      height: 100%;
-      background: linear-gradient(90deg, $warning, $success);
-      border-radius: 3px;
-      transition: width 0.4s ease;
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: #eef2f7;
+      border: 1px solid $line-color;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: #1a5fb4;
     }
-  .compat-pct {
-    font-size: 12px;
-    font-weight: 700;
-    color: $text-light;
-  }
-}
 
-// =============================================
-// Selection actions
-// =============================================
-.selection-actions {
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: center;
-}
-
-.add-selection-btn {
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: $shadow-sm;
-  transition: all 0.2s ease;
-  width: 100%;
-  justify-content: center;
-
-  ion-icon { font-size: 18px; }
-
-  &:active { transform: scale(0.98); }
-  &:disabled {
-    background: $text-hint;
-    opacity: 0.6;
-    transform: none;
-  }
-}
-
-// =============================================
-// Instructions list
-// =============================================
-.steps-list {
-  padding: 8px 4px;
-}
-
-.step-item {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 0;
-
-  &.last { .step-line { display: none; } }
-}
-
-.step-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 28px;
-}
-
-.step-num {
-  width: 28px;
-  height: 28px;
-  background: $primary-dark;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 800;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(10, 225, 204, 0.3);
-}
-
-.step-line {
-  width: 2px;
-  flex: 1;
-  background: $border;
-  margin: 4px 0;
-}
-
-.step-body {
-  flex: 1;
-  padding-bottom: 24px;
-
-  .step-text {
-    font-size: 15px;
-    color: $text-dark;
-    line-height: 1.6;
-    font-weight: 500;
-  }
-}white-space: nowrap;
+    .step-line {
+      flex-grow: 1;
+      width: 2px;
+      background: $line-color;
+      margin-top: 5px;
+    }
   }
 
+  .step-body {
+    flex: 1;
+    position: relative;
 
-// =============================================
-// Steps / Instructions
-// =============================================
-.steps-list {
-  display: flex;
-  flex-direction: column;
+    .step-text {
+      font-family: 'Segoe Print', 'Comic Sans MS', cursive;
+      font-size: 18px;
+      line-height: $line-height;
+      color: $text-color;
+      padding-top: 2px; // Ajustement fin pour poser le texte sur la ligne
+      
+      // L'effet papier à lignes
+      background-image: linear-gradient($line-color 1px, transparent 1px);
+      background-size: 100% $line-height;
+      
+      // Optionnel : La ligne de marge rouge à gauche
+      &::before {
+        content: '';
+        position: absolute;
+        left: -15px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: $margin-color;
+      }
+    }
+  }
 }
+$accent-red: #e63946;
+$ink-blue: #1a5fb4;
 
-.step-item {
-  display: flex;
-  gap: 16px;
-
-  &.last .step-body { padding-bottom: 0; }
-}
-
-.step-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.step-num {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary, $primary-dark);
-  color: #04342C;
-  font-size: 15px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(10, 225, 204, 0.3);
-}
-
-.step-line {
-  width: 2px;
-  flex: 1;
-  background: $border;
-  margin: 6px 0;
-  min-height: 20px;
-}
-
-.step-body {
-  flex: 1;
+.bon-appetit-container {
+  margin-top: 40px;
+  text-align: center;
+  position: relative;
   padding-bottom: 20px;
 
-  .step-text {
-    font-size: 14px;
-    color: $text-dark;
-    line-height: 1.7;
-    padding-top: 6px;
+  .divider-line {
+    height: 1px;
+    background: repeating-linear-gradient(90deg, #cbd5e0, #cbd5e0 5px, transparent 5px, transparent 10px);
+    margin-bottom: 30px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .signature {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    transform: rotate(-3deg); // Un peu penché pour l'effet "écrit à la main"
+
+    .chef-icon {
+      width: 40px;
+      height: 40px;
+      color: $accent-red;
+      margin-bottom: 10px;
+      filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.05));
+    }
+
+    .text {
+      font-family: 'Dancing Script', 'Indie Flower', cursive;
+      font-size: 2.5rem;
+      color: $ink-blue;
+      font-weight: bold;
+      
+      // Petit effet de soulignement manuscrit
+      &::after {
+        content: '';
+        display: block;
+        width: 110%;
+        height: 3px;
+        background: $accent-red;
+        border-radius: 50%;
+        margin-top: -5px;
+        opacity: 0.6;
+      }
+    }
   }
 }
+// =============================================
+// Ingrédients — nouveaux styles (refacto backend)
+// =============================================
 
+// Wrapper droite : input quantité + prix + calories
+.ing-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+// Input quantité modifiable
+.ing-qty-input {
+  width: 52px;
+  text-align: center;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-dark;
+  background: $bg-surface;
+  font-family: $font-display;
+  outline: none;
+  transition: border 0.15s;
+
+  &:focus { border-color: $primary; background: white; }
+}
+
+// Calories par ingrédient
+.ing-calories {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-hint;
+  text-align: right;
+}
+
+// Badge "Non disponible" inline
+.ing-unavailable {
+  font-size: 11px;
+  font-weight: 700;
+  color: $danger;
+  background: $danger-soft;
+  padding: 3px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// État non disponible sur la ligne
+.ingredient-row.unavailable {
+  opacity: 0.65;
+  cursor: default;
+
+  &:hover { background: transparent; }
+
+  .ing-check {
+    background: $danger-soft;
+    border-color: $danger;
+    color: $danger;
+  }
+}
 // =============================================
 // Recettes similaires
 // =============================================
-.similar-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.similar-grid { display: flex; flex-direction: column; gap: 14px; }
 
 .similar-card {
-  display: flex;
-  gap: 14px;
-  background: $bg-white;
-  border: 1px solid $border;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: $shadow-sm;
+  display: flex; gap: 0;
+  background: $bg-white; border: 1px solid $border;
+  border-radius: 20px; overflow: hidden; box-shadow: $shadow-sm;
 }
 
 .similar-img-wrap {
-  position: relative;
-  width: 110px;
-  flex-shrink: 0;
+  position: relative; width: 110px; flex-shrink: 0;
 
-  .similar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  .similar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .similar-img-placeholder {
+    width: 100%; height: 100%; min-height: 110px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; background: $primary-soft;
   }
 
   .similar-rating {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    background: rgba(0,0,0,0.55);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
+    position: absolute; bottom: 8px; left: 8px;
+    background: rgba(0,0,0,0.55); color: white;
+    font-size: 11px; font-weight: 700; padding: 3px 8px;
+    border-radius: 8px; display: flex; align-items: center; gap: 3px;
     ion-icon { font-size: 11px; color: $warning; }
   }
 }
 
 .similar-info {
-  flex: 1;
-  padding: 12px 14px 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex: 1; padding: 12px 14px 12px; display: flex;
+  flex-direction: column; gap: 4px;
 
-  .similar-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: $text-dark;
-    margin: 0;
-    line-height: 1.3;
-  }
-
+  .similar-name { font-size: 14px; font-weight: 700; color: $text-dark; margin: 0; line-height: 1.3; font-family: $font-display; }
   .similar-desc {
-    font-size: 12px;
-    color: $text-light;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
+    font-size: 12px; color: $text-light; margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;
   }
 
   .similar-meta {
-    display: flex;
-    gap: 12px;
-    margin-top: 2px;
-
-    span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: $text-hint;
-      font-weight: 600;
-
-      ion-icon { font-size: 13px; color: $primary; }
-    }
+    display: flex; gap: 12px; margin-top: 2px;
+    span { display: flex; align-items: center; gap: 4px; font-size: 12px; color: $text-hint; font-weight: 600; }
+    ion-icon { font-size: 13px; color: $primary; }
   }
 
   .similar-btn {
-    margin-top: 6px;
-    align-self: flex-start;
-    padding: 6px 14px;
-    background: transparent;
-    border: 1px solid $primary;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: $primary-dark;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    &:hover { background: #E1F5EE; }
+    margin-top: 6px; align-self: flex-start;
+    padding: 6px 14px; background: transparent;
+    border: 1px solid $primary; border-radius: 10px;
+    font-size: 12px; font-weight: 700; color: $primary-dark;
+    cursor: pointer; transition: all 0.15s; font-family: $font-body;
+    &:hover { background: rgba(10,225,204,0.08); }
   }
 }
 
 .empty-similar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60px 20px;
-  color: $text-hint;
-  text-align: center;
-
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60px 20px; color: $text-hint; text-align: center;
   ion-icon { font-size: 56px; margin-bottom: 14px; }
   p { font-size: 15px; margin: 0; }
 }
@@ -773,77 +638,46 @@ ion-header.floating-header {
 // Bottom CTA fixe
 // =============================================
 .bottom-cta {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
+  position: fixed; bottom: 0; left: 0; right: 0;
   padding: 12px 16px max(16px, env(safe-area-inset-bottom));
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid $border;
-  z-index: 50;
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+  border-top: 1px solid $border; z-index: 50;
 }
 
 .cta-btn {
-  width: 100%;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  width: 100%; height: 54px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
   background: linear-gradient(135deg, $primary, $primary-dark);
-  border: none;
-  border-radius: 18px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #04342C;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(10, 225, 204, 0.3);
-  transition: all 0.2s;
+  border: none; border-radius: 18px;
+  font-size: 16px; font-weight: 800; color: #04342C;
+  cursor: pointer; font-family: $font-display;
+  box-shadow: 0 8px 20px rgba(10,225,204,0.3); transition: all 0.2s;
 
   ion-icon { font-size: 20px; }
-
-  &:hover { box-shadow: 0 12px 28px rgba(10, 225, 204, 0.4); transform: translateY(-1px); }
   &:active { transform: scale(0.98); }
 }
 
 .cta-in-cart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 54px;
-  background: #f0fdf4;
-  border-radius: 18px;
-  border: 1px solid #bbf7d0;
-  font-size: 15px;
-  font-weight: 700;
-  color: $success;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  height: 54px; background: #f0fdf4; border-radius: 18px;
+  border: 1px solid #bbf7d0; font-size: 15px; font-weight: 700; color: $success;
 
   ion-icon { font-size: 22px; }
 
   .remove-btn {
-    margin-left: auto;
-    margin-right: 4px;
-    padding: 6px 14px;
-    background: none;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: $text-light;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    &:hover { background: white; color: #ef4444; border-color: #fecaca; }
+    margin-left: auto; margin-right: 4px;
+    padding: 6px 14px; background: none;
+    border: 1px solid #bbf7d0; border-radius: 10px;
+    font-size: 12px; font-weight: 700; color: $text-light;
+    cursor: pointer; transition: all 0.15s; font-family: $font-body;
+    &:hover { background: white; color: $danger; border-color: #fecaca; }
   }
 }
 
 // =============================================
 // Skeleton
 // =============================================
-.skeleton-loading {
-  --background: #{$bg-page};
-}
+.skeleton-loading { --background: #{$bg-page}; }
 
 // =============================================
 // Responsive
@@ -852,5 +686,6 @@ ion-header.floating-header {
   .stats-strip { margin: -16px 12px 0; }
   .segment-wrap { padding: 14px 12px 4px; }
   .segment-panel { padding: 14px 12px 0; }
-  .seg-pill { font-size: 12px; padding: 8px 8px; }
+  .seg-pill { font-size: 11px; padding: 8px 8px; }
 }
+

@@ -27,7 +27,7 @@ Route::group(['prefix' => 'client'], function () {
     
     // Global search
     Route::get('/search',           [SearchController::class, 'search']);
-
+ Route::get('/recipes/{id}',      [RecipeController::class, 'show']);
     // Authenticated client routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user/profile',      [ProfileController::class, 'getProfile']);
@@ -37,7 +37,7 @@ Route::group(['prefix' => 'client'], function () {
         // Recipes & Orders
         
         Route::get('/recipes',           [RecipeController::class, 'index']);
-        Route::get('/recipes/{id}',      [RecipeController::class, 'show']);
+       
         Route::post('/smart-order',      [OrderController::class, 'smartOrder']);
         Route::get('/my-orders',         [OrderController::class, 'myOrders']);
 

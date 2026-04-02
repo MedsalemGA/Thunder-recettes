@@ -65,17 +65,19 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
   recette_image = '';
   recette_prix: number | null = null;
   recette_categorie = '';
+  recette_difficulte = 'medium';
   recette_temps_preparation: number | null = null;
+  recette_temps_cuisson: number | null = null;
   recette_nombre_personnes: number | null = null;
-  recette_ingredients: { nom: string; quantite: string }[] = [];
+  // Ingrédients structurés : chaque ligne = { nom_ingredient, quantite, unite, produit_id? }
+  recette_ingredients: { nom_ingredient: string; quantite: number | null; unite: string; produit_id: number | null }[] = [];
   expandedFournisseurId: number | null = null;
- 
+  recetteInstructions: string[] = [];
+
   /** Terme de recherche dans la section produits */
- 
- 
+
   /**
    * Liste de { fournisseur, produits[] } après filtrage.
-   * On conserve tous les fournisseurs (même sans produits) pour l'affichage.
    */
   fournisseursAvecProduits: { fournisseur: any; produits: any[] }[] = [];
  
@@ -99,7 +101,7 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     this.showfournisseurs();
     this.getallrecettes();
     this.restRecettes = [...this.recettes];
-   
+    
     
   }
 
@@ -120,6 +122,12 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
     
    
     
+  }
+  ajouterInstruction(){
+    this.recetteInstructions.push('');
+  }
+  supprimerInstruction(index: number) {
+    this.recetteInstructions.splice(index, 1);
   }
   showimg(image:string){
     this.isshowimg = !this.isshowimg;
@@ -174,11 +182,14 @@ export class AdmindashboardComponent implements OnInit, OnDestroy {
 }
 getallrecettes(){
   this.isLoading = true;
+  
   this.adminservice.showallrecettes().subscribe(
     (res: any) => {
-      this.recettes = res.data;
+      // Le RecipeController retourne un tableau directement (pas res.data)
+      this.recettes = Array.isArray(res) ? res : (res.data ?? []);
       this.rechercherRecette(this.queryRecette);
       this.isLoading = false;
+      
     },
     () => {
       this.recettes = [];
@@ -428,9 +439,9 @@ rechercherFournisseur(query: string) {
     const value = query.toLowerCase().trim();
     if (!value) { this.restRecettes = [...this.recettes]; return; }
     this.restRecettes = this.recettes.filter(r =>
-      r.nom.toLowerCase().includes(value) ||
-      r.categorie.toLowerCase().includes(value) ||
-      r.description.toLowerCase().includes(value)
+      (r.name ?? r.nom ?? '').toLowerCase().includes(value) ||
+      (r.cuisine ?? r.categorie ?? '').toLowerCase().includes(value) ||
+      (r.description ?? '').toLowerCase().includes(value)
     );
   }
 
@@ -445,7 +456,7 @@ rechercherFournisseur(query: string) {
   }
 
   ajouterIngredient() {
-    this.recette_ingredients.push({ nom: '', quantite: '' });
+    this.recette_ingredients.push({ nom_ingredient: '', quantite: null, unite: 'g', produit_id: null });
   }
 
   supprimerIngredient(index: number) {
@@ -455,28 +466,43 @@ rechercherFournisseur(query: string) {
   openAjouterRecette() {
     this.showRecetteForm = true;
     this.showModifyRecette = false;
-    this.recette_nom = '';
-    this.recette_description = '';
-    this.recette_image = '';
-    this.recette_prix = null;
-    this.recette_categorie = '';
+    this.recette_nom              = '';
+    this.recette_description      = '';
+    this.recette_image            = '';
+    this.recette_prix             = null;
+    this.recette_categorie        = '';
+    this.recette_difficulte       = 'medium';
     this.recette_temps_preparation = null;
+    this.recette_temps_cuisson    = null;
     this.recette_nombre_personnes = null;
-    this.recette_ingredients = [];
+    this.recette_ingredients      = [];
+    this.recetteInstructions      = [];
   }
 
   openModifyRecette(recette: any) {
     this.showModifyRecette = true;
     this.showRecetteForm = true;
     this.recetteIdTemp = recette.id;
-    this.recette_nom = recette.nom;
-    this.recette_description = recette.description;
-    this.recette_image = recette.image;
-    this.recette_prix = recette.prix;
-    this.recette_categorie = recette.categorie;
-    this.recette_temps_preparation = recette.temps_preparation ?? null;
-    this.recette_nombre_personnes = recette.nombre_personnes ?? null;
-    this.recette_ingredients = recette.ingredients ? JSON.parse(JSON.stringify(recette.ingredients)) : [];
+    // Le backend retourne 'name' et 'cuisine' depuis index(), 'nom' et 'categorie' depuis show()
+    this.recette_nom              = recette.name ?? recette.nom ?? '';
+    this.recette_description      = recette.description ?? '';
+    this.recette_image            = recette.image ?? '';
+    this.recette_prix             = recette.prix ?? null;
+    this.recette_categorie        = recette.cuisine ?? recette.categorie ?? '';
+    this.recette_difficulte       = recette.difficulty ?? recette.difficulte ?? 'medium';
+    this.recette_temps_preparation = recette.prepTime ?? recette.temps_preparation ?? null;
+    this.recette_temps_cuisson    = recette.cookTime ?? recette.temps_cuisson ?? null;
+    this.recette_nombre_personnes = recette.servings ?? recette.nombre_personnes ?? null;
+    this.recetteInstructions      = recette.instructions ? JSON.parse(JSON.stringify(recette.instructions)) : [];
+
+    // Convertir les ingrédients structurés { nom, quantite, unite } → format formulaire
+    const rawIngs = recette.ingredients ?? [];
+    this.recette_ingredients = rawIngs.map((ing: any) => ({
+      nom_ingredient: ing.nom ?? ing.nom_ingredient ?? '',
+      quantite:       ing.quantite ?? null,
+      unite:          ing.unite ?? 'g',
+      produit_id:     ing.produit_id ?? null,
+    }));
   }
 
   closeRecetteForm() {
@@ -496,14 +522,25 @@ rechercherFournisseur(query: string) {
       return;
     }
     const data = {
-      nom: this.recette_nom,
-      description: this.recette_description,
-      image: this.recette_image,
-      prix: this.recette_prix,
-      categorie: this.recette_categorie,
+      nom:               this.recette_nom,
+      description:       this.recette_description,
+      image:             this.recette_image,
+      prix:              this.recette_prix,
+      categorie:         this.recette_categorie,
+      difficulte:        this.recette_difficulte,
       temps_preparation: this.recette_temps_preparation,
-      nombre_personnes: this.recette_nombre_personnes,
-      ingredients: this.recette_ingredients.filter(i => i.nom.trim() !== '')
+      temps_cuisson:     this.recette_temps_cuisson,
+      nombre_personnes:  this.recette_nombre_personnes,
+      // calories calculées automatiquement par le backend via produits.calories_100g
+      ingredients: this.recette_ingredients
+        .filter(i => i.nom_ingredient.trim() !== '' && i.quantite !== null)
+        .map(i => ({
+          nom_ingredient: i.nom_ingredient.trim(),
+          quantite:       i.quantite,
+          unite:          i.unite || 'g',
+          produit_id:     i.produit_id ?? null,
+        })),
+      instructions: this.recetteInstructions.filter(i => i.trim() !== '').map(i => i.trim())
     };
     this.isLoading = true;
     this.adminservice.ajouterrecettes(data).subscribe({
@@ -543,7 +580,18 @@ rechercherFournisseur(query: string) {
   if(this.recette_categorie!=="") data['categorie']=this.recette_categorie;
   if(this.recette_temps_preparation!==null) data['temps_preparation']=this.recette_temps_preparation;
   if(this.recette_nombre_personnes!==null) data['nombre_personnes']=this.recette_nombre_personnes;
-  data['ingredients'] = this.recette_ingredients.filter(i => i.nom.trim() !== '');
+  if(this.recette_difficulte)        data['difficulte']        = this.recette_difficulte;
+  if(this.recette_temps_cuisson !== null) data['temps_cuisson'] = this.recette_temps_cuisson;
+  // calories NON envoyées : calculées automatiquement par le backend
+  data['ingredients'] = this.recette_ingredients
+    .filter(i => i.nom_ingredient.trim() !== '' && i.quantite !== null)
+    .map(i => ({
+      nom_ingredient: i.nom_ingredient.trim(),
+      quantite:       i.quantite,
+      unite:          i.unite || 'g',
+      produit_id:     i.produit_id ?? null,
+    }));
+  data['instructions'] = this.recetteInstructions.filter(i => i.trim() !== '').map(i => i.trim());
  
 
   this.isLoading = true;
@@ -573,7 +621,166 @@ rechercherFournisseur(query: string) {
     }
   });
 }
+trackByIndex(index: number): number {
+  return index;
+}
 
+  // ══════════════════════════════════════════════════════════════════════
+  //  VARIANTES — état
+  // ══════════════════════════════════════════════════════════════════════
+
+  showVarianteForm   = false;
+  showModifyVariante = false;
+  selectedProduitForVariante: any = null;
+  varianteIdTemp     = 0;
+
+  // Champs formulaire variante
+  variante_quantite: number | null = null;
+  variante_unite    = 'g';
+  variante_prix: number | null = null;
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  VARIANTES — méthodes
+  // ══════════════════════════════════════════════════════════════════════
+
+  openAjouterVariante(produit: any) {
+    this.selectedProduitForVariante = produit;
+    this.showVarianteForm   = true;
+    this.showModifyVariante = false;
+    this.variante_quantite  = null;
+    this.variante_unite     = 'g';
+    this.variante_prix      = null;
+  }
+
+  openModifyVariante(produit: any, variante: any) {
+    this.selectedProduitForVariante = produit;
+    this.showVarianteForm   = true;
+    this.showModifyVariante = true;
+    this.varianteIdTemp     = variante.id;
+    this.variante_quantite  = variante.quantite;
+    this.variante_unite     = variante.unite;
+    this.variante_prix      = variante.prix;
+  }
+
+  closeVarianteForm() {
+    this.showVarianteForm   = false;
+    this.showModifyVariante = false;
+    this.selectedProduitForVariante = null;
+  }
+
+  async ajouterVariante() {
+    if (this.variante_quantite === null || this.variante_prix === null || !this.variante_unite) {
+      const alert = await this.alertCtrl.create({
+        header: 'Champs manquants',
+        message: "Veuillez renseigner la quantité, l'unité et le prix.",
+        cssClass: 'custom-alert-warning',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
+      return;
+    }
+    this.isLoading = true;
+    this.adminservice.ajouterVariante({
+      produit_id: this.selectedProduitForVariante.id,
+      quantite:   this.variante_quantite,
+      unite:      this.variante_unite,
+      prix:       this.variante_prix,
+    }).subscribe({
+      next: async () => {
+        this.isLoading = false;
+        this.closeVarianteForm();
+        this.showfournisseurs(); // recharge les produits avec leurs variantes
+        const toast = await this.toastCtrl.create({
+          message: '✅ Variante ajoutée avec succès.',
+          duration: 2500, color: 'success', position: 'top', cssClass: 'custom-toast'
+        });
+        await toast.present();
+      },
+      error: async (error) => {
+        this.isLoading = false;
+        const alert = await this.alertCtrl.create({
+          header: "Erreur', message: error?.error?.message || 'Erreur lors de l'ajout.",
+          cssClass: 'custom-alert-error', buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
+      }
+    });
+  }
+
+  async modifyVariante() {
+    if (this.variante_quantite === null || this.variante_prix === null || !this.variante_unite) {
+      const alert = await this.alertCtrl.create({
+        header: 'Champs manquants',
+        message: "Veuillez renseigner la quantité, l'unité et le prix.",
+        cssClass: 'custom-alert-warning',
+        buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+      });
+      await alert.present();
+      return;
+    }
+    this.isLoading = true;
+    this.adminservice.updateVariante(this.varianteIdTemp, {
+      quantite: this.variante_quantite,
+      unite:    this.variante_unite,
+      prix:     this.variante_prix,
+    }).subscribe({
+      next: async () => {
+        this.isLoading = false;
+        this.closeVarianteForm();
+        this.showfournisseurs();
+        const toast = await this.toastCtrl.create({
+          message: '✅ Variante modifiée avec succès.',
+          duration: 2500, color: 'success', position: 'top', cssClass: 'custom-toast'
+        });
+        await toast.present();
+      },
+      error: async (error) => {
+        this.isLoading = false;
+        const alert = await this.alertCtrl.create({
+          header: 'Erreur', message: error?.error?.message || 'Erreur lors de la modification.',
+          cssClass: 'custom-alert-error', buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+        });
+        await alert.present();
+      }
+    });
+  }
+
+  async deleteVariante(varianteId: number) {
+    const confirm = await this.alertCtrl.create({
+      header: 'Confirmer la suppression',
+      message: 'Voulez-vous vraiment supprimer cette variante ?',
+      cssClass: 'custom-alert-warning',
+      buttons: [
+        { text: 'Annuler', role: 'cancel', cssClass: 'alert-btn-teal' },
+        {
+          text: 'Oui, supprimer', cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.isLoading = true;
+            this.adminservice.deleteVariante(varianteId).subscribe({
+              next: async () => {
+                this.isLoading = false;
+                this.showfournisseurs();
+                const toast = await this.toastCtrl.create({
+                  message: '🗑️ Variante supprimée.', duration: 2000,
+                  color: 'success', position: 'top', cssClass: 'custom-toast'
+                });
+                await toast.present();
+              },
+              error: async (error) => {
+                this.isLoading = false;
+                const alert = await this.alertCtrl.create({
+                  header: 'Erreur', message: error?.error?.message || 'Erreur lors de la suppression.',
+                  cssClass: 'custom-alert-error', buttons: [{ text: 'OK', cssClass: 'alert-btn-teal' }]
+                });
+                await alert.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await confirm.present();
+  }
   async deleterecette(id:number){
   const confirm = await this.alertCtrl.create({
     header: 'Confirmer la suppression',

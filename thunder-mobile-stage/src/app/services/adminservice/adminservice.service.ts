@@ -80,5 +80,33 @@ export class AdminserviceService {
   deleterecettes(id:number){
     return this.http.delete('http://localhost:8000/api/deleterecettes?id='+id);
   }
-  
+
+  // ── Produits ──────────────────────────────────────────────────────────
+  getAllProduits() {
+    return this.http.get('http://localhost:8000/api/getallproduits');
+  }
+  ajouterProduit(data: any) {
+    return this.http.post('http://localhost:8000/api/ajouterproduit', data);
+  }
+  updateProduit(id: number, data: any) {
+    return this.http.patch('http://localhost:8000/api/updateproduit?id=' + id, data);
+  }
+  deleteProduit(id: number) {
+    return this.http.delete('http://localhost:8000/api/deleteproduit?id=' + id);
+  }
+
+  // ── Variantes ─────────────────────────────────────────────────────────
+  getVariantesByProduit(produitId: number) {
+    return this.http.get('http://localhost:8000/api/getvariantes?produit_id=' + produitId);
+  }
+  ajouterVariante(data: { produit_id: number; quantite: number; unite: string; prix: number }) {
+    return this.http.post('http://localhost:8000/api/ajoutervariante', data);
+  }
+  updateVariante(id: number, data: { quantite?: number; unite?: string; prix?: number }) {
+    return this.http.patch('http://localhost:8000/api/updatevariante?id=' + id, data);
+  }
+  deleteVariante(id: number) {
+    return this.http.delete('http://localhost:8000/api/deletevariante?id=' + id);
+  }
+
 }

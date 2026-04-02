@@ -2567,3 +2567,459 @@ html {
   text-decoration: underline;
   cursor: pointer;
 }
+/* ══════════════════════════════════════════════════════════════
+   NOUVEAUX ÉLÉMENTS — ajoutés suite aux modifications
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Colonnes variantes + actions dans la table produits ── */
+.col-variantes { width: 30%; }
+.col-actions   { width: 12%; white-space: nowrap; }
+
+/* Ajuster les colonnes existantes pour faire de la place */
+.col-nom    { width: 22%; }
+.col-prix   { width: 12%; }
+.col-stock  { width: 16%; }
+.col-statut { width: 12%; }
+
+/* Liste des variantes dans une cellule */
+.variantes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.variante-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  background: rgba(10, 225, 204, 0.08);
+  border: 1px solid rgba(10, 225, 204, 0.2);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #00A896;
+  white-space: nowrap;
+}
+
+.variante-edit-btn,
+.variante-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.1rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: opacity 0.15s;
+  opacity: 0.6;
+
+  &:hover { opacity: 1; }
+}
+
+.variante-edit-btn { color: #00A896; }
+.variante-del-btn  { color: #ef4444; }
+
+.no-variante {
+  font-size: 0.78rem;
+  color: #d1d5db;
+}
+
+/* Bouton "+ Variante" dans la colonne actions */
+.btn-add-variante {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(10, 225, 204, 0.1);
+  border: 1.5px solid #0ae1cc;
+  border-radius: 8px;
+  color: #00A896;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+
+  svg { flex-shrink: 0; }
+
+  &:hover {
+    background: rgba(10, 225, 204, 0.22);
+    transform: translateY(-1px);
+  }
+}
+
+/* ── Modal variante ── */
+.variante-form-card {
+  max-width: 400px !important;
+
+  .recette-form-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.9rem;
+    padding: 0;
+  }
+}
+
+.variante-produit-name {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+/* ── select dans les formulaires (difficulté, unité variante) ── */
+.form-field select,
+.recette-form-body select,
+.ing-input--unite {
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid rgba(0, 168, 150, 0.25);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #374151;
+  background: #f8fffe;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300A896' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  padding-right: 2rem;
+
+  &:focus {
+    border-color: #0ae1cc;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(10, 225, 204, 0.12);
+  }
+}
+
+/* ── Lignes d'ingrédients structurés (nom / quantité / unité) ── */
+.ingredient-row--header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 30px;
+  gap: 0.5rem;
+  padding: 0 0 0.25rem;
+  border-bottom: 1px solid rgba(0, 168, 150, 0.1);
+  margin-bottom: 0.15rem;
+}
+
+.ing-col-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #00A896;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Override ingredient-row pour 4 colonnes */
+.ingredient-row:not(.ingredient-row--header) {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 30px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ing-input--qty {
+  flex: none !important;
+}
+
+.ing-input--unite {
+  flex: none !important;
+  padding: 0.5rem 1.6rem 0.5rem 0.6rem !important;
+  font-size: 0.83rem !important;
+}
+
+/* ── Message info "calories calculées auto" ── */
+.form-field--info {
+  grid-column: 1 / -1;
+
+  .form-info-text {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    background: rgba(10, 225, 204, 0.06);
+    border: 1px dashed rgba(10, 225, 204, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    margin: 0;
+    line-height: 1.5;
+
+    svg { flex-shrink: 0; stroke: #00A896; }
+  }
+}
+
+/* ── Badges disponibilité dans le détail recette ── */
+.ing-dispo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  white-space: nowrap;
+
+  &--ok {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+  }
+
+  &--ko {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+}
+
+.ing-cal {
+  font-size: 0.72rem;
+  color: #f59e0b;
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* Total calories en bas du détail */
+.detail-calories-total {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #92400e;
+
+  strong { font-weight: 700; }
+}
+
+/* ── accordion-body max-height étendue pour les variantes ── */
+.accordion-body--open {
+  max-height: 1200px !important;
+}
+
+/* ── Responsive — masquer col-variantes sur petits écrans ── */
+@media (max-width: 900px) {
+  .col-variantes,
+  .col-actions {
+    display: none;
+  }
+  .col-nom    { width: 40%; }
+  .col-prix   { width: 20%; }
+  .col-stock  { width: 25%; }
+  .col-statut { width: 15%; }
+}
+
+@media (max-width: 600px) {
+  .variante-form-card {
+    max-width: 95vw !important;
+  }
+  .ingredient-row:not(.ingredient-row--header),
+  .ingredient-row--header {
+    grid-template-columns: 1fr 80px 80px 30px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SECTION INSTRUCTIONS — formulaire recette
+   ══════════════════════════════════════════════════════════════ */
+
+.instructions-section {
+  padding: 1rem 0 0;
+  border-top: 1px dashed rgba(0, 168, 150, 0.2);
+  margin-top: 1rem;
+}
+
+/* ── En-tête ── */
+.instructions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.instructions-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #111827;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: #00A896;
+    flex-shrink: 0;
+  }
+}
+
+.btn-add-instruction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(10, 225, 204, 0.1);
+  border: 1.5px solid #0ae1cc;
+  border-radius: 8px;
+  color: #00A896;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    background: rgba(10, 225, 204, 0.22);
+    transform: translateY(-1px);
+  }
+}
+
+/* ── État vide ── */
+.instructions-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.8rem 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1.5px dashed rgba(0, 168, 150, 0.2);
+  text-align: center;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    stroke: rgba(0, 168, 150, 0.4);
+    margin-bottom: 0.2rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  span {
+    font-size: 0.78rem;
+    color: #9ca3af;
+  }
+}
+
+/* ── Liste des étapes ── */
+.instructions-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Une étape ── */
+.instruction-step {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  animation: rowFadeIn 0.2s ease both;
+}
+
+/* Numéro + connecteur vertical */
+.step-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 0.55rem;
+
+  span {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0ae1cc, #00A896);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 168, 150, 0.3);
+    flex-shrink: 0;
+  }
+}
+
+.step-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 18px;
+  background: linear-gradient(to bottom, rgba(10, 225, 204, 0.4), rgba(10, 225, 204, 0.1));
+  border-radius: 1px;
+  margin-top: 4px;
+}
+
+/* Contenu de l'étape */
+.step-content {
+  flex: 1;
+  padding-bottom: 0.75rem;
+}
+
+.step-input-wrap {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.step-input {
+  flex: 1;
+  padding: 0.55rem 0.85rem;
+  border: 1.5px solid rgba(0, 168, 150, 0.2);
+  border-radius: 9px;
+  font-size: 0.86rem;
+  color: #374151;
+  background: #f8fffe;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+  &::placeholder { color: #9ca3af; }
+
+  &:focus {
+    border-color: #0ae1cc;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(10, 225, 204, 0.12);
+  }
+}
+
+.step-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.05);
+  color: #ef4444;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    transform: scale(1.08);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .instructions-header { flex-direction: column; align-items: flex-start; }
+  .btn-add-instruction  { width: 100%; justify-content: center; }
+  .step-input           { font-size: 0.82rem; }
+}

@@ -207,7 +207,7 @@
           (click)="addRecipeToCart(recipe, $event)"
          
         >
-          {{ isInCart(recipe) ? 'Dans le panier ✓' : 'Commander' }}
+          {{ isInCart(recipe) ? 'Dans le panier ✓' : 'Ajouter au panier' }}
         </ion-button>
       </ion-card-content>
     </ion-card>
@@ -218,6 +218,7 @@
     <ion-icon name="search-outline"></ion-icon>
     <h3>Aucune recette trouvée</h3>
     <p>Essayez de modifier vos filtres ou votre recherche.</p>
+    <a routerLink="/scan-recipe" class="btn" id="AImessage">Creer nouvelle Recette avec <span>AI</span></a>
   </div>
 
 </ion-content>
