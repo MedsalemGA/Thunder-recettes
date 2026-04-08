@@ -641,7 +641,7 @@ startAutoScroll(): void {
     if (!el) return;
 
     const STEP     = 3;    // pixels par tick
-    const INTERVAL = 40;   // ms entre chaque tick → ~50fps
+    const INTERVAL = 30;   // ms entre chaque tick → ~50fps
     let direction  = 1;    // 1 = droite, -1 = gauche
 
     this.autoScrollInterval = setInterval(() => {
