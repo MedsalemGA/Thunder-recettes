@@ -1,5 +1,7 @@
 // src/app/pages/scan-recipe/scan-recipe.page.scss
 // src/app/pages/scan-recipe/scan-recipe.page.scss
+// src/app/pages/scan-recipe/scan-recipe.page.scss
+// src/app/pages/scan-recipe/scan-recipe.page.scss
 
 // ── Palette ──────────────────────────────────────────────────────
 $green-deep:    #04a8a3;
@@ -887,4 +889,388 @@ ion-header {
 
 ion-content {
   --padding-bottom: 70px;
+}
+// ══════════════════════════════════════════════════════════════════
+// RESULTS PAGE — Style recipe-detail
+// ══════════════════════════════════════════════════════════════════
+
+$primary:      #0ae1cc;
+$primary-dark: #00A896;
+$text-dark:    #1a202c;
+$text-light:   #64748b;
+$text-hint:    #94a3b8;
+$bg-white:     #ffffff;
+$bg-surface:   #f1f5f9;
+$bg-page:      #f8fafc;
+$border:       #e2e8f0;
+$success-c:    #10b981;
+$warning-c:    #f59e0b;
+$danger-c:     #ef4444;
+$shadow-md:    0 8px 24px rgba(0,0,0,0.08);
+$shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
+$font-display: 'Sora', 'SF Pro Display', system-ui, sans-serif;
+$font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
+
+.results-page {
+  background: $bg-page;
+  min-height: 100%;
+  animation: fadeSlideUp 0.35s ease;
+}
+
+// ── Topbar ──────────────────────────────────────────────────────
+.results-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+}
+
+.results-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.results-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-light;
+  font-family: $font-body;
+}
+
+.restart-icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: $bg-white;
+  border: 1px solid $border;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  ion-icon { font-size: 18px; color: $text-light; }
+  &:active { transform: scale(0.95); background: $bg-surface; }
+}
+
+// ── Recipe tabs scroll ──────────────────────────────────────────
+.recipe-tabs-scroll {
+  overflow-x: auto;
+  padding: 4px 16px 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.recipe-tabs {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+
+.recipe-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1.5px solid $border;
+  background: $bg-white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 90px;
+  box-shadow: $shadow-sm;
+
+  .rtab-rank {
+    font-size: 11px; font-weight: 800;
+    color: $text-hint; font-family: $font-display;
+  }
+  .rtab-name {
+    font-size: 11px; font-weight: 700;
+    color: $text-dark; font-family: $font-display;
+    text-align: center; line-height: 1.3;
+    max-width: 80px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .rtab-score {
+    font-size: 11px; font-weight: 800;
+    color: $primary-dark; font-family: $font-display;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    border-color: $primary;
+    box-shadow: 0 4px 16px rgba(10,225,204,0.35);
+    .rtab-rank, .rtab-name, .rtab-score { color: white; }
+  }
+
+  &.rank-gold:not(.active)  { border-color: #D4A017; .rtab-rank { color: #D4A017; } }
+  &.rank-silver:not(.active){ border-color: #8A9BA8; .rtab-rank { color: #8A9BA8; } }
+  &.rank-bronze:not(.active){ border-color: #A0622A; .rtab-rank { color: #A0622A; } }
+}
+
+// ── Hero ────────────────────────────────────────────────────────
+.rd-hero { background: $bg-page; }
+
+.rd-hero-img-wrap {
+  position: relative; height: 280px; overflow: hidden;
+  background: $bg-surface;
+  @media (max-width: 480px) { height: 220px; }
+}
+
+.rd-hero-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+.rd-hero-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px; background: $bg-surface;
+}
+
+.rd-hero-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.06) 0%, transparent 30%, rgba(0,0,0,0.65) 100%);
+}
+
+.rd-hero-badges {
+  position: absolute; top: 16px; left: 16px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+.rd-badge {
+  padding: 5px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  backdrop-filter: blur(10px); color: white;
+
+  &.rd-badge-ai     { background: rgba(10,225,204,0.75); border: 1px solid rgba(10,225,204,0.5); }
+  &.rd-badge-easy   { background: rgba(16,185,129,0.85); }
+  &.rd-badge-medium { background: rgba(245,158,11,0.85); }
+  &.rd-badge-hard   { background: rgba(239,68,68,0.85); }
+
+  &.rd-badge-score {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(0,0,0,0.5);
+    &.score-high { background: rgba(16,185,129,0.8); }
+    &.score-mid  { background: rgba(245,158,11,0.8); }
+
+    .score-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: white;
+    }
+  }
+}
+
+.rd-hero-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 24px 20px 20px;
+}
+
+.rd-hero-title {
+  font-size: 24px; font-weight: 800; color: white;
+  margin: 0 0 8px; line-height: 1.2; letter-spacing: -0.5px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  font-family: $font-display;
+  @media (max-width: 480px) { font-size: 20px; }
+}
+
+.rd-hero-meta {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.rd-hero-stat {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9);
+  ion-icon { font-size: 14px; color: $primary; }
+}
+
+.rd-hero-dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+}
+
+// ── Stats strip ─────────────────────────────────────────────────
+.rd-stats-strip {
+  display: flex; align-items: stretch;
+  background: $bg-white; margin: 0 16px;
+  margin-top: -20px; border-radius: 20px;
+  box-shadow: $shadow-md; position: relative; z-index: 2;
+  overflow: hidden;
+}
+
+.rd-stat-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 14px 6px; gap: 4px;
+
+  ion-icon { font-size: 18px; color: $primary; margin-bottom: 2px; }
+
+  .rd-stat-val {
+    font-size: 12px; font-weight: 800; color: $text-dark; line-height: 1;
+    font-family: $font-display; text-align: center;
+
+    &.rd-stat-diff {
+      font-size: 11px;
+      &.diff-easy   { color: $success-c; }
+      &.diff-medium { color: $warning-c; }
+      &.diff-hard   { color: $danger-c; }
+    }
+  }
+
+  .rd-stat-lbl {
+    font-size: 9px; font-weight: 600; color: $text-hint;
+    text-transform: uppercase; letter-spacing: 0.4px; text-align: center;
+  }
+}
+
+.rd-stat-divider { width: 1px; background: $border; margin: 12px 0; }
+
+// ── Description ─────────────────────────────────────────────────
+.rd-description {
+  font-size: 14px; color: $text-light; line-height: 1.7;
+  padding: 20px 20px 0; margin: 0; font-family: $font-body;
+}
+
+.rd-match-reason {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 13px; color: $text-light; line-height: 1.5;
+  padding: 8px 20px 0; margin: 0; font-family: $font-body;
+  ion-icon { font-size: 15px; color: $warning-c; flex-shrink: 0; margin-top: 2px; }
+}
+
+// ── Segment pills ───────────────────────────────────────────────
+.rd-segment-wrap { padding: 16px 16px 4px; }
+
+.rd-segment-pills {
+  display: flex; gap: 8px; background: $bg-surface;
+  border-radius: 16px; padding: 5px;
+}
+
+.rd-seg-pill {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 5px; padding: 9px 10px; border-radius: 12px;
+  border: none; background: transparent;
+  font-size: 12px; font-weight: 600; color: $text-light;
+  cursor: pointer; transition: all 0.2s ease;
+  white-space: nowrap; font-family: $font-body;
+
+  ion-icon { font-size: 14px; }
+  &.active { background: $bg-white; color: $primary-dark; box-shadow: $shadow-sm; }
+}
+
+// ── Segment panel ───────────────────────────────────────────────
+.rd-segment-panel {
+  padding: 16px 16px 0;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Ingredients block ───────────────────────────────────────────
+.rd-ingredients-block {
+  background: $bg-white; border-radius: 20px;
+  border: 1px solid $border; overflow: hidden; margin-bottom: 14px;
+}
+
+.rd-ingredient-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-bottom: 1px solid $border;
+
+  &.last { border-bottom: none; }
+
+  .rd-ing-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: $primary; flex-shrink: 0;
+  }
+
+  .rd-ing-info { flex: 1; }
+
+  .rd-ing-name {
+    font-size: 14px; font-weight: 600; color: $text-dark;
+    font-family: $font-body;
+  }
+
+  .rd-ing-qty {
+    font-size: 13px; font-weight: 700; color: $primary-dark;
+    font-family: $font-display; flex-shrink: 0;
+  }
+}
+
+// ── Add to cart button ──────────────────────────────────────────
+.rd-selection-actions { margin-bottom: 14px; }
+
+.rd-add-btn {
+  width: 100%; background: $primary; color: #04342C;
+  border: none; border-radius: 14px;
+  padding: 14px 20px; font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 6px 20px rgba(10,225,204,0.3);
+  cursor: pointer; font-family: $font-display; letter-spacing: -0.2px;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 18px; }
+  &:active { transform: scale(0.98); }
+  &:disabled { background: $text-hint; box-shadow: none; color: white; cursor: not-allowed; opacity: 0.6; }
+}
+
+// ── Steps ───────────────────────────────────────────────────────
+.rd-steps-list { display: flex; flex-direction: column; }
+
+.rd-step-item {
+  display: flex; gap: 14px; padding-bottom: 0;
+}
+
+.rd-step-left {
+  display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+}
+
+.rd-step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #04342C; font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  font-family: $font-display; flex-shrink: 0;
+}
+
+.rd-step-line {
+  width: 2px; flex: 1; background: $border;
+  margin: 6px 0; min-height: 20px;
+}
+
+.rd-step-body {
+  flex: 1; padding-bottom: 18px;
+}
+
+.rd-step-text {
+  font-size: 14px; color: $text-dark; line-height: 1.65;
+  font-family: $font-body; padding-top: 5px;
+  &.last { padding-bottom: 0; }
+}
+
+// ── Bottom CTA ──────────────────────────────────────────────────
+.rd-bottom-cta {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+  border-top: 1px solid $border; z-index: 50;
+}
+
+.rd-feedback-btn {
+  width: 100%; height: 46px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: transparent; border: 1.5px solid $border; border-radius: 14px;
+  font-size: 13px; font-weight: 600; color: $text-light;
+  cursor: pointer; font-family: $font-body; transition: all 0.2s;
+
+  ion-icon { font-size: 16px; }
+  &:active { background: $bg-surface; }
+}
+
+.ai-warning-banner {
+  display: flex; gap: 8px; align-items: center;
+  background: #FFF8E8; border-radius: 10px;
+  padding: 10px 12px; margin: 0 16px 12px;
+  border-left: 3px solid #BA7517;
+  font-size: 12px; color: #7A5210;
+  ion-icon { font-size: 16px; color: #BA7517; flex-shrink: 0; }
 }

@@ -293,22 +293,27 @@ public function getallrecettes()
             $variantes    = $ing->produit?->variantes ?? collect();
             $varMeilleure = $variantes->sortBy('prix')->first();
 
-            $cal100g = (float)$ing->calories_100g;
-            if ($cal100g === 0.0 && $ing->produit !== null) {
-                $cal100g = (float)$ing->produit->calories_100g;
-            }
+            // Coût logique : paquet(s) le moins cher couvrant la quantité requise
+            $ingredientCost = $this->calculateIngredientCost(
+                (float)$ing->quantite,
+                (string)($ing->unite ?? 'g'),
+                $variantes
+            );
+
+            $cal100g = (float)($ing->calories_100g ?? 0);
 
             return [
-                'nom_ingredient' => $ing->nom_ingredient,
-                'nom'            => $ing->nom_ingredient, // alias frontend
-                'quantite'       => $ing->quantite,
-                'unite'          => $ing->unite,
-                'produit_id'     => $ing->produit_id,
-                'disponible'     => $ing->produit?->quantite_stock > 0,
-                'price_ing'      => $varMeilleure?->prix ?? 0,
-                'calories_100g'  => $cal100g,
-                'calories'       => round($cal100g * (float)$ing->quantite / 100, 1),
-                'variantes'      => $variantes->map(fn($v) => [
+                'nom_ingredient'  => $ing->nom_ingredient,
+                'nom'             => $ing->nom_ingredient,
+                'quantite'        => $ing->quantite,
+                'unite'           => $ing->unite,
+                'produit_id'      => $ing->produit_id,
+                'disponible'      => $ing->produit?->quantite_stock > 0,
+                'price_ing'       => $varMeilleure?->prix ?? 0,
+                'ingredient_cost' => $ingredientCost,
+                'calories_100g'   => $cal100g,
+                'calories'        => round($cal100g * (float)$ing->quantite / 100, 1),
+                'variantes'       => $variantes->map(fn($v) => [
                     'id'       => $v->id,
                     'quantite' => $v->quantite,
                     'unite'    => $v->unite,
@@ -318,6 +323,9 @@ public function getallrecettes()
         });
 
         $caloriesTotales = round($ingredientsEnrichis->sum('calories'), 1);
+
+        // Prix dynamique : somme des coûts logiques par ingrédient
+        $prixDynamique = round($ingredientsEnrichis->sum('ingredient_cost'), 2);
 
         return [
             'id'           => $r->id,
@@ -336,7 +344,7 @@ public function getallrecettes()
             'servings'     => $r->nombre_personnes,
             'nombre_personnes' => $r->nombre_personnes,
             'rating'       => $r->rating ?? 4.5,
-            'prix'         => $r->prix,
+            'prix'         => $prixDynamique,
             'calories'     => $caloriesTotales,
             'instructions' => $r->instructions ?? [],
             'ingredients'  => $ingredientsEnrichis->values(),
@@ -355,17 +363,17 @@ public function ajouterrecettes(Request $request){
         'nombre_personnes'  => 'nullable|integer',
         'categorie'         => 'required|string',
         'difficulte'        => 'nullable|string|in:easy,medium,hard',
-        'prix'              => 'required|numeric',
         'instructions'      => 'nullable|array',
         // ingredients est maintenant un tableau d'objets structurés
-        'ingredients'              => 'nullable|array',
-        'ingredients.*.nom_ingredient' => 'required|string',
-        'ingredients.*.quantite'       => 'required|numeric|min:0',
-        'ingredients.*.unite'          => 'required|string',
-        'ingredients.*.produit_id'     => 'nullable|integer|exists:produits,id',
+        'ingredients'                      => 'nullable|array',
+        'ingredients.*.nom_ingredient'     => 'required|string',
+        'ingredients.*.quantite'           => 'required|numeric|min:0',
+        'ingredients.*.unite'              => 'required|string',
+        'ingredients.*.produit_id'         => 'nullable|integer|exists:produits,id',
+        'ingredients.*.calories_100g'      => 'nullable|numeric|min:0',
     ]);
 
-    // Créer la recette (sans le champ calories ni ingredients bruts)
+    // Créer la recette
     $recette = Recette::create([
         'nom'               => $validated['nom'],
         'description'       => $validated['description'],
@@ -375,20 +383,19 @@ public function ajouterrecettes(Request $request){
         'nombre_personnes'  => $validated['nombre_personnes'] ?? null,
         'categorie'         => $validated['categorie'],
         'difficulte'        => $validated['difficulte'] ?? 'medium',
-        'prix'              => $validated['prix'],
         'instructions'      => $validated['instructions'] ?? [],
-        'calories'          => 0, // sera calculé dynamiquement via accessor
     ]);
 
-    // Insérer les ingrédients dans recette_ingredients
-    // calories_100g absent de la table — lue dynamiquement depuis produits
+    // Insérer les ingrédients avec calories_100g dans recette_ingredients
     foreach ($validated['ingredients'] ?? [] as $ing) {
+        $produit = Produit::where('nom', $ing['nom_ingredient'])->first();
         RecetteIngredient::create([
             'recette_id'     => $recette->id,
-            'produit_id'     => $ing['produit_id'] ?? null,
+            'produit_id'     => $ing['produit_id'] ?? ($produit ? $produit->id : null),
             'nom_ingredient' => $ing['nom_ingredient'],
             'quantite'       => $ing['quantite'],
             'unite'          => $ing['unite'],
+            'calories_100g'  => $ing['calories_100g'] ?? 0,
         ]);
     }
 
@@ -405,29 +412,38 @@ public function updaterecettes(Request $request)
     // Champs scalaires autorisés (pas ingredients, pas calories)
     $scalaires = $request->only([
         'nom', 'description', 'image', 'categorie', 'difficulte',
-        'prix', 'temps_preparation', 'temps_cuisson', 'nombre_personnes', 'instructions',
+        'temps_preparation', 'temps_cuisson', 'nombre_personnes', 'instructions',
     ]);
 
     if (!empty($scalaires)) {
         $recette->update($scalaires);
     }
 
-    // Sync des ingrédients : supprimer les anciens puis recréer
-    if ($request->has('ingredients')) {
-        $recette->ingredients()->delete();
+  if ($request->has('ingredients')) {
+    $recette->ingredients()->delete();
 
-        foreach ($request->input('ingredients', []) as $ing) {
-            if (empty($ing['nom_ingredient']) || !isset($ing['quantite'])) continue;
+    foreach ($request->input('ingredients', []) as $ing) {
 
-            RecetteIngredient::create([
-                'recette_id'     => $recette->id,
-                'produit_id'     => $ing['produit_id'] ?? null,
-                'nom_ingredient' => $ing['nom_ingredient'],
-                'quantite'       => $ing['quantite'],
-                'unite'          => $ing['unite'] ?? 'g',
-                // calories_100g lue dynamiquement depuis produits
-            ]);
+        if (empty($ing['nom_ingredient']) || !isset($ing['quantite'])) continue;
+
+        // priorité au produit_id envoyé (important)
+        $produitId = $ing['produit_id'] ?? null;
+
+        // fallback seulement si produit_id absent
+        if (!$produitId) {
+            $produitId = Produit::where('nom', $ing['nom_ingredient'])->value('id');
         }
+
+        RecetteIngredient::create([
+            'recette_id'     => $recette->id,
+            'produit_id'     => $produitId,
+            'nom_ingredient' => $ing['nom_ingredient'],
+            'quantite'       => $ing['quantite'],
+            'unite'          => $ing['unite'] ?? 'g',
+            'calories_100g'  => $ing['calories_100g'] ?? 0,
+        ]);
+    }
+
     }
 
     return response()->json([
@@ -464,7 +480,6 @@ public function deleterecettes(Request $request){
             'description'    => 'nullable|string',
             'prix'           => 'required|numeric|min:0',
             'quantite_stock' => 'required|integer|min:0',
-            'calories_100g'  => 'nullable|numeric|min:0',
             'fournisseur_id' => 'required|integer|exists:fournisseurs,id',
             'image'          => 'nullable|string',
         ]);
@@ -483,7 +498,7 @@ public function deleterecettes(Request $request){
         $produit = Produit::findOrFail($request->id);
 
         $produit->update($request->only([
-            'nom', 'description', 'prix', 'quantite_stock', 'calories_100g', 'image',
+            'nom', 'description', 'prix', 'quantite_stock', 'image',
         ]));
 
         return response()->json([
@@ -559,4 +574,50 @@ public function deleterecettes(Request $request){
         ], 200);
     }
 
+    /**
+     * Calcule le coût réel d'un ingrédient en sélectionnant la combinaison de paquets
+     * la moins chère qui couvre la quantité nécessaire pour la recette.
+     *
+     * Exemple : besoin de 100 g, variantes [200 g → 2 DT, 1 kg → 7 DT]
+     *   → 1 × 200 g = 2 DT  (moins cher que 1 × 1 kg = 7 DT)
+     *
+     * @param float  $neededQty  Quantité requise par la recette
+     * @param string $neededUnit Unité requise (g, kg, ml, l, …)
+     * @param \Illuminate\Support\Collection $variantes  Modèles avec ->quantite, ->unite, ->prix
+     * @return float Coût optimal en DT
+     */
+    private function calculateIngredientCost(float $neededQty, string $neededUnit, $variantes): float
+    {
+        if ($neededQty <= 0 || $variantes->isEmpty()) return 0.0;
+
+        $neededUnit = strtolower(trim($neededUnit));
+        $bestCost   = PHP_FLOAT_MAX;
+
+        foreach ($variantes as $v) {
+            $varQty  = (float)($v->quantite ?? 0);
+            $varUnit = strtolower(trim($v->unite ?? ''));
+            $varPrix = (float)($v->prix ?? 0);
+
+            if ($varQty <= 0 || $varPrix <= 0) continue;
+
+            // Normalise vers la même unité de base
+            $neededNorm = $neededQty;
+            $varNorm    = $varQty;
+
+            if     ($neededUnit === 'g'  && $varUnit === 'kg') { $varNorm    = $varQty * 1000; }
+            elseif ($neededUnit === 'kg' && $varUnit === 'g')  { $neededNorm = $neededQty * 1000; }
+            elseif ($neededUnit === 'ml' && $varUnit === 'l')  { $varNorm    = $varQty * 1000; }
+            elseif ($neededUnit === 'l'  && $varUnit === 'ml') { $neededNorm = $neededQty * 1000; }
+            elseif ($neededUnit !== $varUnit)                  { continue; }
+
+            $numPacks = (int)ceil($neededNorm / $varNorm);
+            $cost     = $numPacks * $varPrix;
+
+            if ($cost < $bestCost) {
+                $bestCost = $cost;
+            }
+        }
+
+        return $bestCost === PHP_FLOAT_MAX ? 0.0 : round($bestCost, 2);
+    }
 }

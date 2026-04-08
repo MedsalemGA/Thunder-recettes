@@ -2117,7 +2117,28 @@ html {
     color: var(--teal-dark);
   }
 }
- 
+.btn-voir-plus-wrapper {
+  display: flex;
+  justify-content: center; /* centre horizontalement */
+  margin: 2rem 0;          /* espace vertical autour du bouton */
+}
+
+.btn-voir-plus {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #1abc9c, #16a085); /* dégradé moderne */
+  color: #fff;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-voir-plus:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
 /* ── État vide section produits ── */
 .produits-empty {
   display: flex;

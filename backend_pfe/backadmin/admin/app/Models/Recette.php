@@ -15,15 +15,13 @@ class Recette extends Model
         'nombre_personnes',
         'categorie',
         'difficulte',
-        'rating',
-        'prix',
+        
         'instructions',
     ];
 
     protected $casts = [
         'instructions'     => 'array',
-        'rating'           => 'decimal:2',
-        'prix'             => 'decimal:2',
+        
         'temps_preparation'=> 'integer',
         'temps_cuisson'    => 'integer',
         'nombre_personnes' => 'integer',
@@ -51,19 +49,13 @@ class Recette extends Model
     // Accessors
     // -------------------------------------------------------
 
-    // Calories totales calculées dynamiquement.
-    // Utilise calories_100g de recette_ingredients en priorité,
-    // sinon lit depuis produits.calories_100g via la relation.
+    // Calories totales calculées dynamiquement depuis recette_ingredients.calories_100g.
     public function getCaloriesTotalesAttribute(): float
     {
         return round(
-            $this->ingredients->map(function ($ing) {
-                $cal100g = (float)$ing->calories_100g;
-                if ($cal100g === 0.0 && $ing->produit !== null) {
-                    $cal100g = (float)$ing->produit->calories_100g;
-                }
-                return $cal100g * (float)$ing->quantite / 100;
-            })->sum(),
+            $this->ingredients->sum(function ($ing) {
+                return (float)($ing->calories_100g ?? 0) * (float)$ing->quantite / 100;
+            }),
             1
         );
     }
@@ -79,4 +71,12 @@ class Recette extends Model
             2
         );
     }
+    public function favorites()
+{
+    return $this->hasMany(Favorite_Recette::class, 'id_recette');
+}
+public function ratings()
+{
+    return $this->hasMany(RecipeRating::class);
+}
 }

@@ -2,8 +2,13 @@
 // src/app/pages/scan-recipe/scan-recipe.page.ts
 
 // src/app/pages/scan-recipe/scan-recipe.page.ts
+// src/app/pages/scan-recipe/scan-recipe.page.ts
+// src/app/pages/scan-recipe/scan-recipe.page.ts
+
+// src/app/pages/scan-recipe/scan-recipe.page.ts
 
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   ActionSheetController,
   AlertController,
@@ -21,7 +26,9 @@ import {
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { environment } from '../../../environments/environment';
 import { SmartCartService } from '../../services/smart-cart.service';
+import { RecipeService } from '../../services/recipe.service';
 import { DishAnalysis } from '../../models/reciepe.model';
+import { firstValueFrom } from 'rxjs';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -77,6 +84,8 @@ export class ScanRecipePage implements OnInit {
   // ── Results ───────────────────────────────────────────────────
   recipeResults: RecipeResult[] = [];
   expandedIndex: number | null = 0;
+  activeRecipeSegment: 'ingredients' | 'instructions' = 'ingredients';
+  isAddingToCart = false;
 
   // ── Gemini config ─────────────────────────────────────────────
   private readonly geminiUrl =
@@ -88,6 +97,8 @@ export class ScanRecipePage implements OnInit {
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
     private cartService: SmartCartService,
+    private recipeService: RecipeService,
+    private router: Router,
   ) {
     addIcons({
       cameraOutline, camera, imagesOutline, scanOutline, sparklesOutline,
@@ -360,6 +371,11 @@ Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
     this.expandedIndex = this.expandedIndex === i ? null : i;
   }
 
+  selectRecipe(i: number) {
+    this.expandedIndex = i;
+    this.activeRecipeSegment = 'ingredients';
+  }
+
   /** SVG circle stroke-dasharray for score ring (circumference = 2πr = 94.25) */
   getScoreDash(score: number): string {
     const circ = 2 * Math.PI * 15; // r=15
@@ -367,9 +383,74 @@ Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
     return `${fill.toFixed(2)} ${circ.toFixed(2)}`;
   }
 
-  addToCart(recipe: RecipeResult) {
-    this.cartService.addRecipeToCart(recipe as any);
-    this.showToast(`✓ Ingrédients de "${recipe.nom}" ajoutés au panier`, 'success');
+  async addToCart(recipe: RecipeResult) {
+    if (this.isAddingToCart) return;
+    this.isAddingToCart = true;
+
+    const loading = await this.showLoading('Vérification des ingrédients...');
+    const rawIngredients = this.getIngredientsArray(recipe);
+
+    const ingResults = await Promise.all(
+      rawIngredients.map(async (ing: any) => {
+        const nom = this.getIngrName(ing);
+        if (!nom.trim()) return null;
+        try {
+          const details = await firstValueFrom(this.recipeService.getIngredientDetails(nom));
+          return { ing, nom, details, disponible: details?.available === true };
+        } catch {
+          return { ing, nom, details: null, disponible: false };
+        }
+      })
+    );
+
+    await loading.dismiss();
+
+    const toAdd: any[] = [];
+    const unavailable: string[] = [];
+
+    ingResults.forEach(result => {
+      if (!result) return;
+      if (result.disponible) {
+        toAdd.push({
+          id:         result.details?.id ?? result.nom,
+          nom:        result.nom,
+          quantite:   parseFloat(result.ing?.quantity || result.ing?.quantite || '1') || 1,
+          unite:      result.ing?.unite || result.ing?.unit || result.details?.unit || 'unité',
+          prix:       parseFloat(result.details?.price) || 0,
+          recette_id: `ai_${recipe.nom.replace(/\s+/g, '_').toLowerCase()}`,
+        });
+      } else {
+        unavailable.push(result.nom);
+      }
+    });
+
+    this.isAddingToCart = false;
+
+    if (toAdd.length === 0) {
+      this.showToast('Aucun ingrédient disponible en stock pour cette recette', 'warning');
+      return;
+    }
+
+    this.cartService.addCheckedIngredients(toAdd);
+
+    let msg = `✅ ${toAdd.length} ingrédient(s) ajouté(s) au panier`;
+    if (unavailable.length > 0) msg += ` · ${unavailable.length} indisponible(s) ignoré(s)`;
+
+    const toast = await this.toastCtrl.create({
+      message: msg,
+      duration: 4000,
+      position: 'bottom',
+      color: unavailable.length === 0 ? 'success' : 'warning',
+      buttons: [{
+        text: 'Voir le panier',
+        role: 'cancel',
+        handler: () => this.router.navigate(['/scan-cart']),
+      }]
+    });
+
+    await toast.present();
+    const { role } = await toast.onDidDismiss();
+    if (role !== 'cancel') this.router.navigate(['/scan-cart']);
   }
 
   async sendFeedback(recipe: RecipeResult) {
@@ -394,6 +475,7 @@ Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
     this.activeIngredients = [];
     this.recipeResults = [];
     this.expandedIndex = null;
+    this.activeRecipeSegment = 'ingredients';
   }
 
   // ════════════════════════════════════════════════════════════════

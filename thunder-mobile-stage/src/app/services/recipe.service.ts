@@ -13,12 +13,12 @@ export class RecipeService {
   private recipesSubject = new BehaviorSubject<Recipe[]>([]);
   recipes$ = this.recipesSubject.asObservable();
 
-  private favoritesSubject = new BehaviorSubject<string[]>(this.loadFavoritesFromStorage());
+   private favoritesSubject = new BehaviorSubject<string[]>([]);
   favorites$ = this.favoritesSubject.asObservable();
-  getFavoriteRecipes: any;
 
   constructor(private http: HttpClient) {
     this.fetchRecipes();
+     this.loadFavoritesFromServer();
   }
 
   /**
@@ -67,25 +67,51 @@ export class RecipeService {
   /**
    * Favoris
    */
-  private loadFavoritesFromStorage(): string[] {
-    const favs = localStorage.getItem('favorite_recipes');
-    return favs ? JSON.parse(favs) : [];
+   loadFavoritesFromServer(): void {
+    this.http.get<any>(`${this.BASE}/favorites-recipes`).subscribe({
+      next: (res) => {
+        // res.data contient les favoris (id_recette)
+        const favIds = res.data.map((f: any) => f.id_recette.toString());
+        this.favoritesSubject.next(favIds);
+      },
+      error: (err) => console.error('Erreur chargement favoris', err)
+    });
   }
 
+  // 🔹 Vérifier si un id est favori
   isFavorite(id: string | number): boolean {
     return this.favoritesSubject.value.includes(id.toString());
   }
 
+  // 🔹 Ajouter au favori
   addToFavorites(id: string | number): void {
-    const favs = [...this.favoritesSubject.value, id.toString()];
-    this.favoritesSubject.next(favs);
-    localStorage.setItem('favorite_recipes', JSON.stringify(favs));
+    this.http.post<any>(`${this.BASE}/save-favorite/${id}`, {id_recette: id}  ).subscribe({
+      next: (res) => {
+        const favs = [...this.favoritesSubject.value, id.toString()];
+        this.favoritesSubject.next(favs);
+      },
+      error: (err) => console.error('Impossible d’ajouter aux favoris', err)
+    });
   }
 
+  // 🔹 Retirer du favori
   removeFromFavorites(id: string | number): void {
-    const favs = this.favoritesSubject.value.filter(f => f !== id.toString());
-    this.favoritesSubject.next(favs);
-    localStorage.setItem('favorite_recipes', JSON.stringify(favs));
+    this.http.delete<any>(`${this.BASE}/delete-favorite/${id}`).subscribe({
+      next: (res) => {
+        const favs = this.favoritesSubject.value.filter(f => f !== id.toString());
+        this.favoritesSubject.next(favs);
+      },
+      error: (err) => console.error('Impossible de retirer des favoris', err)
+    });
+  }
+
+  // 🔹 Toggle (pratique pour bouton cœur)
+  toggleFavorite(id: string | number): void {
+    if (this.isFavorite(id)) {
+      this.removeFromFavorites(id);
+    } else {
+      this.addToFavorites(id);
+    }
   }
 
   /**
@@ -114,5 +140,26 @@ export class RecipeService {
       recipe_id: recipeId,
       adresse_livraison: adresse
     });
+  }
+
+  /**
+   * Notation des recettes
+   */
+  rateRecipe(recipeId: string | number, rate: number): Observable<any> {
+    return this.http.post(`${this.BASE}/recipes/${recipeId}/rate`, { rate });
+  }
+
+  getUserRating(recipeId: string | number): Observable<any> {
+    return this.http.get(`${this.BASE}/recipes/${recipeId}/rating`);
+  }
+
+  /** Met à jour la note d'une recette dans le cache local */
+  updateLocalRating(recipeId: string | number, avgRating: number): void {
+    const recipes = this.recipesSubject.value.map(r =>
+      (r.id === recipeId.toString() || r.id == recipeId)
+        ? { ...r, rating: avgRating }
+        : r
+    );
+    this.recipesSubject.next(recipes);
   }
 }

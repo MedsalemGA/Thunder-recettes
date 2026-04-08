@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\Like;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -80,4 +82,31 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'Compte supprimé avec succès.'], 200);
     }
+   public function getlikes(): JsonResponse
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Non authentifié'
+        ], 401);
+    }
+
+    $client = $user->client;
+
+    if (!$client) {
+        return response()->json([
+            'message' => 'Ce user n\'est pas un client'
+        ], 403);
+    }
+
+    $likes = Like::with('client')
+        ->where('client_id', $client->id)
+        ->get();
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $likes
+    ]);
+}
 }

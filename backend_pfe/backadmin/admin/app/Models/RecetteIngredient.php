@@ -14,25 +14,21 @@ class RecetteIngredient extends Model
         'nom_ingredient',   // toujours présent
         'quantite',
         'unite',
+        'calories_100g',    // stocké directement dans le pivot
     ];
 
     protected $casts = [
         'quantite'     => 'decimal:2',
+        'calories_100g'=> 'decimal:2',
         'produit_id'   => 'integer',
     ];
 
     // Calories calculées pour cet ingrédient selon la quantité.
-    // calories_100g absent de recette_ingredients → toujours lue depuis produits
+    // Utilise directement calories_100g stocké dans recette_ingredients.
     public function getCaloriesIngredientAttribute(): float
     {
-        $cal100g = (float)($this->produit?->calories_100g ?? 0);
+        $cal100g = (float)($this->calories_100g ?? 0);
         return round($cal100g * (float)$this->quantite / 100, 1);
-    }
-
-    // calories_100g résolu depuis le produit lié
-    public function getCalories100gResolvedAttribute(): float
-    {
-        return (float)($this->produit?->calories_100g ?? 0);
     }
 
     // Est-ce que cet ingrédient est lié à un produit du marché ?

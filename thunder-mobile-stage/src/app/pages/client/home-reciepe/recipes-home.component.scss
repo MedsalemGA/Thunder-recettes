@@ -129,25 +129,130 @@ ion-toolbar {
     transition: background 0.15s;
     ion-icon { font-size: 14px; color: $text-light; }
     &:hover { background: $border; }
+  }}
+ .camera-btn {
+  position: absolute;
+  right: 35px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgb(245, 243, 233); /* ✅ transparent */
+  border: none;
+  
+
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* border animé */
+.camera-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 2px; /* épaisseur border */
+
+  background: conic-gradient(
+    rgb(0, 242, 255),
+    pink,
+    rgb(129, 255, 146)
+  );
+  
+
+  animation: rotateBorder 2s linear infinite;
+
+  /* masque pour garder seulement le border */
+  -webkit-mask: 
+    linear-gradient(#000 0 0) content-box, 
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+
+/* icône */
+.camera-btn ion-icon {
+  font-size: 20px;
+  color: #767676;
+  position: relative;
+  z-index: 1;
+}
+
+/* animation */
+@keyframes rotateBorder {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+  //===========================================
+// Filters horizontal bar
+// =============================================
+.filters-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 16px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid $primary-border;
+  background: $bg-surface;
+  color: $text-light;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  ion-icon {
+    font-size: 13px;
+    color: $text-hint;
+  }
+
+  &.active {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+
+    ion-icon {
+      color: #fff;
+    }
   }
 }
 
-// =============================================
-// Filter block + label
-// =============================================
-.filter-block {
-  padding: 0 16px;
-  margin-bottom: 14px;
+.filter-panel {
+  padding: 10px 16px 14px;
+  background: $bg-surface;
+  border-bottom: 1px solid $border;
+  animation: fadeIn 0.15s ease;
 }
 
-.filter-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: $text-hint;
-  margin: 0 0 8px 2px;
+// Keep old .filter-block for any potential fallback — hidden
+.filter-block { display: none; }
+.filter-label  { display: none; }
+
+.toggle-icon, .toggle-icon-close {
+  font-size: 15px;
+  position: relative;
+  top: 2px;
 }
+
+ 
 
 // =============================================
 // Pills
@@ -202,75 +307,10 @@ ion-toolbar {
     .dot { opacity: 1; }
   }
 }
-
-// =============================================
-// Filter chips
-// =============================================
-.chips-row {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px;
-  margin-bottom: 14px;
-}
-
-.filter-chip {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  background: $bg-white;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  padding: 10px 12px;
-  cursor: pointer;
-  min-width: 0;
-  transition: all 0.18s ease;
-
-  &:hover {
-    border-color: $border-h;
-    background: $bg-surface;
-  }
-
-  &.has-value {
-    border-color: $primary;
-    background: $primary-bg;
-    .chip-value { color: $primary-text; }
-    .chip-arrow { color: $primary-dark; }
-  }
-
-  .chip-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .chip-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: $text-hint;
-    line-height: 1;
-  }
-
-  .chip-value {
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-dark;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-  }
-
-  .chip-arrow {
-    font-size: 14px;
-    color: $text-hint;
-    flex-shrink: 0;
-  }
+#price-icon + span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffa602;
 }
 
 // =============================================
@@ -465,19 +505,53 @@ ion-toolbar {
       letter-spacing: 1px;
     }
 
-    .rating {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: #fffbeb;
-      color: #d97706;
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 800;
-      ion-icon { font-size: 14px; }
-    }
+ 
   }
+  .star-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+}
+
+.star-btn ion-icon {
+  font-size: 18px;
+  color: #d1d5db;
+  transition: color 0.15s ease;
+}
+
+.star-btn ion-icon.filled {
+  color: #f59e0b;
+}
+
+.star-btn ion-icon.hovered {
+  color: #fbbf24;
+}
+
+.rating-count {
+  font-size: 12px;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+.rating-avg {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 4px;
+}
 
   ion-card-title {
     font-size: 20px;
@@ -589,4 +663,710 @@ ion-toolbar {
   font-weight: bold;
   font-family: 'Arial', sans-serif;
   
+}
+/* ligne inputs */
+.inputs-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* groupe */
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* label min/max */
+.input-group label {
+  font-size: 11px;
+  color: $text-light;
+  margin-bottom: 4px;
+}
+
+/* INPUT STYLE */
+.input-group input {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid $border;
+  background: $bg-white;
+  color: $text-dark;
+
+  padding: 0 12px;
+  font-size: 14px;
+
+  transition: all 0.2s ease;
+}
+
+/* focus (important UX) */
+.input-group input:focus {
+  border-color: $primary;
+  box-shadow: 0 0 0 3px rgba(10, 225, 204, 0.15);
+  outline: none;
+}
+
+/* placeholder */
+.input-group input::placeholder {
+  color: $text-hint;
+}
+
+/* bouton */
+.filter-btn {
+  margin-top: 12px;
+  width: 100%;
+  height: 44px;
+
+  border-radius: 12px;
+  border: 1px solid $primary-border;
+
+  background: $primary;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+}
+
+/* hover desktop */
+.filter-btn:hover {
+  background: $primary-dark;
+}
+
+/* click mobile */
+.filter-btn:active {
+  transform: scale(0.97);
+}
+
+/* responsive mobile */
+@media (max-width: 400px) {
+  .inputs-row {
+    flex-direction: column;
+  }
+}
+// ══════════════════════════════════════════════════════════════
+// AJOUTS — coller à la fin de recipes-home.component.scss
+// ══════════════════════════════════════════════════════════════
+
+$primary:      #0ae1cc;
+$primary-dark: #00A896;
+$text-dark:    #1a202c;
+$text-light:   #64748b;
+$text-hint:    #94a3b8;
+$bg-white:     #ffffff;
+$bg-surface:   #f1f5f9;
+$border:       #e2e8f0;
+$danger:       #ef4444;
+$font-display: 'Sora', system-ui, sans-serif;
+$font-body:    'DM Sans', system-ui, sans-serif;
+
+// Bouton favoris dans la barre résultats
+.fav-toggle-btn {
+  color: $danger !important;
+  border-color: rgba($danger, 0.25) !important;
+  background: rgba($danger, 0.06) !important;
+
+  ion-icon { color: $danger; }
+}
+
+// Backdrop
+.fav-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  animation: bkFadeIn 0.2s ease;
+}
+@keyframes bkFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+// Panel bottom sheet
+.fav-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 201;
+  background: $bg-white;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+  max-height: 80vh;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+
+  &.open { transform: translateY(0); }
+}
+
+.fav-panel-handle {
+  width: 40px; height: 4px;
+  background: $border; border-radius: 2px;
+  margin: 12px auto 0; flex-shrink: 0;
+}
+
+.fav-panel-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px; flex-shrink: 0;
+  border-bottom: 1px solid $border;
+}
+
+.fav-panel-title-row {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.fav-panel-icon { font-size: 20px; color: $danger; }
+
+.fav-panel-title {
+  font-size: 18px; font-weight: 800;
+  color: $text-dark; margin: 0;
+  font-family: $font-display;
+}
+
+.fav-panel-count {
+  background: $danger; color: white;
+  font-size: 11px; font-weight: 800;
+  padding: 2px 8px; border-radius: 20px;
+  font-family: $font-display;
+}
+
+.fav-panel-close {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: $bg-surface; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  ion-icon { font-size: 18px; color: $text-light; }
+  &:active { background: $border; }
+}
+
+.fav-loading {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  padding: 40px 20px;
+  color: $text-hint; font-size: 13px;
+}
+
+.fav-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid $border;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fav-empty {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  padding: 40px 24px; text-align: center;
+
+  .fav-empty-ico { font-size: 52px; }
+  p { font-size: 16px; font-weight: 700; color: $text-dark; margin: 0; font-family: $font-display; }
+  span { font-size: 13px; color: $text-hint; line-height: 1.5; }
+}
+
+.fav-list {
+  overflow-y: auto; flex: 1;
+  padding: 8px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fav-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 20px; cursor: pointer;
+  border-bottom: 1px solid $bg-surface;
+  transition: background 0.15s;
+  &:last-child { border-bottom: none; }
+  &:active { background: $bg-surface; }
+}
+
+.fav-item-img-wrap {
+  width: 60px; height: 60px;
+  border-radius: 14px; overflow: hidden;
+  flex-shrink: 0; background: $bg-surface;
+}
+
+.fav-item-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+
+.fav-item-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center;
+  justify-content: center; font-size: 28px;
+}
+
+.fav-item-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+
+.fav-item-name {
+  font-size: 14px; font-weight: 700;
+  color: $text-dark; font-family: $font-display;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.fav-item-meta {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+
+.fav-meta-chip {
+  font-size: 11px; font-weight: 600;
+  color: $text-hint; background: $bg-surface;
+  padding: 2px 8px; border-radius: 20px;
+}
+
+.fav-remove-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba($danger, 0.08); border: none;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; transition: all 0.2s;
+  ion-icon { font-size: 18px; color: $danger; }
+  &:active { background: rgba($danger, 0.18); transform: scale(0.92); }
+}
+#ai-text {
+  font-size: 10px; color: hsl(42, 100%, 50%);position: absolute;right: 30px;top: 50px;z-index: 100;
+  animation: pulse 1.4s linear infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Questionnaire overlay
+// ═══════════════════════════════════════════════════════════
+.questionnaire-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 20, 30, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInOverlay 0.3s ease;
+
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+.questionnaire-card {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.35s cubic-bezier(.34,1.56,.64,1);
+  display: flex;
+  flex-direction: column;
+
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+}
+
+// Header
+.q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 10px;
+}
+
+.q-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .q-brand-icon { font-size: 22px; }
+  .q-brand-name { font-weight: 700; font-size: 16px; color: $text-dark; }
+}
+
+.q-skip-btn {
+  background: none;
+  border: none;
+  color: $text-light;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: background 0.2s;
+
+  &:hover { background: $bg-surface; }
+}
+
+// Progress
+.q-progress-wrap {
+  padding: 0 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.q-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: $bg-surface;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.q-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary, $primary-dark);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.q-progress-text {
+  font-size: 12px;
+  color: $text-hint;
+  white-space: nowrap;
+}
+
+// Body
+.q-body {
+  padding: 10px 24px 20px;
+  text-align: center;
+
+  .q-icon { font-size: 44px; margin-bottom: 12px; }
+
+  .q-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0 0 20px;
+    line-height: 1.4;
+  }
+}
+
+.q-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.q-option-pill {
+  padding: 10px 18px;
+  border-radius: $radius-pill;
+  border: 2px solid $border;
+  background: $bg-white;
+  color: $text-dark;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary-dark;
+    background: $primary-bg;
+  }
+
+  &.selected {
+    border-color: $primary;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(10, 225, 204, 0.35);
+    transform: scale(1.04);
+  }
+}
+
+// Footer
+.q-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid $border;
+}
+
+.q-btn {
+  padding: 12px 24px;
+  border-radius: $radius-pill;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.q-btn-back {
+  background: $bg-surface;
+  color: $text-dark;
+
+  &:hover:not(:disabled) { background: $border; }
+}
+
+.q-btn-next {
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #fff;
+  flex: 1;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 6px 18px rgba(10, 225, 204, 0.45);
+    transform: translateY(-1px);
+  }
+}
+// ══════════════════════════════════════════════════════════════
+// RECOMMANDATIONS — coller à la fin de recipes-home.component.scss
+// ══════════════════════════════════════════════════════════════
+
+$primary:      #0ae1cc;
+$primary-dark: #00A896;
+$text-dark:    #1a202c;
+$text-light:   #64748b;
+$text-hint:    #94a3b8;
+$bg-white:     #ffffff;
+$bg-surface:   #f1f5f9;
+$border:       #e2e8f0;
+$success:      #10b981;
+$warning:      #f59e0b;
+$danger:       #ef4444;
+$font-display: 'Sora', system-ui, sans-serif;
+$font-body:    'DM Sans', system-ui, sans-serif;
+
+// ── Section wrapper ──────────────────────────────────────────
+.reco-section {
+  margin: 8px 0 4px;
+  background: $bg-white;
+  border-radius: 20px;
+  margin: 12px 12px 4px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow: hidden;
+  padding-bottom: 16px;
+}
+
+// ── Header ───────────────────────────────────────────────────
+.reco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.reco-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reco-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 18px; color: #04342C; }
+}
+
+.reco-title {
+  font-size: 16px; font-weight: 800;
+  color: $text-dark; margin: 0; line-height: 1.2;
+  font-family: $font-display;
+}
+
+.reco-subtitle {
+  font-size: 11px; color: $text-hint;
+  font-family: $font-body; display: block;
+  margin-top: 1px;
+}
+
+.reco-mode-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+  background: $bg-surface; color: $text-hint;
+  font-family: $font-body; flex-shrink: 0;
+  border: 1px solid $border;
+
+  &.personalized {
+    background: rgba($primary, 0.1);
+    color: $primary-dark;
+    border-color: rgba($primary, 0.3);
+  }
+}
+
+// ── Scroll horizontal ────────────────────────────────────────
+.reco-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 16px 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  scroll-behavior: smooth;     // ← ajouter
+  will-change: scroll-position;
+}
+
+// ── Card ─────────────────────────────────────────────────────
+.reco-card {
+  flex-shrink: 0;
+  width: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: $bg-white;
+  border: 1px solid $border;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+}
+
+// ── Image ────────────────────────────────────────────────────
+.reco-card-img-wrap {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  background: $bg-surface;
+}
+
+.reco-card-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+
+.reco-card-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%);
+}
+
+// Score badge (coin haut gauche)
+.reco-score-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #04342C;
+  font-size: 11px; font-weight: 800;
+  padding: 3px 8px; border-radius: 20px;
+  font-family: $font-display;
+  box-shadow: 0 2px 6px rgba(10,225,204,0.4);
+}
+
+// Favori (coin haut droit)
+.reco-fav-btn {
+  position: absolute; top: 6px; right: 6px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+  border: none; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  ion-icon { font-size: 14px; }
+  &:active { transform: scale(0.9); }
+}
+
+// Difficulté (coin bas gauche)
+.reco-diff-badge {
+  position: absolute; bottom: 8px; left: 8px;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; color: white;
+
+  &.easy   { background: rgba($success, 0.85); }
+  &.medium { background: rgba($warning, 0.85); }
+  &.hard   { background: rgba($danger,  0.85); }
+}
+
+// ── Body ─────────────────────────────────────────────────────
+.reco-card-body {
+  padding: 10px 12px 12px;
+}
+
+.reco-card-cuisine {
+  font-size: 10px; font-weight: 700;
+  color: $primary-dark; text-transform: uppercase;
+  letter-spacing: 0.5px; font-family: $font-body;
+}
+
+.reco-card-name {
+  font-size: 13px; font-weight: 800;
+  color: $text-dark; margin: 3px 0 5px;
+  line-height: 1.3; font-family: $font-display;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Raison de recommandation
+.reco-card-reason {
+  display: flex; align-items: flex-start; gap: 4px;
+  font-size: 10px; color: $text-hint;
+  line-height: 1.4; margin: 0 0 6px;
+  font-family: $font-body;
+
+  ion-icon { font-size: 10px; color: $primary; flex-shrink: 0; margin-top: 1px; }
+}
+
+.reco-card-meta {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+
+  span {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 10px; color: $text-hint; font-weight: 600;
+
+    ion-icon { font-size: 11px; color: $primary; }
+  }
+
+  .reco-price {
+    margin-left: auto;
+    font-size: 12px; font-weight: 800;
+    color: $text-dark; font-family: $font-display;
+  }
+}
+
+// ── Skeleton ─────────────────────────────────────────────────
+.reco-skeleton {
+  flex-shrink: 0;
+  width: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid $border;
+}
+
+.reco-sk-img {
+  height: 130px;
+  background: linear-gradient(90deg, $bg-surface 25%, #e8edf2 50%, $bg-surface 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.reco-sk-line {
+  height: 12px; border-radius: 6px; margin: 10px 12px 6px;
+  background: linear-gradient(90deg, $bg-surface 25%, #e8edf2 50%, $bg-surface 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+
+  &.long  { width: calc(100% - 24px); }
+  &.short { width: 60%; margin-top: 0; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Empty ────────────────────────────────────────────────────
+.reco-empty {
+  padding: 20px;
+  text-align: center;
+  color: $text-hint;
+  font-size: 13px;
+  font-family: $font-body;
 }

@@ -48,10 +48,22 @@
     <div class="hero-info">
       <h1 class="hero-title">{{ recipe.name }}</h1>
       <div class="hero-meta">
-        <span class="hero-stat">
-          <ion-icon name="star"></ion-icon>
-          {{ recipe.rating }}/5
-        </span>
+        <!-- Notation interactive -->
+        <div class="detail-star-rating">
+          <button
+            *ngFor="let s of [1,2,3,4,5]"
+            class="detail-star-btn"
+            (click)="rateRecipe(s)"
+            (mouseenter)="detailHovered = s"
+            (mouseleave)="detailHovered = 0"
+          >
+            <ion-icon
+              [name]="getDetailStarIcon(s)"
+              [class.filled]="s <= (detailHovered > 0 ? detailHovered : (userRate || recipe.rating))"
+            ></ion-icon>
+          </button>
+          <span class="detail-rating-avg">{{ recipe.rating | number:'1.1-1' }}/5</span>
+        </div>
         <span class="hero-dot"></span>
         <span class="hero-stat">
           <ion-icon name="time-outline"></ion-icon>
@@ -105,9 +117,7 @@
       <button class="seg-pill" [class.active]="activeSegment === 'instructions'" (click)="activeSegment = 'instructions'">
         <ion-icon name="restaurant-outline"></ion-icon> Préparation
       </button>
-      <button class="seg-pill" [class.active]="activeSegment === 'similar'" (click)="activeSegment = 'similar'">
-        <ion-icon name="grid-outline"></ion-icon> Similaires
-      </button>
+     
     </div>
   </div>
 
@@ -167,11 +177,15 @@
     <div class="selection-actions" *ngIf="recipe.ingredients.length > 0">
       <button
         class="add-selection-btn"
-        [disabled]="checkedCount === 0"
+        [disabled]="checkedCount === 0 || isAdding"
         (click)="addSelectedToCart()"
+        [class.success]="addSuccess"
       >
-        <ion-icon name="add-outline"></ion-icon>
-        Ajouter {{ checkedCount }} ingrédient{{ checkedCount > 1 ? 's' : '' }}
+        <ion-spinner *ngIf="isAdding" name="crescent" style="width:16px;height:16px;margin-right:6px;"></ion-spinner>
+        <ion-icon *ngIf="!isAdding && !addSuccess" name="add-outline"></ion-icon>
+        <ion-icon *ngIf="addSuccess" name="checkmark-circle-outline"></ion-icon>
+        <span *ngIf="!addSuccess">Ajouter {{ checkedCount }} ingrédient{{ checkedCount > 1 ? 's' : '' }}</span>
+        <span *ngIf="addSuccess">Ajouté au panier ✓</span>
       </button>
     </div>
 
@@ -231,33 +245,7 @@
   </div>
 
   <!-- ══ SIMILAIRES ══ -->
-  <div class="segment-panel" *ngIf="activeSegment === 'similar'">
-    <div class="similar-grid" *ngIf="similarRecipes.length > 0">
-      <div class="similar-card" *ngFor="let r of similarRecipes">
-        <div class="similar-img-wrap">
-          <img [src]="r.image" [alt]="r.name" class="similar-img" />
-          <span class="similar-rating">
-            <ion-icon name="star"></ion-icon> {{ r.rating }}
-          </span>
-        </div>
-        <div class="similar-info">
-          <h4 class="similar-name">{{ r.name }}</h4>
-          <p class="similar-desc">{{ r.description }}</p>
-          <div class="similar-meta">
-            <span><ion-icon name="time-outline"></ion-icon> {{ r.prepTime + r.cookTime }} min</span>
-            <span><ion-icon name="people-outline"></ion-icon> {{ r.servings }} pers.</span>
-          </div>
-          <button class="similar-btn">Voir la recette</button>
-        </div>
-      </div>
-    </div>
-    <div class="empty-similar" *ngIf="similarRecipes.length === 0">
-      <ion-icon name="search-outline"></ion-icon>
-      <p>Aucune recette similaire trouvée</p>
-    </div>
-  </div>
-
-  <div style="height: 96px;"></div>
+  
 </ion-content>
 
 <!-- ── Bouton fixe bas ── -->

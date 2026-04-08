@@ -7,10 +7,13 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Favorites_RecetteController;
 
 use App\Http\Controllers\Api\UserActivityController;
-
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\PreferenceController;
+use App\Http\Controllers\Rating;
 
 Route::post('/adminlogin',[AdminController::class,'login']);
 Route::post('/verify-otp',[AdminController::class,'verifyOtp']);
@@ -45,6 +48,26 @@ Route::group(['prefix' => 'client'], function () {
         Route::get('/activities',        [UserActivityController::class, 'index']);
         Route::post('/activities',       [UserActivityController::class, 'store']);
         Route::get('/ingredients/details', [RecipeController::class, 'getIngredientDetails']);
+        Route::post('/save-favorite/{id}', [Favorites_RecetteController::class,'store']);
+        Route::get('/favorites-recipes', [Favorites_RecetteController::class,'index']);
+        Route::delete('/delete-favorite/{id}', [Favorites_RecetteController::class,'destroy']);
+
+        // Panier
+        Route::get('/panier',                [CartController::class, 'getCart']);
+        Route::post('/panier/items',         [CartController::class, 'addItems']);
+        Route::patch('/panier/items/{id}',   [CartController::class, 'updateItem']);
+        Route::delete('/panier/items/{id}',  [CartController::class, 'removeItem']);
+        Route::delete('/panier',             [CartController::class, 'clearCart']);
+
+        // Préférences culinaires (questionnaire one-shot)
+        Route::get('/preferences/check',     [PreferenceController::class, 'check']);
+        Route::get('/preferences',           [PreferenceController::class, 'show']);
+        Route::post('/preferences',          [PreferenceController::class, 'store']);
+        Route::get('/likes', [ProfileController::class, 'getlikes']);
+
+        // Notation des recettes
+        Route::post('/recipes/{id}/rate',    [Rating::class, 'store']);
+        Route::get('/recipes/{id}/rating',   [Rating::class, 'getUserRating']);
     });
 });
 Route::post('/ajouterfournisseur',[AdminController::class,'ajouterfournisseur']);
@@ -56,4 +79,5 @@ Route::get('/getallrecettes',[AdminController::class,'getallrecettes']);
 Route::post('/ajouterrecettes',[AdminController::class,'ajouterrecettes']);
 Route::patch('/updaterecettes',[AdminController::class,'updaterecettes']);
 Route::delete('/deleterecettes',[AdminController::class,'deleterecettes']);
+
 

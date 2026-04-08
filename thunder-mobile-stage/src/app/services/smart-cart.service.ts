@@ -177,11 +177,11 @@ export class SmartCartService {
     let totalItems = 0;
 
     currentCart.items.forEach(item => {
-      totalPrice += item.price * item.quantity;
+      totalPrice += item.price ;
       totalItems += item.quantity;
     });
 
-    currentCart.totalPrice = Math.round(totalPrice * 100) / 100;
+    currentCart.totalPrice = totalPrice;
     currentCart.totalItems = totalItems;
 
     this.cartSubject.next({ ...currentCart });
@@ -250,6 +250,43 @@ export class SmartCartService {
     });
 
     currentCart.items = Array.from(mergedItems.values());
+    this.updateCartTotals();
+    this.saveCartToStorage();
+  }
+
+  /**
+   * Ajouter les ingrédients cochés au panier et sauvegarder dans le storage
+   */
+  addCheckedIngredients(
+    ingredients: { id: string; nom: string; quantite: number; unite: string; prix?: number; recette_id?: string }[]
+  ): void {
+    const currentCart = this.cartSubject.value;
+
+    ingredients.forEach(ing => {
+      const existingItem = currentCart.items.find(item => item.ingredientId === ing.id);
+
+      if (existingItem) {
+        existingItem.quantity += ing.quantite;
+      } else {
+        currentCart.items.push({
+          ingredientId: ing.id,
+          ingredientName: ing.nom,
+          quantity: ing.quantite,
+          unit: ing.unite,
+          price: ing.prix ?? 0,
+          fromRecipeId: ing.recette_id ?? '',
+          notes: 'Ajouté depuis recette'
+        });
+      }
+    });
+
+    if (ingredients.length > 0 && ingredients[0].recette_id) {
+      const recetteId = ingredients[0].recette_id;
+      if (!currentCart.recipes.includes(recetteId)) {
+        currentCart.recipes.push(recetteId);
+      }
+    }
+
     this.updateCartTotals();
     this.saveCartToStorage();
   }

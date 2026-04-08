@@ -1,128 +1,157 @@
+<!-- ══════════════════════════════════════════════════════════
+     QUESTIONNAIRE PRÉFÉRENCES (one-shot overlay)
+     ══════════════════════════════════════════════════════════ -->
+<div class="questionnaire-overlay" *ngIf="showQuestionnaire">
+  <div class="questionnaire-card">
 
+    <!-- Header -->
+    <div class="q-header">
+      <div class="q-brand">
+        <span class="q-brand-icon">🍽️</span>
+        <span class="q-brand-name">Vos préférences</span>
+      </div>
+      <button class="q-skip-btn" (click)="skipQuestionnaire()">Passer</button>
+    </div>
 
+    <!-- Progress bar -->
+    <div class="q-progress-wrap">
+      <div class="q-progress-bar">
+        <div class="q-progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <span class="q-progress-text">{{ currentStep + 1 }} / {{ questionnaireQuestions.length }}</span>
+    </div>
+
+    <!-- Question -->
+    <div class="q-body">
+      <div class="q-icon">{{ currentQuestion.icon }}</div>
+      <h2 class="q-title">{{ currentQuestion.question }}</h2>
+
+      <!-- Options -->
+      <div class="q-options">
+        <button
+          *ngFor="let opt of currentQuestion.options"
+          class="q-option-pill"
+          [class.selected]="getAnswerForStep(currentStep) === opt"
+          (click)="selectAnswer(opt)">
+          {{ opt }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="q-footer">
+      <button class="q-btn q-btn-back" (click)="prevStep()" *ngIf="currentStep > 0">
+        ← Précédent
+      </button>
+      <button
+        class="q-btn q-btn-next"
+        (click)="nextStep()"
+        [disabled]="!getAnswerForStep(currentStep) || isSubmittingQuestionnaire">
+        <span *ngIf="!isSubmittingQuestionnaire">
+          {{ currentStep === questionnaireQuestions.length - 1 ? 'Terminer ✓' : 'Suivant →' }}
+        </span>
+        <span *ngIf="isSubmittingQuestionnaire">Enregistrement…</span>
+      </button>
+    </div>
+
+  </div>
+</div>
 <ion-content class="recipes-content">
 
   <!-- ── Barre de recherche ── -->
   <div class="search-wrap">
-    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Rechercher une recette..."
-      [(ngModel)]="searchQuery"
-      (input)="applyFilters()"
-    />
-    <button *ngIf="searchQuery" class="search-clear" (click)="clearSearch()">
-      <ion-icon name="close-outline"></ion-icon>
-    </button>
-  </div>
+  <ion-icon name="search-outline" class="search-icon"></ion-icon>
 
-  <!-- ── Pills Cuisine ── -->
-  <div class="filter-block">
-    <p class="filter-label">Cuisine</p>
-    <div class="pills-row">
-      <div
-        class="pill"
-        [class.active]="selectedCuisine === 'all'"
-        (click)="selectCuisine('all')"
-      >
-        <span class="dot"></span>Tout
-      </div>
-      <div
-        *ngFor="let c of cuisines; trackBy: trackByCuisine"
-        class="pill"
-        [class.active]="selectedCuisine === c"
-        (click)="selectCuisine(c)"
-      >
-        {{ c }}
-      </div>
+  <input
+    type="text"
+    class="search-input"
+    placeholder="Rechercher une recette..."
+    [(ngModel)]="searchQuery"
+    (input)="applyFilters()"
+  />
+
+  <!-- bouton clear -->
+  <button *ngIf="searchQuery" class="search-clear" (click)="clearSearch()">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+
+  <!-- icône caméra -->
+  
+  <button class="camera-btn" (click)="goToScan()">
+    <ion-icon name="camera-outline"></ion-icon>
+    
+  </button>
+  
+</div>
+
+<!-- ───────── BARRE FILTRES HORIZONTALE ───────── -->
+<div class="filters-bar">
+  <div class="filter-chip" [class.active]="toogledFilters.includes('price')" (click)="toggleFilter('price')">
+     Prix
+    <ion-icon name="chevron-down-outline" *ngIf="!toogledFilters.includes('price')"></ion-icon>
+    <ion-icon name="chevron-up-outline" *ngIf="toogledFilters.includes('price')"></ion-icon>
+  </div>
+  <div class="filter-chip" [class.active]="toogledFilters.includes('cuisine')" (click)="toggleFilter('cuisine')">
+     Cuisine
+    <ion-icon name="chevron-down-outline" *ngIf="!toogledFilters.includes('cuisine')"></ion-icon>
+    <ion-icon name="chevron-up-outline" *ngIf="toogledFilters.includes('cuisine')"></ion-icon>
+  </div>
+  <div class="filter-chip" [class.active]="toogledFilters.includes('difficulty')" (click)="toggleFilter('difficulty')">
+     Difficulté
+    <ion-icon name="chevron-down-outline" *ngIf="!toogledFilters.includes('difficulty')"></ion-icon>
+    <ion-icon name="chevron-up-outline" *ngIf="toogledFilters.includes('difficulty')"></ion-icon>
+  </div>
+  <div class="filter-chip" [class.active]="toogledFilters.includes('calories')" (click)="toggleFilter('calories')">
+     Calories
+    <ion-icon name="chevron-down-outline" *ngIf="!toogledFilters.includes('calories')"></ion-icon>
+    <ion-icon name="chevron-up-outline" *ngIf="toogledFilters.includes('calories')"></ion-icon>
+  </div>
+</div>
+
+<!-- ───────── PANNEAUX EXPANSIBLES ───────── -->
+<div class="filter-panel" *ngIf="toogledFilters.includes('price')">
+  <div class="pills-row">
+    <div class="pill" [class.active]="selectedPrice === 'all'" (click)="selectPrice('all')"><span class="dot"></span>Tout</div>
+    <div class="pill" [class.active]="selectedPrice === 'low'" (click)="selectPrice('low')">&lt; 10 DT</div>
+    <div class="pill" [class.active]="selectedPrice === 'medium'" (click)="selectPrice('medium')">10 - 30 DT</div>
+    <div class="pill" [class.active]="selectedPrice === 'high'" (click)="selectPrice('high')">&gt; 30 DT</div>
+  </div>
+</div>
+
+<div class="filter-panel" *ngIf="toogledFilters.includes('cuisine')">
+  <div class="pills-row">
+    <div class="pill" [class.active]="selectedCuisine === 'all'" (click)="selectCuisine('all')"><span class="dot"></span>Tout</div>
+    <div *ngFor="let c of cuisines; trackBy: trackByCuisine" class="pill" [class.active]="selectedCuisine === c" (click)="selectCuisine(c)">{{ c }}</div>
+  </div>
+</div>
+
+<div class="filter-panel" *ngIf="toogledFilters.includes('difficulty')">
+  <div class="pills-row">
+    <div class="pill" [class.active]="selectedDifficulty === 'all'" (click)="selectDifficulty('all')"><span class="dot"></span>Tout</div>
+    <div class="pill" [class.active]="selectedDifficulty === 'easy'" (click)="selectDifficulty('easy')">Facile</div>
+    <div class="pill" [class.active]="selectedDifficulty === 'medium'" (click)="selectDifficulty('medium')">Moyen</div>
+    <div class="pill" [class.active]="selectedDifficulty === 'hard'" (click)="selectDifficulty('hard')">Difficile</div>
+  </div>
+</div>
+
+<div class="filter-panel" *ngIf="toogledFilters.includes('calories')">
+  <div class="inputs-row">
+    <div class="input-group">
+      <label>Min</label>
+      <input type="number" [(ngModel)]="minCalories" placeholder="0" />
+    </div>
+    <div class="input-group">
+      <label>Max</label>
+      <input type="number" [(ngModel)]="maxCalories" placeholder="1000" />
     </div>
   </div>
-
-  <!-- ── Pills Difficulté ── -->
-  <div class="filter-block">
-    <p class="filter-label">Difficulté</p>
-    <div class="pills-row">
-      <div
-        class="pill"
-        [class.active]="selectedDifficulty === 'all'"
-        (click)="selectDifficulty('all')"
-      >
-        <span class="dot"></span>Tout
-      </div>
-      <div
-        class="pill"
-        [class.active]="selectedDifficulty === 'easy'"
-        (click)="selectDifficulty('easy')"
-      >Facile</div>
-      <div
-        class="pill"
-        [class.active]="selectedDifficulty === 'medium'"
-        (click)="selectDifficulty('medium')"
-      >Moyen</div>
-      <div
-        class="pill"
-        [class.active]="selectedDifficulty === 'hard'"
-        (click)="selectDifficulty('hard')"
-      >Difficile</div>
-    </div>
-  </div>
+  <button class="filter-btn" (click)="applyFilters()">Filtrer</button>
+</div>
+<!-- Pills Price-->
+ 
 
   <!-- ── Filter Chips (Tri) ── -->
-  <div class="chips-row">
-    <div
-      class="filter-chip"
-      [class.has-value]="filterSort === 'rating'"
-      (click)="setSort('rating')"
-    >
-      <div class="chip-content">
-        <span class="chip-label">Trier par</span>
-        <span class="chip-value">{{ getSortLabel() }}</span>
-      </div>
-      <ion-icon name="swap-vertical-outline" class="chip-arrow"></ion-icon>
-    </div>
-
-    <div
-      class="filter-chip"
-      [class.has-value]="selectedDifficulty !== 'all'"
-      (click)="cycleDifficulty()"
-    >
-      <div class="chip-content">
-        <span class="chip-label">Difficulté</span>
-        <span class="chip-value">{{ getDifficultyLabel() }}</span>
-      </div>
-      <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
-    </div>
-
-    <div
-      class="filter-chip"
-      [class.has-value]="selectedCuisine !== 'all'"
-      (click)="resetCuisine()"
-    >
-      <div class="chip-content">
-        <span class="chip-label">Cuisine</span>
-        <span class="chip-value">{{ selectedCuisine === 'all' ? 'Toutes' : selectedCuisine }}</span>
-      </div>
-      <ion-icon name="chevron-down-outline" class="chip-arrow"></ion-icon>
-    </div>
-    <div style="border: 1px solid #3bfec7; "
-      class="filter-chip"
-      (click)="goToScan()"
-      [title]="'Photographiez un plat pour trouver sa recette ou en générer une avec l\'IA'">
-    
-      <div class="chip-content">
-        <span class="chip-label"><ion-icon name="camera-outline" style="font-size:14px;margin-right:4px;font-size:30px;position:relative;top:8px;right:-15px;"></ion-icon>
-      
-   </span>
-   <span style="font-size:12px;color:#3bfec7;">
-    AI Service
-   </span>
-       
-    </div>
-    </div>
-   
-    
-  </div>
+  
 
   <!-- ── Tags actifs ── -->
   <div class="active-filters" *ngIf="activeFiltersList.length > 0">
@@ -132,8 +161,11 @@
         <ion-icon name="close-outline"></ion-icon>
       </button>
     </div>
+
     <button class="reset-all" (click)="resetFilters()">Tout effacer</button>
+    
   </div>
+  
 
   <!-- ── Barre résultats ── -->
   <div class="results-bar">
@@ -144,10 +176,138 @@
       <ion-icon name="swap-vertical-outline"></ion-icon>
       {{ getSortLabel() }}
     </button>
+     <button class="sort-btn fav-toggle-btn" (click)="toggleFavoritesPanel()">
+      <ion-icon name="heart"></ion-icon>
+      {{ favoriteCount }} favoris
+    </button>
+  </div>
+  
+
+
+<!-- ══ SECTION RECOMMANDATIONS ══ -->
+<div class="reco-section">
+
+  <!-- Header -->
+  <div class="reco-header">
+    <div class="reco-title-row">
+      
+      <div>
+        <h2 class="reco-title">Pour vous</h2>
+        <span class="reco-subtitle" *ngIf="recommendationMode === 'personalized'">
+          Basé sur vos préférences &amp; favoris
+        </span>
+        <span class="reco-subtitle" *ngIf="recommendationMode === 'random'">
+          Découvrez nos recettes
+        </span>
+      </div>
+    </div>
+    <span class="reco-mode-badge" [class.personalized]="recommendationMode === 'personalized'">
+      {{ recommendationMode === 'personalized' ? '🎯 Recommandé' : '✨ Découverte' }}
+    </span>
   </div>
 
+  <!-- Skeleton loading -->
+  <div class="reco-scroll" *ngIf="isLoadingRecommendations">
+    <div class="reco-skeleton" *ngFor="let i of [1,2,3]">
+      <div class="reco-sk-img"></div>
+      <div class="reco-sk-line long"></div>
+      <div class="reco-sk-line short"></div>
+    </div>
+  </div>
+
+  <!-- Cards horizontales -->
+  <div class="reco-scroll"
+     #recoScrollEl
+     *ngIf="!isLoadingRecommendations && recommendedRecipes.length > 0"
+     (touchstart)="onRecoScrollTouch(true)"
+     (touchend)="onRecoScrollTouch(false)"
+     (mousedown)="onRecoScrollTouch(true)"
+     (mouseup)="onRecoScrollTouch(false)">
+    <div class="reco-card"
+      *ngFor="let recipe of recommendedRecipes; trackBy: trackByRecipe"
+      (click)="viewRecipeDetails(recipe)">
+
+      <div class="reco-card-img-wrap">
+        <img [src]="recipe.image" [alt]="recipe.name" class="reco-card-img">
+        <div class="reco-card-gradient"></div>
+
+        <div class="reco-score-badge" *ngIf="recommendationMode === 'personalized'">
+          {{ getRecipeScore(recipe) }}%
+        </div>
+
+        <button class="reco-fav-btn" (click)="toggleFavorite(recipe, $event)">
+          <ion-icon
+            [name]="isFavorite(recipe) ? 'heart' : 'heart-outline'"
+            [style.color]="isFavorite(recipe) ? '#ef4444' : 'white'">
+          </ion-icon>
+        </button>
+        
+
+        <span class="reco-diff-badge"
+          [class.easy]="recipe.difficulty === 'easy'"
+          [class.medium]="recipe.difficulty === 'medium'"
+          [class.hard]="recipe.difficulty === 'hard'">
+          {{ recipe.difficulty === 'easy' ? 'Facile' : recipe.difficulty === 'medium' ? 'Moyen' : 'Difficile' }}
+        </span>
+      </div>
+
+      <div class="reco-card-body">
+          <div class="star-rating" >
+        <button style="background: none; border: none; padding: 2px; cursor: pointer;"
+          *ngFor="let star of [1,2,3,4,5]"
+          class="star-btn"
+          (click)="rateRecipe(recipe, star, $event)"
+          (mouseenter)="setHover(recipe, star)"
+          (mouseleave)="clearHover(recipe)"
+        >
+          <ion-icon
+            [name]="getStarIcon(recipe, star)"
+            style="font-size: 10px;color: rgb(255, 187, 0);"
+            [class.filled]="star <= getEffectiveRating(recipe)"
+          ></ion-icon>
+        </button>
+        <span class="rating-avg" style="font-size: 10px;color: rgb(109, 108, 105);">{{ recipe.rating | number:'1.1-1' }}</span>
+      </div>
+        <span class="reco-card-cuisine">{{ recipe.cuisine }}</span>
+        
+        <h3 class="reco-card-name">{{ recipe.name }}</h3>
+
+        <p class="reco-card-reason" *ngIf="recommendationMode === 'personalized'">
+          <ion-icon name="sparkles-outline"></ion-icon>
+          {{ getRecipeReason(recipe) }}
+        </p>
+
+        <div class="reco-card-meta">
+          <span><ion-icon name="time-outline"></ion-icon> {{ getTotalTime(recipe) }} min</span>
+          <span><ion-icon name="flash-outline"></ion-icon> {{ recipe['calories'] }} kcal</span>
+          <span class="reco-price">{{ recipe['price'] }} DT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reco-empty" *ngIf="!isLoadingRecommendations && recommendedRecipes.length === 0">
+    <span>Aucune recommandation disponible</span>
+  </div>
+
+</div>
+
   <!-- ── Grille de recettes ── -->
+
   <div class="recipes-grid" *ngIf="filteredRecipes.length > 0">
+     <div class="reco-header">
+    <div class="reco-title-row">
+      
+      <div>
+        <h2 class="reco-title">Autres recettes</h2>
+        <span class="reco-subtitle" >
+           Preparer votre Plat preferé avec thunder
+        </span>
+        
+      </div>
+    </div>
+  
+  </div>
     <ion-card
       *ngFor="let recipe of filteredRecipes; trackBy: trackByRecipe"
       class="recipe-card"
@@ -175,16 +335,22 @@
         </button>
       </div>
 
-      <ion-card-header>
-        <div class="card-top">
-          <span class="recipe-cuisine">{{ recipe.cuisine }}</span>
-          <div class="rating">
-            <ion-icon name="star"></ion-icon>
-            {{ recipe.rating | number:'1.1-1' }}
-          </div>
-        </div>
-        <ion-card-title>{{ recipe.name }}</ion-card-title>
-      </ion-card-header>
+      <!-- Bloc notation étoiles -->
+      <div class="star-rating">
+        <button
+          *ngFor="let star of [1,2,3,4,5]"
+          class="star-btn"
+          (click)="rateRecipe(recipe, star, $event)"
+          (mouseenter)="setHover(recipe, star)"
+          (mouseleave)="clearHover(recipe)"
+        >
+          <ion-icon
+            [name]="getStarIcon(recipe, star)"
+            [class.filled]="star <= getEffectiveRating(recipe)"
+          ></ion-icon>
+        </button>
+        <span class="rating-avg">{{ recipe.rating | number:'1.1-1' }}</span>
+      </div>
 
       <ion-card-content>
         <p class="recipe-desc">{{ recipe.description }}</p>
@@ -198,17 +364,17 @@
             <ion-icon name="people-outline"></ion-icon>
             {{ recipe.servings }} pers.
           </div>
-        
+          <div class="meta-item">
+            <ion-icon name="pricetag-outline" id="price-icon"></ion-icon>
+            <span>{{ recipe["price"] }} DT</span>
+          </div>
+        <div class="meta-item">
+          <ion-icon name="flash-outline"></ion-icon>
+          {{ recipe["calories"] }} Kcal
+        </div>
         </div>
 
-        <ion-button  
-          expand="block"
-          class="add-to-cart-btn"
-          (click)="addRecipeToCart(recipe, $event)"
-         
-        >
-          {{ isInCart(recipe) ? 'Dans le panier ✓' : 'Ajouter au panier' }}
-        </ion-button>
+       
       </ion-card-content>
     </ion-card>
   </div>
@@ -222,3 +388,58 @@
   </div>
 
 </ion-content>
+
+<!-- ══ BACKDROP ══ -->
+<div class="fav-backdrop" *ngIf="showFavoritesPanel" (click)="closeFavoritesPanel()"></div>
+
+<!-- ══ PANEL FAVORIS ══ -->
+<div class="fav-panel" [class.open]="showFavoritesPanel">
+  <div class="fav-panel-handle"></div>
+
+  <div class="fav-panel-header">
+    <div class="fav-panel-title-row">
+      <ion-icon name="heart" class="fav-panel-icon"></ion-icon>
+      <h2 class="fav-panel-title">Mes Favoris</h2>
+      <span class="fav-panel-count" *ngIf="favoriteRecipes.length > 0">{{ favoriteRecipes.length }}</span>
+    </div>
+    <button class="fav-panel-close" (click)="closeFavoritesPanel()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="fav-loading" *ngIf="isLoadingFavorites">
+    <div class="fav-spinner"></div>
+    <span>Chargement…</span>
+  </div>
+
+  <!-- Empty -->
+  <div class="fav-empty" *ngIf="!isLoadingFavorites && favoriteRecipes.length === 0">
+    <span class="fav-empty-ico">💔</span>
+    <p>Aucune recette favorite</p>
+    <span>Appuyez sur ❤️ pour sauvegarder vos recettes préférées</span>
+  </div>
+
+  <!-- Liste -->
+  <div class="fav-list" *ngIf="!isLoadingFavorites && favoriteRecipes.length > 0">
+    <div class="fav-item" *ngFor="let recipe of favoriteRecipes" (click)="navigateToFavorite(recipe)">
+      <div class="fav-item-img-wrap">
+        <img *ngIf="recipe.image" [src]="recipe.image" [alt]="recipe.name" class="fav-item-img">
+        <div *ngIf="!recipe.image" class="fav-item-placeholder">🍽️</div>
+      </div>
+      <div class="fav-item-info">
+        <span class="fav-item-name">{{ recipe.name }}</span>
+        <div class="fav-item-meta">
+          <span *ngIf="recipe.cuisine"    class="fav-meta-chip">{{ recipe.cuisine }}</span>
+          <span *ngIf="recipe.prepTime"   class="fav-meta-chip">⏱ {{ getTotalTime(recipe) }} min</span>
+          <span *ngIf="recipe.difficulty" class="fav-meta-chip">
+            {{ recipe.difficulty === 'easy' ? 'Facile' : recipe.difficulty === 'medium' ? 'Moyen' : 'Difficile' }}
+          </span>
+        </div>
+      </div>
+      <button class="fav-remove-btn" (click)="removeFavoriteFromPanel($event, recipe)">
+        <ion-icon name="heart"></ion-icon>
+      </button>
+    </div>
+  </div>
+</div>

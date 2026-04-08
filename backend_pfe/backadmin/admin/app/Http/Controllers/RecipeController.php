@@ -43,30 +43,36 @@ class RecipeController extends Controller
 
     public function index(): JsonResponse
 {
-    $recettes = Recette::with('ingredients.produit.variantes')->get()->map(function ($r) {
+    $recettes = Recette::with('ingredients.produit.variantes', 'ratings.client')->get()->map(function ($r) {
 
         // Préparer les ingrédients enrichis avec calories_100g et calories par ingrédient
         $ingredientsEnrichis = $r->ingredients->map(function ($ing) {
             $variantes = $ing->produit?->variantes ?? collect();
 
-            // Variante la moins chère comme prix de référence
+            // Variante la moins chère (pour affichage prix unitaire)
             $varianteMeilleur = $variantes->sortBy('prix')->first();
 
-            // calories_100g : depuis recette_ingredients en priorité, sinon depuis produit
-            $cal100g = (float)$ing->calories_100g;
-            if ($cal100g === 0.0 && $ing->produit !== null) {
-                $cal100g = (float)$ing->produit->calories_100g;
-            }
+            // Coût logique : paquet(s) le moins cher couvrant la quantité requise
+            $ingredientCost = $this->calculateIngredientCost(
+                (float)$ing->quantite,
+                (string)($ing->unite ?? 'g'),
+                $variantes
+            );
+
+            // calories_100g stocké directement dans recette_ingredients
+            $cal100g = (float)($ing->calories_100g ?? 0);
 
             return [
-                'nom'           => $ing->nom_ingredient,
-                'quantite'      => $ing->quantite,
-                'unite'         => $ing->unite,
-                'disponible'    => $ing->produit?->quantite_stock > 0,
-                'price_ing'     => $varianteMeilleur?->prix ?? 0,
-                'calories_100g' => $cal100g,
-                'calories'      => round($cal100g * (float)$ing->quantite / 100, 1),
-                'variantes'     => $variantes->map(fn($v) => [
+                'nom'             => $ing->nom_ingredient,
+                'quantite'        => $ing->quantite,
+                'unite'           => $ing->unite,
+                'produit_id'      => $ing->produit_id,
+                'disponible'      => $ing->produit?->quantite_stock > 0,
+                'price_ing'       => $varianteMeilleur?->prix ?? 0,
+                'ingredient_cost' => $ingredientCost,
+                'calories_100g'   => $cal100g,
+                'calories'        => round($cal100g * (float)$ing->quantite / 100, 1),
+                'variantes'       => $variantes->map(fn($v) => [
                     'id'       => $v->id,
                     'quantite' => $v->quantite,
                     'unite'    => $v->unite,
@@ -75,8 +81,11 @@ class RecipeController extends Controller
             ];
         });
 
-        // Calories totales = somme des calories par ingrédient
+        // Calories totales
         $caloriesTotales = round($ingredientsEnrichis->sum('calories'), 1);
+
+        // Prix dynamique : somme des coûts logiques par ingrédient
+        $prixDynamique = round($ingredientsEnrichis->sum('ingredient_cost'), 2);
 
         return [
             'id'           => $r->id,
@@ -88,9 +97,9 @@ class RecipeController extends Controller
             'prepTime'     => $r->temps_preparation,
             'cookTime'     => $r->temps_cuisson,
             'servings'     => $r->nombre_personnes,
-            'rating'       => $r->rating ?? 4.5,
+            'rating'       => round($r->ratings->avg('rate') ?? 0, 1),
             'instructions' => $r->instructions,
-            'price'        => $r->prix,
+            'price'        => $prixDynamique,
             'calories'     => $caloriesTotales,
             'ingredients'  => $ingredientsEnrichis->values(),
         ];
@@ -102,7 +111,7 @@ class RecipeController extends Controller
     public function show($id): JsonResponse
     {
         // On charge produit pour que l'accessor calories_totales puisse lire produit.calories_100g
-        $recette = Recette::with(['ingredients.produit.fournisseur', 'ingredients.produit.variantes'])->findOrFail($id);
+        $recette = Recette::with(['ingredients.produit.fournisseur', 'ingredients.produit.variantes', 'ratings.client'])->findOrFail($id);
 
         $ingredientsEnrichis = $this->resolveIngredients($recette);
 
@@ -117,7 +126,7 @@ class RecipeController extends Controller
             'temps_cuisson'=> $recette->temps_cuisson,
             'calories'     => $recette->calories_totales, // produit chargé → fallback actif
             'instructions' => $recette->instructions ?? [],
-            'rating'       => $recette->rating ?? 0,
+            'rating'       => round($recette->ratings->avg('rate') ?? 0, 1),
             'ingredients'  => $ingredientsEnrichis,
             'cout_total'   => collect($ingredientsEnrichis)->sum(fn($i) => $i['meilleur_prix'] ?? 0),
         ]);
@@ -167,11 +176,8 @@ class RecipeController extends Controller
             $dispo    = $offres->where('quantite_stock', '>', 0);
             $meilleur = $dispo->sortBy('prix')->first();
 
-            // calories_100g : depuis recette_ingredients ou depuis le produit trouvé
-            $cal100g = (float)$ing->calories_100g;
-            if ($cal100g === 0.0 && $meilleur !== null) {
-                $cal100g = (float)$meilleur->calories_100g;
-            }
+            // calories_100g stocké directement dans recette_ingredients
+            $cal100g = (float)($ing->calories_100g ?? 0);
 
             // Charger les variantes pour chaque offre (1 requête)
             $produitIds      = $offres->pluck('id');
@@ -181,8 +187,18 @@ class RecipeController extends Controller
                 ->get()
                 ->groupBy('produit_id');
 
-            $meilleurVariantes    = $meilleur ? ($toutesVariantes[$meilleur->id] ?? collect()) : collect();
-            $meilleurVariantePrix = $meilleurVariantes->sortBy('prix')->first()?->prix ?? $meilleur?->prix;
+            $meilleurVariantes = $meilleur ? ($toutesVariantes[$meilleur->id] ?? collect()) : collect();
+
+            // Coût logique : paquet(s) le moins cher du meilleur fournisseur couvrant la quantité
+            $meilleurCost = $this->calculateIngredientCost(
+                (float)$ing->quantite,
+                (string)($ing->unite ?? 'g'),
+                $meilleurVariantes
+            );
+            // Fallback si aucune variante compatible
+            if ($meilleurCost === 0.0 && $meilleur !== null) {
+                $meilleurCost = (float)$meilleur->prix;
+            }
 
             return [
                 'nom'           => $ing->nom_ingredient,
@@ -191,10 +207,10 @@ class RecipeController extends Controller
                 'calories_100g' => $cal100g,
                 'calories'      => round($cal100g * (float)$ing->quantite / 100, 1),
                 'disponible'    => $dispo->isNotEmpty(),
-                'meilleur_prix' => $meilleurVariantePrix,
+                'meilleur_prix' => $meilleurCost,
                 'meilleur_produit' => $meilleur ? [
                     'id'                => $meilleur->id,
-                    'prix'              => $meilleurVariantePrix,
+                    'prix'              => $meilleurCost,
                     'quantite_stock'    => $meilleur->quantite_stock,
                     'image'             => $meilleur->image,
                     'fournisseur_id'    => $meilleur->fournisseur_id,
@@ -229,5 +245,52 @@ class RecipeController extends Controller
                 })->toArray(),
             ];
         })->toArray();
+    }
+
+    /**
+     * Calcule le coût réel d'un ingrédient en trouvant la combinaison de paquets
+     * la moins chère qui couvre la quantité nécessaire.
+     *
+     * Exemple : besoin de 100 g, variantes [200 g → 2 DT, 1 kg → 7 DT]
+     *   → 1 paquet × 200 g = 2 DT  (plus économique que 1 × 1 kg = 7 DT)
+     *
+     * @param float  $neededQty  Quantité requise par la recette
+     * @param string $neededUnit Unité requise (g, kg, ml, l, …)
+     * @param \Illuminate\Support\Collection $variantes  Objets avec ->quantite, ->unite, ->prix
+     * @return float Coût optimal en DT
+     */
+    private function calculateIngredientCost(float $neededQty, string $neededUnit, $variantes): float
+    {
+        if ($neededQty <= 0 || $variantes->isEmpty()) return 0.0;
+
+        $neededUnit = strtolower(trim($neededUnit));
+        $bestCost   = PHP_FLOAT_MAX;
+
+        foreach ($variantes as $v) {
+            $varQty  = (float)($v->quantite ?? 0);
+            $varUnit = strtolower(trim($v->unite ?? ''));
+            $varPrix = (float)($v->prix ?? 0);
+
+            if ($varQty <= 0 || $varPrix <= 0) continue;
+
+            // Normalise vers la même unité de base
+            $neededNorm = $neededQty;
+            $varNorm    = $varQty;
+
+            if     ($neededUnit === 'g'  && $varUnit === 'kg') { $varNorm    = $varQty * 1000; }
+            elseif ($neededUnit === 'kg' && $varUnit === 'g')  { $neededNorm = $neededQty * 1000; }
+            elseif ($neededUnit === 'ml' && $varUnit === 'l')  { $varNorm    = $varQty * 1000; }
+            elseif ($neededUnit === 'l'  && $varUnit === 'ml') { $neededNorm = $neededQty * 1000; }
+            elseif ($neededUnit !== $varUnit)                  { continue; }
+
+            $numPacks = (int)ceil($neededNorm / $varNorm);
+            $cost     = $numPacks * $varPrix;
+
+            if ($cost < $bestCost) {
+                $bestCost = $cost;
+            }
+        }
+
+        return $bestCost === PHP_FLOAT_MAX ? 0.0 : round($bestCost, 2);
     }
 }

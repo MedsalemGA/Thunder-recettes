@@ -4,156 +4,171 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cart;
-use App\Models\CartRecipe;
-use App\Models\Recette;
+use Illuminate\Http\JsonResponse;
+use App\Models\Carte;
+use App\Models\CarteItem;
 use App\Models\Produit;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    public function addRecipeToCart(Request $request)
+    // ── GET /client/panier ───────────────────────────────────────────────────
+    public function getCart(): JsonResponse
+    {
+        $user  = Auth::user();
+        $carte = Carte::with(['items.produit', 'items.recette'])
+                      ->where('client_id', $user->id)
+                      ->first();
+
+        if (!$carte) {
+            return response()->json(['items' => [], 'amount' => 0]);
+        }
+
+        $carte->load('items.produit');
+        $carte->recalculerMontant();
+
+        return response()->json([
+            'id'     => $carte->id,
+            'amount' => (float) $carte->amount,
+            'items'  => $carte->items->map(fn($item) => $this->formatItem($item)),
+        ]);
+    }
+
+    // ── POST /client/panier/items ────────────────────────────────────────────
+    /** Ajoute un ou plusieurs ingrédients cochés au panier */
+    public function addItems(Request $request): JsonResponse
     {
         $request->validate([
-            'recette_id' => 'required|exists:recettes,id',
+            'items'                  => 'required|array|min:1',
+            'items.*.produit_id'     => 'required|exists:produits,id',
+            'items.*.nom_ingredient' => 'required|string',
+            'items.*.quantite'       => 'required|numeric|min:0.01',
+            'items.*.unite'          => 'required|string',
+            'items.*.recette_id'     => 'nullable|exists:recettes,id',
         ]);
 
-        $user = Auth::user();
-        $cart = Cart::firstOrCreate(
+        $user  = Auth::user();
+        $carte = Carte::firstOrCreate(
             ['client_id' => $user->id],
-            ['amount' => 0]
+            ['amount'    => 0]
         );
 
-        $recette = Recette::find($request->recette_id);
+        foreach ($request->items as $data) {
+            $produit = Produit::find($data['produit_id']);
+            $prix    = $produit ? (float) $produit->prix : 0;
 
-        // Check if the recipe is already in the cart
-        $cartRecipe = CartRecipe::where('cart_id', $cart->id)
-                                ->where('recette_id', $recette->id)
-                                ->first();
+            // Si le même produit pour la même recette existe déjà → on incrémente
+            $existing = CarteItem::where('carte_id',   $carte->id)
+                                 ->where('produit_id', $data['produit_id'])
+                                 ->where('recette_id', $data['recette_id'] ?? null)
+                                 ->first();
 
-        if ($cartRecipe) {
-            return response()->json(['message' => 'Recipe already in cart'], 409);
-        }
-
-        // Prepare ingredients snapshot with availability and price
-        $ingredientsSnapshot = [];
-        foreach ($recette->ingredients as $ingredientName => $quantity) {
-            $produit = Produit::where('nom', 'LIKE', '%' . $ingredientName . '%')->first(); // Assuming ingredient names in recette match product names
-            $isAvailable = $produit && $produit->quantite_stock >= $quantity;
-            $pricePerUnit = $produit ? $produit->prix : 0; // Get price from Produit table
-
-            $ingredientsSnapshot[] = [
-                'name' => $ingredientName,
-                'quantity' => $quantity,
-                'is_available' => $isAvailable,
-                'price_per_unit' => $pricePerUnit,
-                'total_price' => $isAvailable ? ($quantity * $pricePerUnit) : 0,
-            ];
-        }
-
-        $cartRecipe = CartRecipe::create([
-            'cart_id' => $cart->id,
-            'recette_id' => $recette->id,
-            'ingredients_snapshot' => $ingredientsSnapshot,
-        ]);
-
-        $this->updateCartAmount($cart);
-
-        return response()->json(['message' => 'Recipe added to cart successfully', 'cartRecipe' => $cartRecipe], 201);
-    }
-
-    public function getCart(Request $request)
-    {
-        $user = Auth::user();
-        $cart = Cart::with('cartRecipes.recette')->where('client_id', $user->id)->first();
-
-        if (!$cart) {
-            return response()->json(['message' => 'Cart not found'], 404);
-        }
-
-        // Recalculate total_price for each ingredient in the snapshot and cart amount
-        $cartRecipes = $cart->cartRecipes->map(function ($cartRecipe) {
-            $updatedIngredientsSnapshot = [];
-            $recipeTotalPrice = 0;
-
-            foreach ($cartRecipe->ingredients_snapshot as $ingredient) {
-                $produit = Produit::where('nom', 'LIKE', '%' . $ingredient['name'] . '%')->first();
-                $isAvailable = $produit && $produit->quantite_stock >= $ingredient['quantity'];
-                $pricePerUnit = $produit ? $produit->prix : 0;
-
-                $ingredient['is_available'] = $isAvailable;
-                $ingredient['price_per_unit'] = $pricePerUnit;
-                $ingredient['total_price'] = $isAvailable ? ($ingredient['quantity'] * $pricePerUnit) : 0;
-
-                $recipeTotalPrice += $ingredient['total_price'];
-                $updatedIngredientsSnapshot[] = $ingredient;
-            }
-            $cartRecipe->ingredients_snapshot = $updatedIngredientsSnapshot;
-            $cartRecipe->recipe_total_price = $recipeTotalPrice; // Add recipe total price for easier display
-
-            return $cartRecipe;
-        });
-
-        // Update the cart amount based on the recalculated recipe total prices
-        $cart->amount = $cartRecipes->sum('recipe_total_price');
-        $cart->save();
-
-
-        return response()->json(['cart' => $cart], 200);
-    }
-
-    public function updateCartRecipeIngredient(Request $request, $cartRecipeId)
-    {
-        $request->validate([
-            'ingredient_name' => 'required|string',
-            'new_quantity' => 'required|numeric|min:1',
-        ]);
-
-        $cartRecipe = CartRecipe::find($cartRecipeId);
-
-        if (!$cartRecipe) {
-            return response()->json(['message' => 'Cart recipe not found'], 404);
-        }
-
-        $ingredientsSnapshot = $cartRecipe->ingredients_snapshot;
-        $updated = false;
-
-        foreach ($ingredientsSnapshot as &$ingredient) {
-            if ($ingredient['name'] === $request->ingredient_name) {
-                $ingredient['quantity'] = $request->new_quantity;
-                $produit = Produit::where('nom', 'LIKE', '%' . $ingredient['name'] . '%')->first();
-                $isAvailable = $produit && $produit->quantite_stock >= $request->new_quantity;
-                $pricePerUnit = $produit ? $produit->prix : 0;
-
-                $ingredient['is_available'] = $isAvailable;
-                $ingredient['price_per_unit'] = $pricePerUnit;
-                $ingredient['total_price'] = $isAvailable ? ($request->new_quantity * $pricePerUnit) : 0;
-                $updated = true;
-                break;
+            if ($existing) {
+                $existing->quantite += (float) $data['quantite'];
+                $existing->save();
+            } else {
+                CarteItem::create([
+                    'carte_id'      => $carte->id,
+                    'produit_id'    => $data['produit_id'],
+                    'recette_id'    => $data['recette_id'] ?? null,
+                    'nom_ingredient'=> $data['nom_ingredient'],
+                    'quantite'      => $data['quantite'],
+                    'unite'         => $data['unite'],
+                    'prix_unitaire' => $prix,
+                ]);
             }
         }
 
-        if (!$updated) {
-            return response()->json(['message' => 'Ingredient not found in recipe snapshot'], 404);
-        }
+        $carte->load('items');
+        $carte->recalculerMontant();
 
-        $cartRecipe->ingredients_snapshot = $ingredientsSnapshot;
-        $cartRecipe->save();
-
-        $this->updateCartAmount($cartRecipe->cart);
-
-        return response()->json(['message' => 'Ingredient quantity updated successfully', 'cartRecipe' => $cartRecipe], 200);
+        return response()->json(['message' => 'Articles ajoutés au panier', 'amount' => (float) $carte->amount], 201);
     }
 
-    private function updateCartAmount(Cart $cart)
+    // ── PATCH /client/panier/items/{id} ─────────────────────────────────────
+    public function updateItem(Request $request, int $id): JsonResponse
     {
-        $totalAmount = 0;
-        foreach ($cart->cartRecipes as $cartRecipe) {
-            foreach ($cartRecipe->ingredients_snapshot as $ingredient) {
-                $totalAmount += $ingredient['total_price'];
-            }
+        $request->validate(['quantite' => 'required|numeric|min:0']);
+
+        $item = CarteItem::findOrFail($id);
+        $this->authorizeItem($item);
+
+        if ((float) $request->quantite <= 0) {
+            $carte = $item->carte;
+            $item->delete();
+            $carte->load('items');
+            $carte->recalculerMontant();
+            return response()->json(['message' => 'Article supprimé', 'amount' => (float) $carte->amount]);
         }
-        $cart->amount = $totalAmount;
-        $cart->save();
+
+        $item->quantite = $request->quantite;
+        $item->save();
+
+        $carte = $item->carte;
+        $carte->load('items');
+        $carte->recalculerMontant();
+
+        return response()->json(['message' => 'Quantité mise à jour', 'item' => $this->formatItem($item), 'amount' => (float) $carte->amount]);
+    }
+
+    // ── DELETE /client/panier/items/{id} ────────────────────────────────────
+    public function removeItem(int $id): JsonResponse
+    {
+        $item  = CarteItem::findOrFail($id);
+        $this->authorizeItem($item);
+        $carte = $item->carte;
+        $item->delete();
+        $carte->load('items');
+        $carte->recalculerMontant();
+
+        return response()->json(['message' => 'Article retiré', 'amount' => (float) $carte->amount]);
+    }
+
+    // ── DELETE /client/panier ────────────────────────────────────────────────
+    public function clearCart(): JsonResponse
+    {
+        $user  = Auth::user();
+        $carte = Carte::where('client_id', $user->id)->first();
+
+        if ($carte) {
+            $carte->items()->delete();
+            $carte->amount = 0;
+            $carte->save();
+        }
+
+        return response()->json(['message' => 'Panier vidé']);
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    private function authorizeItem(CarteItem $item): void
+    {
+        $userId = Auth::id();
+        abort_if($item->carte->client_id !== $userId, 403, 'Accès refusé');
+    }
+
+    private function formatItem(CarteItem $item): array
+    {
+        $produit = $item->produit;
+        return [
+            'id'             => $item->id,
+            'produit_id'     => $item->produit_id,
+            'recette_id'     => $item->recette_id,
+            'recette_nom'    => $item->recette?->nom,
+            'nom_ingredient' => $item->nom_ingredient,
+            'quantite'       => (float) $item->quantite,
+            'unite'          => $item->unite,
+            'prix_unitaire'  => (float) $item->prix_unitaire,
+            'prix_total'     => round((float) $item->prix_unitaire * (float) $item->quantite, 2),
+            'produit'        => $produit ? [
+                'id'             => $produit->id,
+                'nom'            => $produit->nom,
+                'image'          => $produit->image,
+                'calories_100g'  => (float) $produit->calories_100g,
+                'quantite_stock' => $produit->quantite_stock,
+                'prix'           => (float) $produit->prix,
+                'description'    => $produit->description,
+            ] : null,
+        ];
     }
 }

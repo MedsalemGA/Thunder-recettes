@@ -1,157 +1,81 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonButtons, 
-  IonButton, IonIcon, IonContent,
-  IonSkeletonText
+import {
+  IonHeader, IonToolbar, IonTitle, IonButtons,
+  IonButton, IonIcon, IonContent, IonSpinner
 } from '@ionic/angular/standalone';
 import { ModalController } from '@ionic/angular';
-import { SmartCartService, CartItem, Cart } from '../../../services/smart-cart.service';
-import { AiRecommendationService, Recipe } from '../../../services/ai-recommendation.service';
-import { RecipeService } from '../../../services/recipe.service';
+import { SmartCartService, Cart, CartItem } from '../../../services/smart-cart.service';
+import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
-import { 
-  chevronDownOutline, shareOutline
-} from 'ionicons/icons';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { chevronDownOutline, trashOutline, removeCircleOutline, addCircleOutline, bagCheckOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-smart-cart',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     IonHeader, IonToolbar, IonTitle, IonButtons,
-    IonButton, IonIcon, IonContent, IonSkeletonText
+    IonButton, IonIcon, IonContent, IonSpinner
   ],
   templateUrl: './smart-cart.component.html',
   styleUrls: ['./smart-cart.component.scss']
 })
-export class SmartCartComponent implements OnInit {
-  cart: Cart | undefined;
-  groupedByRecipe: Map<string, CartItem[]> = new Map();
-  optimizationSuggestions: string[] = [];
-  recipeNames: Map<string, string> = new Map();
-  recipes: Recipe[] = [];
-
-  activeSegment: 'items' | 'recipes' = 'items';
-  isLoading = true;
+export class SmartCartComponent implements OnInit, OnDestroy {
+  cart: Cart = { items: [], totalPrice: 0, totalItems: 0, recipes: [] };
+  isLoading  = false;
+  private sub!: Subscription;
 
   constructor(
     private cartService: SmartCartService,
-    private recipeService: RecipeService,
     private modalController: ModalController
   ) {
-    addIcons({ chevronDownOutline, shareOutline });
+    addIcons({ chevronDownOutline, trashOutline, removeCircleOutline, addCircleOutline, bagCheckOutline });
   }
 
   ngOnInit(): void {
-    this.loadCart();
-    this.optimizationSuggestions = this.cartService.getCartOptimizationSuggestions();
-  }
-
-  loadCart(): void {
-    this.cartService.getCart().subscribe(cart => {
+    this.sub = this.cartService.cart$.subscribe(cart => {
       this.cart = cart;
-      this.groupItemsByRecipe();
-      this.loadRecipeDetails();
-      this.isLoading = false;
     });
   }
 
-  loadRecipeDetails(): void {
-    if (!this.cart || this.cart.recipes.length === 0) {
-      this.recipes = [];
-      return;
-    }
-
-    const recipeIds = Array.from(
-      new Set([...this.cart.recipes, ...this.groupedByRecipe.keys()])
-    ).filter(id => id !== 'manual');
-
-    if (recipeIds.length === 0) return;
-
-    const requests = recipeIds.map(id =>
-      this.recipeService.getRecipeById(id).pipe(catchError(() => of(undefined)))
-    );
-
-    forkJoin(requests).subscribe(results => {
-      const valid = results.filter(Boolean) as Recipe[];
-      this.recipes = valid;
-      valid.forEach(r => this.recipeNames.set(r.id.toString(), r.name));
-    });
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
-  groupItemsByRecipe(): void {
-    this.groupedByRecipe.clear();
-    if (!this.cart) return;
-
-    this.cart.items.forEach(item => {
-      const key = item.fromRecipeId ? item.fromRecipeId.toString() : 'manual';
-      if (!this.groupedByRecipe.has(key)) {
-        this.groupedByRecipe.set(key, []);
-      }
-      this.groupedByRecipe.get(key)!.push(item);
-    });
-  }
-
-  getRecipeName(recipeId: string): string {
-    if (recipeId === 'manual') return 'Ajoutés manuellement';
-    return this.recipeNames.get(recipeId) || 'Recette inconnue';
-  }
-
-  updateQuantity(ingredientId: string, quantity: number): void {
-    if (quantity < 0) return;
-    this.cartService.updateIngredientQuantity(ingredientId, quantity);
+  updateQty(item: CartItem, delta: number): void {
+    const newQty = item.quantity + delta;
+    this.cartService.updateIngredientQuantity(item.ingredientId, newQty);
   }
 
   removeItem(ingredientId: string): void {
     this.cartService.removeIngredientFromCart(ingredientId);
   }
 
-  removeRecipe(recipeId: string): void {
-    if (recipeId !== 'manual') {
-      this.cartService.removeRecipeFromCart(recipeId);
-    }
-  }
-
   clearCart(): void {
-    if (confirm('Vider complètement votre panier ?')) {
-      this.cartService.clearCart();
-    }
+    if (!confirm('Vider complètement votre panier ?')) return;
+    this.cartService.clearCart();
   }
 
-  mergeItems(): void {
-    this.cartService.mergeCartItems();
+  validerCommande(): void {
+    console.log('Commande validée', this.cart);
+    alert('Commande validée ! (page commande à venir)');
   }
 
-  exportCart(): void {
-    const csv = this.cartService.exportCartAsCSV();
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `panier-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+  getInitial(name: string): string {
+    return name?.charAt(0)?.toUpperCase() ?? "?";
   }
-
-  getRecipes(): Recipe[] {
-    return this.recipes;
-  }
-
-  getCartSummary(): { estimatedPricePerRecipe: number } {
-    return this.cartService.getCartSummary();
-  }
-
-  checkout(): void {
-    // Implémenter la navigation vers le paiement
-    console.log('Checkout:', this.cart);
-  }
-
-  closeModal(): void {
+    closeModal(): void {
     this.modalController.dismiss();
   }
+  get itemCount(): number {
+    return this.cart.items.length;
+  }
+
+  get totalAmount(): number {
+    console.log(this.cart.totalPrice);
+    return this.cart.totalPrice;
+  }
+
+
 }

@@ -11,210 +11,114 @@
         <span class="header-eyebrow">Votre sélection</span>
         <div class="header-title-row">
           <span class="header-title">Mon Panier</span>
-          <span class="header-badge" *ngIf="cart && cart.totalItems > 0">
-            {{ cart.totalItems }}
-          </span>
+          <span class="header-badge" *ngIf="itemCount > 0">{{ itemCount }}</span>
         </div>
       </div>
     </ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="exportCart()" class="export-btn">
-        <ion-icon name="share-outline"></ion-icon>
+      <ion-button (click)="clearCart()" class="export-btn" [disabled]="itemCount === 0">
+        <ion-icon name="trash-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<!-- Loading Skeleton -->
-<ion-content *ngIf="isLoading" class="cart-content">
-  <div class="skeleton-wrapper">
-    <div class="skeleton-hero"></div>
-    <div class="skeleton-tabs"></div>
-    <div class="skeleton-card"></div>
-    <div class="skeleton-card short"></div>
-  </div>
-</ion-content>
-
 <!-- Main Content -->
-<ion-content class="cart-content" *ngIf="cart && !isLoading">
+<ion-content class="cart-content">
 
   <!-- Hero Summary -->
-  <div class="cart-hero">
-    <div class="hero-bg-blur"></div>
+  <div class="cart-hero" *ngIf="itemCount > 0">
     <div class="hero-content">
       <div class="hero-stat main-stat">
-        <span class="main-price">{{ cart.totalPrice | currency }}</span>
+        <span class="main-price">{{ totalAmount | number:'1.2-2' }} DT</span>
         <span class="main-label">Total estimé</span>
       </div>
       <div class="hero-divider"></div>
       <div class="hero-secondary-stats">
         <div class="mini-stat">
-          <span class="mini-value">{{ cart.totalItems }}</span>
+          <span class="mini-value">{{ itemCount }}</span>
           <span class="mini-label">Articles</span>
         </div>
-        <div class="mini-sep"></div>
-        <div class="mini-stat">
+        <div class="mini-stat" *ngIf="cart.recipes.length > 0">
           <span class="mini-value">{{ cart.recipes.length }}</span>
-          <span class="mini-label">Recettes</span>
-        </div>
-        <div class="mini-sep"></div>
-        <div class="mini-stat">
-          <span class="mini-value">{{ getCartSummary().estimatedPricePerRecipe | currency }}</span>
-          <span class="mini-label">Par recette</span>
+          <span class="mini-label">Recette{{ cart.recipes.length > 1 ? 's' : '' }}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- AI Suggestions Strip -->
-  <div *ngIf="optimizationSuggestions.length > 0" class="suggestions-strip">
-    <div class="suggestions-header">
-      <span class="ai-badge">✦ IA</span>
-      <span class="suggestions-title">Suggestions</span>
-    </div>
-    <div class="suggestions-scroll">
-      <div *ngFor="let suggestion of optimizationSuggestions" class="suggestion-chip">
-        {{ suggestion }}
-      </div>
-    </div>
+  <!-- Empty State -->
+  <div *ngIf="itemCount === 0" class="empty-state">
+    <div class="empty-icon">🛒</div>
+    <h3>Votre panier est vide</h3>
+    <p>Sélectionnez des ingrédients depuis une recette pour les ajouter ici</p>
+    <button class="cta-outline" (click)="closeModal()">Parcourir les recettes</button>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs-container">
-    <button 
-      class="tab-btn" 
-      [class.active]="activeSegment === 'items'"
-      (click)="activeSegment = 'items'">
-      <span class="tab-icon">🛒</span>
-      <span>Ingrédients</span>
-      <span class="tab-count" *ngIf="cart.items.length > 0">{{ cart.items.length }}</span>
-    </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeSegment === 'recipes'"
-      (click)="activeSegment = 'recipes'">
-      <span class="tab-icon">📖</span>
-      <span>Recettes</span>
-      <span class="tab-count" *ngIf="cart.recipes.length > 0">{{ cart.recipes.length }}</span>
-    </button>
-  </div>
+  <!-- Items List -->
+  <div *ngIf="itemCount > 0" class="recettes-list">
+    <div *ngFor="let item of cart.items; let last = last"
+         class="recipe-panel item-row"
+         [class.item-last]="last">
 
-  <!-- ============ INGREDIENTS TAB ============ -->
-  <div *ngIf="activeSegment === 'items'">
+      <!-- Avatar -->
+      <div class="item-left">
+        <div class="item-avatar-wrap">
+          <div class="item-avatar">{{ getInitial(item.ingredientName) }}</div>
+        </div>
 
-    <!-- Empty State -->
-    <div *ngIf="cart.items.length === 0" class="empty-state">
-      <div class="empty-icon">🛒</div>
-      <h3>Votre panier est vide</h3>
-      <p>Explorez nos recettes et ajoutez des ingrédients pour commencer</p>
-      <button class="cta-outline" (click)="closeModal()">Parcourir les recettes</button>
-    </div>
-
-    <!-- Recipe Groups -->
-    <div *ngIf="cart.items.length > 0">
-      <div *ngFor="let recipeId of (groupedByRecipe | keyvalue)" class="recipe-group">
-
-        <!-- Group Header -->
-        <div class="group-header">
-          <div class="group-info">
-            <span class="group-dot"></span>
-            <span class="group-name">{{ getRecipeName(recipeId.key) }}</span>
-            <span class="group-count">{{ recipeId.value.length }} articles</span>
+        <div class="item-details">
+          <div class="item-name-row">
+            <span class="item-name">{{ item.ingredientName }}</span>
           </div>
-          <button 
-            *ngIf="recipeId.key !== 'manual'"
-            class="remove-recipe-btn"
-            (click)="removeRecipe(recipeId.key)">
-            Retirer
+          <span class="item-recette" *ngIf="item.fromRecipeId">📖 Recette #{{ item.fromRecipeId }}</span>
+          <span class="item-note" *ngIf="item.notes">{{ item.notes }}</span>
+          <span class="item-unit-price" *ngIf="item.price > 0">
+            {{ item.price | number:'1.2-2' }} DT / {{ item.unit }}
+          </span>
+          <span class="item-unit-price" *ngIf="item.price === 0">
+            Prix non disponible
+          </span>
+          <!-- Substitution badge -->
+          <span class="substitution-badge" *ngIf="item.substitution">
+            🔄 Substitut
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: stepper + price + delete -->
+      <div class="item-right">
+        <div class="qty-stepper">
+          <button class="stepper-btn" (click)="updateQty(item, -1)">−</button>
+          <span class="qty-label">{{ item.quantity }}<span class="qty-unit"> {{ item.unit }}</span></span>
+          <button class="stepper-btn" (click)="updateQty(item, 1)">+</button>
+        </div>
+        <div class="item-footer-row">
+          <span class="item-price" *ngIf="item.price > 0">
+            {{ item.price  | number:'1.2-2' }} DT
+          </span>
+          <button class="delete-btn" (click)="removeItem(item.ingredientId)">
+            <ion-icon name="trash-outline"></ion-icon>
           </button>
         </div>
-
-        <!-- Items -->
-        <div class="items-container">
-          <div *ngFor="let item of recipeId.value; let last = last" 
-               class="item-row"
-               [class.item-last]="last">
-            
-            <div class="item-left">
-              <div class="item-avatar">{{ item.ingredientName.charAt(0).toUpperCase() }}</div>
-              <div class="item-details">
-                <div class="item-name-row">
-                  <span class="item-name">{{ item.ingredientName }}</span>
-                  <span class="sub-badge" *ngIf="item.substitution">🔄</span>
-                </div>
-                <span class="item-note" *ngIf="item.notes">{{ item.notes }}</span>
-              </div>
-            </div>
-
-            <div class="item-right">
-              <div class="qty-stepper">
-                <button class="stepper-btn" (click)="updateQuantity(item.ingredientId, item.quantity - 1)">−</button>
-                <span class="qty-label">{{ item.quantity }}<span class="qty-unit"> {{ item.unit }}</span></span>
-                <button class="stepper-btn" (click)="updateQuantity(item.ingredientId, item.quantity + 1)">+</button>
-              </div>
-              <div class="item-footer-row">
-                <span class="item-price">{{ (item.price * item.quantity) | currency }}</span>
-                <button class="delete-btn" (click)="removeItem(item.ingredientId)">✕</button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <!-- Utility Actions -->
-      <div class="utility-actions">
-        <button class="util-btn" (click)="mergeItems()">
-          <span>⊕</span> Fusionner les doublons
-        </button>
-        <button class="util-btn danger" (click)="clearCart()">
-          <span>✕</span> Vider le panier
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ RECIPES TAB ============ -->
-  <div *ngIf="activeSegment === 'recipes'">
-
-    <div *ngIf="getRecipes().length === 0" class="empty-state">
-      <div class="empty-icon">📖</div>
-      <h3>Aucune recette</h3>
-      <p>Vos recettes ajoutées au panier apparaîtront ici</p>
-    </div>
-
-    <div class="recipes-grid" *ngIf="getRecipes().length > 0">
-      <div *ngFor="let recipe of getRecipes()" class="recipe-card">
-        <div class="recipe-img-wrapper">
-          <img [src]="recipe.image" [alt]="recipe.name" class="recipe-img">
-          <div class="recipe-img-overlay"></div>
-          <div class="recipe-rating">⭐ {{ recipe.rating }}</div>
-        </div>
-        <div class="recipe-body">
-          <h4 class="recipe-name">{{ recipe.name }}</h4>
-          <p class="recipe-desc">{{ recipe.description }}</p>
-          <div class="recipe-meta">
-            <span class="meta-pill">👥 {{ recipe.servings }}</span>
-            <span class="meta-pill">⏱ {{ recipe.prepTime + recipe.cookTime }}min</span>
-          </div>
-          <button class="recipe-detail-btn">Voir la recette →</button>
-        </div>
-      </div>
     </div>
   </div>
 
   <!-- Spacer for fixed footer -->
-  <div style="height: 100px"></div>
+  <div style="height: 120px"></div>
 </ion-content>
 
-<!-- Fixed Checkout Footer -->
-<div class="checkout-bar" *ngIf="cart && !isLoading && cart.items.length > 0">
+<!-- Fixed Valider Commande Footer -->
+<div class="checkout-bar" *ngIf="itemCount > 0">
   <div class="checkout-info">
-    <span class="checkout-items">{{ cart.totalItems }} articles</span>
-    <span class="checkout-price">{{ cart.totalPrice | currency }}</span>
+    <span class="checkout-items">{{ itemCount }} article{{ itemCount > 1 ? 's' : '' }}</span>
+    <span class="checkout-price">{{ totalAmount | number:'1.2-2' }} DT</span>
   </div>
-  <button class="checkout-btn" (click)="checkout()">
-    Commander
-    <span class="btn-arrow">→</span>
+  <button class="checkout-btn" (click)="validerCommande()">
+    <ion-icon name="bag-check-outline"></ion-icon>
+    Valider commande
   </button>
 </div>

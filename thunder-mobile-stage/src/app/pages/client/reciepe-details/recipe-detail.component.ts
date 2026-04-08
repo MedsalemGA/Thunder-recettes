@@ -6,19 +6,20 @@ import {
   IonIcon, IonContent,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle,
   IonSkeletonText, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem,
-  IonCheckbox, IonFooter, IonSpinner
+  IonCheckbox, IonFooter, IonSpinner, ToastController
 } from '@ionic/angular/standalone';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Location } from '@angular/common';
 import { RecipeService } from '../../../services/recipe.service';
 import { AiRecommendationService, Recipe, IngredientSubstitution } from '../../../services/ai-recommendation.service';
 import { SmartCartService } from '../../../services/smart-cart.service';
-import { UserActivityService } from '../../../services/user-activity.service';
+
+
 import { addIcons } from 'ionicons';
 import { ViewWillEnter } from '@ionic/angular';
 import {
   heart, heartOutline, cartOutline, flashOutline,
-  timeOutline, peopleOutline, star, chevronForwardOutline,
+  timeOutline, peopleOutline, star, starOutline, starHalf, chevronForwardOutline,
   checkmarkCircleOutline, alertCircleOutline, bulbOutline,
   shareSocialOutline, printOutline, restaurant, timer,
   flame, people, pricetag, swapHorizontal, addCircle,
@@ -64,17 +65,26 @@ export class RecipeDetailComponent implements ViewWillEnter {
   // Cache prix depuis getIngredientDetails (optionnel si backend enrichi plus tard)
   ingredientDetails: Record<string, any> = {};
 
+  isAdding = false;
+  addSuccess = false;
+
+  // Rating
+  userRate    = 0;
+  detailHovered = 0;
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private location: Location,
     private recipeService: RecipeService,
     private aiService: AiRecommendationService,
     private cartService: SmartCartService,
-    private userActivityService: UserActivityService
+   
+    private toastController: ToastController
   ) {
     addIcons({
       heart, heartOutline, cartOutline, flashOutline,
-      timeOutline, peopleOutline, star, chevronForwardOutline,
+      timeOutline, peopleOutline, star, starOutline, starHalf, chevronForwardOutline,
       checkmarkCircleOutline, alertCircleOutline, bulbOutline,
       shareSocialOutline, printOutline, restaurant, timer,
       flame, people, pricetag, swapHorizontal, addCircle,
@@ -124,15 +134,15 @@ export class RecipeDetailComponent implements ViewWillEnter {
             this.checkedIngredients[ing.nom] = true;
           }
         });
+        console.log(this.checkedIngredients);
 
-        this.ingredientStats = this.aiService.getRecipeStats(recipe);
+        
 
-        const available = this.aiService
-          .getIngredientDatabase()
-          .filter((i: any) => i.available)
-          .map((i: any) => i.id);
-
-        this.substitutions = this.aiService.findSubstitutions(recipe, available);
+        // Charger la note de l'utilisateur connecté
+        this.recipeService.getUserRating(recipeId).subscribe({
+          next: (res: any) => { this.userRate = res.user_rate ?? 0; },
+          error: () => {}
+        });
 
         this.isLoading = false;
       },
@@ -186,22 +196,14 @@ export class RecipeDetailComponent implements ViewWillEnter {
 
   this.calories = this.recipe.ingredients.reduce((total: number, ing: any) => {
 
-    // ✅ ignorer si décoché
-    if (!this.checkedIngredients[ing.nom]) return total;
-
-    // ✅ ignorer si indisponible
-    if (!ing.disponible) return total;
+    // Les ingrédients disponibles mais décochés sont ignorés
+    // Les ingrédients indisponibles comptent toujours (ils font partie de la recette)
+    if (ing.disponible && !this.checkedIngredients[ing.nom]) return total;
 
     const quantite = parseFloat(ing.quantite) || 0;
+    const cal = ing.calories_100g ? (ing.calories_100g * quantite) / 100 : 0;
 
-    let cal = 0;
-
-    // ✅ recalcul dynamique basé sur calories_100g
-    if (ing.calories_100g) {
-      cal = (ing.calories_100g * quantite) / 100;
-    }
-
-    return total + cal;
+    return parseFloat((total + cal).toFixed(2));
 
   }, 0);
 }
@@ -262,6 +264,7 @@ convertToSameUnit(qty: number, from: string, to: string): number | null {
     const ing = this.recipe?.ingredients.find((i: any) => i.nom === nom);
     if (!ing || !ing.disponible) return;
     this.checkedIngredients[nom] = !this.checkedIngredients[nom];
+    console.log(this.checkedIngredients);
     this.updateTotalPrice();
     this.updateCalories();
   }
@@ -296,19 +299,57 @@ convertToSameUnit(qty: number, from: string, to: string): number | null {
   // Panier
   // ════════════════════════════════════════════════════
 
-  addSelectedToCart(): void {
-    if (!this.recipe) return;
-    const selectedIngredients = this.recipe.ingredients.filter(
-      (ing: any) => this.checkedIngredients[ing.nom]
-    );
-    if (selectedIngredients.length === 0) return;
-    const tempRecipe = { ...this.recipe, ingredients: selectedIngredients };
-    this.cartService.addRecipeToCart(tempRecipe, this.substitutions);
-    this.isInCart = true;
+  async addSelectedToCart(): Promise<void> {
+    if (!this.recipe || this.isAdding) return;
+
+    const checkedIngredients = this.recipe.ingredients
+      .filter((ing: any) => this.checkedIngredients[ing.nom] && ing.disponible)
+      .map((ing: any) => ({
+        id: ing.produit_id ?? ing.nom,
+        nom: ing.nom,
+        quantite: parseFloat(ing.quantite) || 1,
+        unite: ing.unite ?? 'unité',
+        prix: this.getIngredientPrice(ing),
+        recette_id: this.recipe.id ?? undefined,
+      }));
+
+    if (checkedIngredients.length === 0) return;
+
+    this.isAdding = true;
+
+    this.cartService.addCheckedIngredients(checkedIngredients);
+    this.isInCart   = true;
+    this.isAdding   = false;
+    this.addSuccess = true;
+    setTimeout(() => (this.addSuccess = false), 2500);
+
+    const toast = await this.toastController.create({
+      message: `✅ ${checkedIngredients.length} ingrédient(s) ajouté(s) au panier`,
+      duration: 3000,
+      position: 'bottom',
+      color: 'success',
+      buttons: [
+        {
+          text: 'Voir le panier',
+          role: 'cancel',
+          handler: () => {
+            this.router.navigate(['/tabs/panier']);
+          }
+        }
+      ]
+    });
+
+    await toast.present();
+
+    const { role } = await toast.onDidDismiss();
+    if (role !== 'cancel') {
+      this.router.navigate(['/smart-cart']);
+    }
   }
 
   addRecipeToCart(): void {
     if (!this.recipe) return;
+    // Fallback local (ingrédients sans produit_id)
     this.cartService.addRecipeToCart(this.recipe, this.substitutions);
     this.isInCart = true;
   }
@@ -331,6 +372,41 @@ convertToSameUnit(qty: number, from: string, to: string): number | null {
       this.recipeService.addToFavorites(this.recipe.id);
     }
     this.isFavorite = !this.isFavorite;
+  }
+
+  // ════════════════════════════════════════════════════
+  // Notation
+  // ════════════════════════════════════════════════════
+
+  rateRecipe(star: number): void {
+    if (!this.recipe) return;
+    const prev = this.userRate;
+    this.userRate = star; // Optimistic UI
+
+    this.recipeService.rateRecipe(this.recipe.id, star).subscribe({
+      next: (res: any) => {
+        this.recipe.rating = res.avg_rating;
+        this.recipeService.updateLocalRating(this.recipe.id, res.avg_rating);
+        this.showToast(`⭐ Merci ! Vous avez noté cette recette ${star}/5`);
+      },
+      error: () => {
+        this.userRate = prev; // Rollback
+      }
+    });
+  }
+
+  getDetailStarIcon(s: number): string {
+    const effective = this.detailHovered > 0 ? this.detailHovered : (this.userRate || this.recipe?.rating || 0);
+    if (s <= Math.floor(effective)) return 'star';
+    if (s === Math.ceil(effective) && effective % 1 >= 0.5) return 'star-half';
+    return 'star-outline';
+  }
+
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message, duration: 2000, position: 'bottom', color: 'warning'
+    });
+    await toast.present();
   }
 
   // ════════════════════════════════════════════════════

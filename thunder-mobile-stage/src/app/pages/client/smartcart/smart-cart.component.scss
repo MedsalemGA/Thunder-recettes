@@ -233,6 +233,31 @@ $font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
   box-shadow: $shadow-sm;
 }
 
+// ── Item image ──
+.item-avatar-wrap {
+  flex-shrink: 0; width: 52px; height: 52px;
+}
+.item-img {
+  width: 52px; height: 52px; border-radius: 12px;
+  object-fit: cover; display: block; background: $bg-surface;
+}
+
+// ── Meta pills (small) ──
+.item-recette {
+  display: block; font-size: 11px; color: $text-hint; margin-top: 2px;
+}
+.item-meta-pills {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+}
+.meta-pill-sm {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px;
+  &.cal  { background: rgba(245,158,11,0.12); color: #b45309; }
+  &.stock { background: $success-soft; color: $success;
+    &.low  { background: $danger-soft; color: $danger; }
+  }
+}
+
 // ── En-tête cliquable ──
 
 .recipe-panel-header {
@@ -640,7 +665,7 @@ $font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
     border: none; color: $text-dark; font-size: 15px; font-weight: 800;
     cursor: pointer; font-family: $font-display; letter-spacing: -0.3px;
     box-shadow: $shadow-teal;
-    .btn-arrow { font-size: 16px; }
+    ion-icon { font-size: 18px; }
     &:active { transform: scale(0.97); box-shadow: none; }
   }
 }

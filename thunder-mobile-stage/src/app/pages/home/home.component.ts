@@ -20,7 +20,7 @@ import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import {RouterModule } from '@angular/router';
-import { UserActivityService } from '../../services/user-activity.service';
+
 import { SearchService, SearchResultItem } from '../../services/search.service';
 
 export { SearchResultItem };
@@ -74,7 +74,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router, 
     private cdr: ChangeDetectorRef,
-    private userActivityService: UserActivityService,
+   
     private searchService: SearchService
   ) {
     addIcons({
@@ -168,9 +168,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isSearching = true;
 
     // Log search activity
-    if (query.length > 2) {
-      this.userActivityService.logActivity('search_market', { query });
-    }
+   
 
     this.searchService.globalSearch(query)
       .pipe(takeUntil(this.destroy$))

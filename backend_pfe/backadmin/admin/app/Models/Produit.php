@@ -8,7 +8,6 @@ class Produit extends Model
 {
     protected $fillable = [
         'nom',
-        'calories_100g',
         'description',
         'prix',
         'quantite_stock',
@@ -17,7 +16,6 @@ class Produit extends Model
     ];
 
     protected $casts = [
-        'calories_100g'  => 'decimal:2',
         'prix'           => 'decimal:2',
         'quantite_stock' => 'integer',
         'fournisseur_id' => 'integer',
@@ -34,6 +32,8 @@ class Produit extends Model
                     ->withPivot(['nom_ingredient', 'quantite', 'unite', 'calories_100g'])
                     ->withTimestamps();
     }
+
+    // calories_100g supprimé de ce modèle — stocké dans recette_ingredients
 
     public function fournisseur()
     {
@@ -52,5 +52,9 @@ class Produit extends Model
     public function variantes()
 {
     return $this->hasMany(ProduitVariante::class);
+}
+public function likes()
+{
+    return $this->hasMany(Like::class);
 }
 }

@@ -391,7 +391,7 @@
       </div>
 
       <!-- Cards -->
-      <div class="recette-card" *ngFor="let recette of restRecettes">
+      <div class="recette-card" *ngFor="let recette of displayedRecettes">
         <!-- Image avec overlay hover -->
         <div class="recette-card__img-wrap">
           <img [src]="recette.image" [alt]="recette.name ?? recette.nom" class="recette-card__img">
@@ -412,7 +412,7 @@
           <h3 class="recette-card__title">{{ recette.name ?? recette.nom }}</h3>
           <p class="recette-card__desc">{{ recette.description }}</p>
           <div class="recette-card__footer">
-            <span class="recette-card__prix">{{ recette.prix | number:'1.2-2' }} DT</span>
+            <span class="recette-card__prix">{{ recette.prix | number:'1.2-2' }} DT <small style="font-size:0.7em;opacity:0.7">(estimé)</small></span>
             <div class="recette-card__actions">
               <button class="btn-edit" (click)="openModifyRecette(recette)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -435,6 +435,11 @@
         </div>
       </div>
     </div>
+  <div class="btn-voir-plus-wrapper">
+  <button class="btn-voir-plus" *ngIf="displayedRecettes.length < restRecettes.length" (click)="voirPlus()">
+    Voir plus
+  </button>
+</div>
 
     <!-- ── Formulaire Ajouter / Modifier ────────────────────────────── -->
     <div class="recette-form-overlay" *ngIf="showRecetteForm" (click)="closeRecetteForm()">
@@ -456,10 +461,6 @@
             <div class="form-field">
               <label>Catégorie *</label>
               <input type="text" [(ngModel)]="recette_categorie" placeholder="Ex: Plat principal">
-            </div>
-            <div class="form-field">
-              <label>Prix (DT) *</label>
-              <input type="number" [(ngModel)]="recette_prix" placeholder="Ex: 12.50" min="0" step="0.5">
             </div>
             <div class="form-field">
               <label>URL de l'image</label>
@@ -523,6 +524,7 @@
               <span class="ing-col-label">Nom de l'ingrédient *</span>
               <span class="ing-col-label">Quantité *</span>
               <span class="ing-col-label">Unité *</span>
+              <span class="ing-col-label">Kcal/100g</span>
               <span></span>
             </div>
 
@@ -556,6 +558,15 @@
                   <option value="cuillère à café">c. à café</option>
                   <option value="pincée">pincée</option>
                 </select>
+
+                <!-- Calories / 100g -->
+                <input
+                  type="number"
+                  class="ing-input ing-input--cal"
+                  [(ngModel)]="recette_ingredients[i].calories_100g"
+                  placeholder="Ex: 165"
+                  min="0" step="0.1"
+                  title="Calories pour 100g de cet ingrédient" style="width: 80px;">
 
                 <!-- Supprimer -->
                 <button type="button" class="btn-remove-ingredient" (click)="supprimerIngredient(i)" title="Supprimer">
