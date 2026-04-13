@@ -59,7 +59,7 @@
 <ion-content class="recipes-content">
 
   <!-- ── Barre de recherche ── -->
-  <div class="search-wrap">
+ <div class="search-wrap">
   <ion-icon name="search-outline" class="search-icon"></ion-icon>
 
   <input
@@ -70,18 +70,18 @@
     (input)="applyFilters()"
   />
 
-  <!-- bouton clear -->
   <button *ngIf="searchQuery" class="search-clear" (click)="clearSearch()">
     <ion-icon name="close-outline"></ion-icon>
   </button>
 
-  <!-- icône caméra -->
-  
-  <button class="camera-btn" (click)="goToScan()">
-    <ion-icon name="camera-outline"></ion-icon>
+<button class="magic-btn" (click)="goToScan()" aria-label="Recherche IA">
+  <ion-icon name="color-wand-outline" class="wand-icon"></ion-icon>
     
-  </button>
+    <ion-icon name="sparkles-outline" class="sparkles-overlay"></ion-icon>
   
+  
+  
+</button>
 </div>
 
 <!-- ───────── BARRE FILTRES HORIZONTALE ───────── -->
@@ -266,7 +266,7 @@
             [class.filled]="star <= getEffectiveRating(recipe)"
           ></ion-icon>
         </button>
-        <span class="rating-avg" style="font-size: 10px;color: rgb(109, 108, 105);">{{ recipe.rating | number:'1.1-1' }}</span>
+        <span class="rating-avg" style="font-size: 10px;color: rgb(109, 108, 105);">{{ recipe.rating | number:'1.1-1' }} ({{ recipe.vote_count }} Votes)</span>
       </div>
         <span class="reco-card-cuisine">{{ recipe.cuisine }}</span>
         
@@ -329,8 +329,8 @@
 
         <button class="fav-btn" (click)="toggleFavorite(recipe, $event)">
           <ion-icon
-            [name]="isFavorite(recipe) ? 'heart' : 'heart-outline'"
-            [style.color]="isFavorite(recipe) ? '#ef4444' : '#64748b'"
+            [name]="favoriteMap[recipe.id] ? 'heart' : 'heart-outline'"
+            [style.color]="favoriteMap[recipe.id] ? '#ef4444' : '#64748b'"
           ></ion-icon>
         </button>
       </div>
@@ -349,7 +349,7 @@
             [class.filled]="star <= getEffectiveRating(recipe)"
           ></ion-icon>
         </button>
-        <span class="rating-avg">{{ recipe.rating | number:'1.1-1' }}</span>
+        <span class="rating-avg">{{ recipe.rating | number:'1.1-1' }} ({{ recipe.vote_count }} Votes)</span>
       </div>
 
       <ion-card-content>

@@ -20,8 +20,7 @@ import {
   pricetagOutline, toggleOutline,
   star, starOutline, starHalf, timeOutline, peopleOutline, flashOutline,
   chevronDownOutline, closeOutline, swapVerticalOutline,
-  cameraOutline, chevronUpOutline, sparklesOutline
-} from 'ionicons/icons';
+  cameraOutline, chevronUpOutline, sparklesOutline, colorWandOutline } from 'ionicons/icons';
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -116,7 +115,7 @@ private autoScrollPaused    = false;
   isSubmittingQuestionnaire = false;
   hoveredRating: { [recipeId: string]: number } = {};
 userRatings: { [recipeId: string]: number } = {};
-
+favoriteMap: { [key: string]: boolean } = {};
   questionnaireQuestions: QuestionnaireQuestion[] = [
     {
       key: 'cuisine_preference',
@@ -179,6 +178,7 @@ userRatings: { [recipeId: string]: number } = {};
       options: ['Aucune allergie', 'Noix / Fruits à coque', 'Fruits de mer', 'Arachides', 'Œufs', 'Produits laitiers']
     }
   ];
+  
   constructor(
     private recipeService: RecipeService,
     private aiService: AiRecommendationService,
@@ -190,13 +190,7 @@ userRatings: { [recipeId: string]: number } = {};
     private http: HttpClient,
     private recommendationService: RecipeRecommendationService,
   ) {
-    addIcons({
-      searchOutline, closeOutline, cameraOutline,
-      chevronDownOutline, chevronUpOutline, swapVerticalOutline,
-      star, starOutline, starHalf, timeOutline, peopleOutline, pricetagOutline,
-      flashOutline, toggleOutline, cartOutline, heart, heartOutline,
-      sparklesOutline,
-    });
+    addIcons({searchOutline,closeOutline,colorWandOutline,sparklesOutline,chevronDownOutline,chevronUpOutline,swapVerticalOutline,heart,timeOutline,flashOutline,peopleOutline,pricetagOutline,cameraOutline,star,starOutline,starHalf,toggleOutline,cartOutline,heartOutline,});
   }
 
   ionViewWillEnter(): void {
@@ -210,6 +204,7 @@ userRatings: { [recipeId: string]: number } = {};
     this.displayedRecettes = this.filteredRecipes.slice(0, nextLimit);
     
   }
+  
 
   ngOnDestroy(): void {
      this.stopAutoScroll(); 
@@ -234,6 +229,19 @@ userRatings: { [recipeId: string]: number } = {};
     this.recipeService.getRecipes().pipe(takeUntil(this.destroy$)).subscribe({
       next: (recipes) => {
         this.recipes = recipes;
+        this.recipes.forEach(recipe => {
+          this.recipeService.getUserRating(recipe.id).subscribe({
+            next: (res: any) => {
+              recipe.vote_count = res.count;
+              
+            
+            },
+            error: (err: any) => {
+              console.error('Erreur récupération notes', err);
+            }
+          });
+        });
+        
         this.filteredRecipes = [...recipes];
         this.extractCuisines();
         this.applyFilters();
@@ -241,6 +249,9 @@ userRatings: { [recipeId: string]: number } = {};
       },
       error: (err) => console.error('Erreur chargement recettes:', err)
     });
+    this.recipes.forEach(r => {
+    this.favoriteMap[r.id] = this.recipeService.isFavorite(r.id);
+  });
   }
 
   extractCuisines(): void {
@@ -625,6 +636,7 @@ rateRecipe(recipe: any, star: number, event: Event): void {
     }
   });
 }
+
 // ── 1. Ajouter dans les imports Angular ──────────────────────────────────────
 
 
@@ -640,8 +652,8 @@ startAutoScroll(): void {
     const el = this.recoScrollEl?.nativeElement;
     if (!el) return;
 
-    const STEP     = 3;    // pixels par tick
-    const INTERVAL = 30;   // ms entre chaque tick → ~50fps
+    const STEP     = 1;    // pixels par tick
+    const INTERVAL = 20;   // ms entre chaque tick → ~50fps
     let direction  = 1;    // 1 = droite, -1 = gauche
 
     this.autoScrollInterval = setInterval(() => {

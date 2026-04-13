@@ -85,7 +85,12 @@ class RecipeController extends Controller
         $caloriesTotales = round($ingredientsEnrichis->sum('calories'), 1);
 
         // Prix dynamique : somme des coûts logiques par ingrédient
-        $prixDynamique = round($ingredientsEnrichis->sum('ingredient_cost'), 2);
+        $prixDynamique = round(
+    $ingredientsEnrichis
+        ->where('disponible', true)
+        ->sum('ingredient_cost'),
+    2
+);
 
         return [
             'id'           => $r->id,
@@ -127,6 +132,7 @@ class RecipeController extends Controller
             'calories'     => $recette->calories_totales, // produit chargé → fallback actif
             'instructions' => $recette->instructions ?? [],
             'rating'       => round($recette->ratings->avg('rate') ?? 0, 1),
+            'vote_count'   => $recette->ratings->count(),
             'ingredients'  => $ingredientsEnrichis,
             'cout_total'   => collect($ingredientsEnrichis)->sum(fn($i) => $i['meilleur_prix'] ?? 0),
         ]);
@@ -292,5 +298,9 @@ class RecipeController extends Controller
         }
 
         return $bestCost === PHP_FLOAT_MAX ? 0.0 : round($bestCost, 2);
+    }
+    public function getalldispo(){
+        $ingredient=Produit::with('variantes')->where('quantite_stock', '>', 0)->get();
+        return $ingredient->toArray();
     }
 }

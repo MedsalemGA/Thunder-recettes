@@ -68,6 +68,7 @@ Route::group(['prefix' => 'client'], function () {
         // Notation des recettes
         Route::post('/recipes/{id}/rate',    [Rating::class, 'store']);
         Route::get('/recipes/{id}/rating',   [Rating::class, 'getUserRating']);
+        Route::get('/getalldispo',[RecipeController::class,'getalldispo']);
     });
 });
 Route::post('/ajouterfournisseur',[AdminController::class,'ajouterfournisseur']);

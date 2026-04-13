@@ -17,8 +17,8 @@ export interface Recipe {
   difficulte?: string;
   rating?: number;
   prix?: number;
-  ingredients: Ingredient[] | string[] | string;
-  instructions: string[] | string;
+  ingredients: Ingredient[] ;
+  instructions: string[] ;
   // Calculé localement
   matchScore?: number;
   source?: 'database' | 'ai_generated';

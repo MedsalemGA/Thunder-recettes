@@ -18,17 +18,22 @@ import {
 import { addIcons } from 'ionicons';
 import {
   cameraOutline, camera, imagesOutline, scanOutline, sparklesOutline,
-  timeOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
+  timeOutline, timerOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
   flagOutline, bulbOutline, refreshOutline, addCircleOutline,
   textOutline, restaurantOutline, chevronDownOutline, chevronUpOutline,
+  chevronForwardOutline, listOutline,
   hardwareChipOutline, informationCircleOutline, searchOutline,
 } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import { Preferences } from '@capacitor/preferences';
 import { environment } from '../../../environments/environment';
 import { SmartCartService } from '../../services/smart-cart.service';
 import { RecipeService } from '../../services/recipe.service';
 import { DishAnalysis } from '../../models/reciepe.model';
 import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -45,9 +50,19 @@ export interface RecipeResult {
   categorie?: string;
   ingredients: any[];
   instructions: string[];
+  calories: number;
   matchScore: number;       // 0–100
   matchReason?: string;     // courte explication du score
   source: 'ai_generated';
+}
+
+export interface RecentSearchEntry {
+  dishName: string;
+  date: string;
+  topScore: number;
+  recipeCount: number;
+  topRecipe: RecipeResult | null;
+  recipes: RecipeResult[];
 }
 
 // ── Component ────────────────────────────────────────────────────
@@ -86,6 +101,11 @@ export class ScanRecipePage implements OnInit {
   expandedIndex: number | null = 0;
   activeRecipeSegment: 'ingredients' | 'instructions' = 'ingredients';
   isAddingToCart = false;
+  ingredientsDisponibles: any[] = [];
+  // ── Recent searches ───────────────────────────────────────────
+  recentSearches: RecentSearchEntry[] = [];
+  private readonly RECENT_KEY = 'scan_recent_searches';
+  private readonly MAX_RECENT = 3;
 
   // ── Gemini config ─────────────────────────────────────────────
   private readonly geminiUrl =
@@ -99,17 +119,22 @@ export class ScanRecipePage implements OnInit {
     private cartService: SmartCartService,
     private recipeService: RecipeService,
     private router: Router,
+    private http: HttpClient,
   ) {
     addIcons({
       cameraOutline, camera, imagesOutline, scanOutline, sparklesOutline,
-      timeOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
+      timeOutline, timerOutline, flameOutline, peopleOutline, barChartOutline, cartOutline,
       flagOutline, bulbOutline, refreshOutline, addCircleOutline,
       textOutline, restaurantOutline, chevronDownOutline, chevronUpOutline,
+      chevronForwardOutline, listOutline,
       hardwareChipOutline, informationCircleOutline, searchOutline,
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadRecentSearches();
+    this.loadDisponibilites();
+  }
 
   // ════════════════════════════════════════════════════════════════
   // MODE SWITCH
@@ -253,10 +278,12 @@ Structure exacte :
       cookingTime: '',
       difficulty: '',
       notes: '',
+
     };
 
     try {
       await this._generateMultiple(name, []);
+      await this.saveRecentSearch(name, this.recipeResults);
       this.step = 'results';
     } catch (e: any) {
       this.showToast(this.geminiErrorMsg(e), 'danger');
@@ -303,6 +330,7 @@ Structure exacte :
 
     try {
       await this._generateMultiple(this.dishAnalysis.dishName, this.activeIngredients);
+      await this.saveRecentSearch(this.dishAnalysis.dishName, this.recipeResults);
       this.step = 'results';
     } catch (e: any) {
       this.showToast(this.geminiErrorMsg(e), 'danger');
@@ -319,37 +347,75 @@ Structure exacte :
       ? `Ingrédients disponibles : ${ingredients.join(', ')}.`
       : '';
 
-    const prompt = `Tu es un chef culinaire expert. Génère 3 variantes différentes de recette pour : "${dishName}".
+ const prompt = `Tu es un chef culinaire expert et nutritionniste.
+
+Génère 3 variantes différentes de recette pour : "${dishName}".
 ${ingrList}
 
-Chaque variante doit avoir un degré de correspondance différent (matchScore).
-Varie : les ingrédients principaux, la technique de cuisson, la région/style, la difficulté.
+⚠️ IMPORTANT :
+- Réponds UNIQUEMENT avec un JSON VALIDE (pas de texte, pas de markdown)
+- Respecte STRICTEMENT cette structure
 
-Réponds UNIQUEMENT avec un JSON valide sans markdown :
 [
   {
-    "nom": "Nom complet et précis",
-    "description": "Description appétissante en 1-2 phrases",
-    "temps_preparation": "15 min",
-    "temps_cuisson": "30 min",
-    "nombre_personnes": 4,
-    "difficulte": "Facile",
-    "categorie": "Plat principal",
+    "id": 1,
+    "name": "Nom de la recette",
+    "description": "Description courte et appétissante",
+    "image": "https://images.unsplash.com/photo-xxxxx?w=500",
+    "prepTime": 15,
+    "cookTime": 25,
+    "servings": 3,
+    "difficulty": "easy | medium | hard",
+    "cuisine": "Type de cuisine",
+
+    "calories": 0,
+
     "matchScore": 95,
-    "matchReason": "Recette traditionnelle authentique avec tous les ingrédients clés",
+    "matchReason": "Explication du score",
+
     "ingredients": [
-      {"name": "nom", "quantity": "200", "unite": "g"}
+      {
+        "nom": "Poulet",
+        "quantite": "500.00",
+        "unite": "g",
+        "produit_id": 1,
+        "disponible": true,
+        "calories_100g": valeur reel de calories en 100g de l'ingredient,
+        "calories": 0
+      }
     ],
+
     "instructions": [
-      "Étape 1 détaillée...",
-      "Étape 2 détaillée..."
+      "Étape 1...",
+      "Étape 2..."
     ]
-  },
-  { ... deuxième variante, matchScore 75-85 ... },
-  { ... troisième variante, matchScore 55-70 ... }
+  }
 ]
 
-Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
+🎯 RÈGLES OBLIGATOIRES :
+
+1. Pour chaque ingrédient :
+   - "calories_100g" = valeur réaliste
+   - "calories" = (quantite / 100) * calories_100g
+
+2. Pour la recette :
+   - "calories" = SOMME de toutes les calories des ingrédients
+
+3. Tous les calculs doivent être FAITS dans le JSON (pas 0 à la fin)
+
+4. Supprimer totalement :
+   - price
+   - ingredient_cost
+   - price_ing
+
+5. quantite toujours en nombre (string format "500.00")
+
+6. 3 recettes avec matchScore :
+   - 95+
+   - 75-85
+   - 55-70
+
+Réponds EN JSON PUR.`;
 
     const data = await this.callGemini([{ parts: [{ text: prompt }] }], 0.4, 3000);
 
@@ -361,6 +427,127 @@ Trie les résultats par matchScore décroissant. Réponds EN JSON PUR.`;
       .map(r => ({ ...r, source: 'ai_generated' as const }));
 
     this.expandedIndex = 0;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // NAVIGATION → recipe-detail (mapper RecipeResult → format Recipe)
+  // ════════════════════════════════════════════════════════════════
+  loadDisponibilites() {
+  this.http.get<any[]>(environment.apiUrl + '/getalldispo')
+    .subscribe(res => {
+      
+      this.ingredientsDisponibles = res;
+    });
+}
+  getAvailability(ing: any): boolean {
+  const found = this.ingredientsDisponibles.find(i => i.nom === ing.name);
+  return found ? true : false;
+}
+getVariantes(ing: any): any[] {
+  const found = this.ingredientsDisponibles.find(i => i.nom === ing.name);
+  
+  return found ? found.variantes ?? [] : ing.variantes ?? [];
+}
+   goToDetail(recipe: RecipeResult) {
+    const parsePrepMin = (s: string): number => parseInt(s?.replace(/\D/g, '') || '0', 10);
+    
+    const ingredients = this.getIngredientsArray(recipe).map((ing: any) => ({
+      nom:        this.getIngrName(ing),
+      quantite:   ing?.quantity ?? ing?.quantite ?? '',
+      unite:      ing?.unite    ?? ing?.unit     ?? '',
+      disponible: this.getAvailability(ing),
+      calories_100g: ing.calories_100g ?? 0,
+      calories:(parseFloat(ing.quantite) / 100) * (ing.calories_100g ?? 0),
+      variantes:  this.getVariantes(ing),
+    }));
+ 
+    const aiRecipe = {
+      id:          'ai-temp',
+      name:        recipe.nom,
+      description: recipe.description,
+      cuisine:     this.dishAnalysis?.cuisine ?? '',
+      image:       this.imagePreview ?? null,
+      prepTime:    parsePrepMin(recipe.temps_preparation),
+      cookTime:    parsePrepMin(recipe.temps_cuisson),
+      difficulty:  recipe.difficulte === 'Facile'    ? 'easy'
+                 : recipe.difficulte === 'Moyen'     ? 'medium'
+                 : recipe.difficulte === 'Difficile' ? 'hard'
+                 : 'easy',
+      servings:    recipe.nombre_personnes,
+      rating:      +(recipe.matchScore / 20).toFixed(1),
+      calories:    0,
+      price:       0,
+      ingredients,
+      instructions: this.getStepsArray(recipe),
+    };
+    console.log(aiRecipe);
+    this.router.navigate(['/recipes/ai-temp'], {
+      state: { aiRecipe },
+    });
+  }
+ 
+
+  // ════════════════════════════════════════════════════════════════
+  // RECENT SEARCHES (FIFO, max 3)
+  // ════════════════════════════════════════════════════════════════
+
+  private async loadRecentSearches() {
+    try {
+      const { value } = await Preferences.get({ key: this.RECENT_KEY });
+      if (!value) { this.recentSearches = []; return; }
+      const parsed: RecentSearchEntry[] = JSON.parse(value);
+      this.recentSearches = parsed
+        .filter(e => e && e.dishName)
+        .map(e => ({
+          dishName:    e.dishName    ?? '',
+          date:        e.date        ?? '',
+          topScore:    e.topScore    ?? 0,
+          recipeCount: e.recipeCount ?? 0,
+          topRecipe:   e.topRecipe   ?? (Array.isArray(e.recipes) && e.recipes.length ? e.recipes[0] : null),
+          recipes:     Array.isArray(e.recipes) ? e.recipes : [],
+        }));
+    } catch {
+      this.recentSearches = [];
+    }
+  }
+
+  private async saveRecentSearch(dishName: string, recipes: RecipeResult[]) {
+    this.recentSearches = this.recentSearches.filter(
+      r => r.dishName.toLowerCase() !== dishName.toLowerCase()
+    );
+    const safeRecipes = Array.isArray(recipes) ? recipes : [];
+    const topRecipe   = safeRecipes[0] ?? null;
+    const entry: RecentSearchEntry = {
+      dishName,
+      date: new Date().toLocaleDateString('fr-FR', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+      }),
+      topScore:    topRecipe?.matchScore ?? 0,
+      recipeCount: safeRecipes.length,
+      topRecipe,
+      recipes:     safeRecipes,
+    };
+    this.recentSearches.unshift(entry);
+    if (this.recentSearches.length > this.MAX_RECENT) {
+      this.recentSearches = this.recentSearches.slice(0, this.MAX_RECENT);
+    }
+    await Preferences.set({ key: this.RECENT_KEY, value: JSON.stringify(this.recentSearches) });
+  }
+
+  openRecentSearch(entry: RecentSearchEntry) {
+    if (!entry?.recipes?.length) return;
+    this.dishAnalysis = {
+      dishName:    entry.dishName,
+      cuisine:     '',
+      confidence:  1,
+      ingredients: [],
+      cookingTime: entry.topRecipe?.temps_preparation ?? '',
+      difficulty:  entry.topRecipe?.difficulte        ?? '',
+      notes:       '',
+    };
+    this.recipeResults = entry.recipes;
+    this.imagePreview  = null;
+    this.step          = 'results';
   }
 
   // ════════════════════════════════════════════════════════════════

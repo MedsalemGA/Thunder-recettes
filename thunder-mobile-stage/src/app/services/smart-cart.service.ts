@@ -10,7 +10,9 @@ export interface CartItem {
   price: number;
   fromRecipeId: string;
   substitution?: IngredientSubstitution;
+  details?: string;
   notes?: string;
+  fromRecipeName?: string;
 }
 
 export interface Cart {
@@ -103,6 +105,7 @@ export class SmartCartService {
         unit,
         price: ingredient.price,
         fromRecipeId: '',
+        fromRecipeName: '',
         notes: 'Ajouté manuellement'
       });
     }
@@ -258,7 +261,7 @@ export class SmartCartService {
    * Ajouter les ingrédients cochés au panier et sauvegarder dans le storage
    */
   addCheckedIngredients(
-    ingredients: { id: string; nom: string; quantite: number; unite: string; prix?: number; recette_id?: string }[]
+    ingredients: { id: string; nom: string; quantite: number; unite: string; prix?: number; recette_id?: string, details?: string,fromRecipeName?:string}[]
   ): void {
     const currentCart = this.cartSubject.value;
 
@@ -275,6 +278,8 @@ export class SmartCartService {
           unit: ing.unite,
           price: ing.prix ?? 0,
           fromRecipeId: ing.recette_id ?? '',
+          fromRecipeName: ing.fromRecipeName ?? '',
+          details: ing.details ,
           notes: 'Ajouté depuis recette'
         });
       }

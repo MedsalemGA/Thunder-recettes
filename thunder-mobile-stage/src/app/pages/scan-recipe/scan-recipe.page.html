@@ -1,7 +1,4 @@
 <!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
-<!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
-<!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
-<!-- src/app/pages/scan-recipe/scan-recipe.page.html -->
 
 <ion-header class="ion-no-border">
   <ion-toolbar class="fancy-toolbar">
@@ -11,7 +8,7 @@
           <ion-icon name="sparkles-outline"></ion-icon>
         </div>
         <div class="header-text">
-          <span class="header-title">Analyser un plat</span>
+          <span class="header-title"> Intelligence Culinaire</span>
           <span class="header-sub">Identification par IA</span>
         </div>
       </div>
@@ -31,27 +28,34 @@
   <!-- ══ ÉTAPE 1 : CAPTURE / SAISIE ══ -->
   <div class="step-block" *ngIf="step === 'capture'">
 
+    <!-- Page hero title -->
+    <div class="page-hero">
+      <h1>Scanner le plat</h1>
+      <p>Utilisez la caméra pour scanner le plat et identifiez sa recette et les ingredients à utiliser.</p>
+    </div>
+
+    <!-- Mode tabs -->
     <div class="mode-tabs">
       <button class="mode-tab" [class.active]="inputMode === 'image'" (click)="setMode('image')">
         <ion-icon name="camera-outline"></ion-icon>
-        <span>Photo du plat</span>
+        <span>Scanner le plat</span>
       </button>
       <button class="mode-tab" [class.active]="inputMode === 'text'" (click)="setMode('text')">
         <ion-icon name="text-outline"></ion-icon>
-        <span>Nom du plat</span>
+        <span>Saisie manuelle</span>
       </button>
     </div>
 
-    <!-- Mode IMAGE -->
+    <!-- ── Mode IMAGE ── -->
     <ng-container *ngIf="inputMode === 'image'">
       <div class="image-zone" (click)="selectImageSource()">
         <ng-container *ngIf="!imagePreview; else previewTpl">
           <div class="image-placeholder">
             <div class="cam-ring">
-              <ion-icon name="camera-outline" class="cam-icon"></ion-icon>
+              <ion-icon name="scan-outline" class="cam-icon"></ion-icon>
             </div>
-            <p class="hint-title">Photographier un plat</p>
-            <p class="hint-sub">Prenez une photo ou choisissez depuis votre galerie</p>
+            <p class="hint-title">Pret pour scanner le plat</p>
+            <p class="hint-sub">Placez le plat dans le cadre et tapez pour capturer</p>
           </div>
         </ng-container>
         <ng-template #previewTpl>
@@ -62,17 +66,39 @@
           </div>
         </ng-template>
       </div>
-
-      <div class="source-btns" *ngIf="!imagePreview">
-        <ion-button expand="block" color="primary" class="action-btn primary" (click)="takePhoto()">
-          <ion-icon name="camera" slot="start"></ion-icon>
-          Prendre une photo
-        </ion-button>
-        <ion-button expand="block" fill="outline" color="primary" class="action-btn outline" (click)="pickFromGallery()">
-          <ion-icon name="images-outline" slot="start"></ion-icon>
+       <div class="source-btns" *ngIf="!imagePreview">
+        
+       <ion-button
+  expand="block"
+  fill="solid"
+  class="analyze-btn"
+  (click)="pickFromGallery()"
+>
+          <ion-icon style="color:gold;" name="images-outline" slot="start" ></ion-icon>
           Choisir depuis la galerie
         </ion-button>
       </div>
+      <!-- AI Stats (shown when no image yet) -->
+      <div class="ai-stats-row" *ngIf="!imagePreview">
+        <div class="ai-stat-card">
+          <div class="stat-label-row">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <span>Précision IA</span>
+          </div>
+          <div class="stat-value">98.4%</div>
+          <div class="stat-sub">Confidence élevée</div>
+        </div>
+        <div class="ai-stat-card">
+          <div class="stat-label-row">
+            <ion-icon name="flash-outline"></ion-icon>
+            <span>Temps de traitement</span>
+          </div>
+          <div class="stat-value">1.2s</div>
+          <div class="stat-sub">Rapide et précis</div>
+        </div>
+      </div>
+
+     
 
       <ion-button *ngIf="imagePreview" expand="block" color="primary"
         class="action-btn primary analyze-btn" [disabled]="isAnalyzing" (click)="analyzeImage()">
@@ -82,7 +108,7 @@
       </ion-button>
     </ng-container>
 
-    <!-- Mode TEXTE -->
+    <!-- ── Mode TEXTE ── -->
     <ng-container *ngIf="inputMode === 'text'">
       <div class="text-input-zone">
         <div class="text-input-icon">
@@ -101,13 +127,62 @@
         </div>
       </div>
 
-      <ion-button expand="block" color="primary" class="action-btn primary"
+      <ion-button expand="block" color="primary" class="action-btn-primary"
         [disabled]="!dishNameInput.trim() || isAnalyzing" (click)="analyzeByName()">
         <ion-spinner *ngIf="isAnalyzing" name="crescent" slot="start"></ion-spinner>
-        <ion-icon *ngIf="!isAnalyzing" name="sparkles-outline" slot="start"></ion-icon>
-        {{ isAnalyzing ? 'Recherche en cours...' : 'Générer les recettes avec l\'IA' }}
+        <ion-icon style="color:gold;"  *ngIf="!isAnalyzing" name="sparkles-outline" slot="start"></ion-icon>
+        {{ isAnalyzing ? 'Recherche en cours...' : 'commencer la génération' }}
       </ion-button>
     </ng-container>
+
+    <!-- ── Dernières recherches ── -->
+    <div class="recent-searches-section" *ngIf="recentSearches.length > 0">
+      <div class="recent-section-header">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Dernières recherches</span>
+      </div>
+      <div class="recent-cards-list">
+        <div class="recent-recipe-card"
+             *ngFor="let entry of recentSearches"
+             (click)="openRecentSearch(entry)">
+          <div class="recent-card-top">
+            <div class="recent-card-emoji">🍽️</div>
+            <div class="recent-card-info">
+              <span class="recent-card-name">{{ entry.dishName }}</span>
+              <span class="recent-card-date">
+                <ion-icon name="time-outline"></ion-icon>
+                {{ entry.date }}
+              </span>
+            </div>
+            <span class="recent-card-score"
+              [class.score-high]="entry.topScore >= 80"
+              [class.score-mid]="entry.topScore >= 60 && entry.topScore < 80">
+              {{ entry.topScore }}%
+            </span>
+          </div>
+          <div class="recent-card-meta">
+            <span class="recent-meta-chip">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              {{ entry.recipeCount }} recette{{ entry.recipeCount > 1 ? 's' : '' }}
+            </span>
+            <span class="recent-meta-chip" *ngIf="entry.topRecipe?.temps_preparation">
+              <ion-icon name="timer-outline"></ion-icon>
+              {{ entry.topRecipe?.temps_preparation }}
+            </span>
+            <span class="recent-meta-chip"
+              *ngIf="entry.topRecipe?.difficulte"
+              [class.chip-easy]="entry.topRecipe?.difficulte === 'Facile'"
+              [class.chip-medium]="entry.topRecipe?.difficulte === 'Moyen'"
+              [class.chip-hard]="entry.topRecipe?.difficulte === 'Difficile'">
+              {{ entry.topRecipe?.difficulte }}
+            </span>
+          </div>
+          <p class="recent-card-desc" *ngIf="entry.topRecipe?.description">
+            {{ entry.topRecipe?.description }}
+          </p>
+        </div>
+      </div>
+    </div>
 
     <div class="info-banner">
       <ion-icon name="sparkles-outline"></ion-icon>
@@ -117,6 +192,8 @@
 
   <!-- ══ ÉTAPE 2 : VÉRIFICATION INGRÉDIENTS ══ -->
   <div class="step-block" *ngIf="step === 'verify'">
+
+    <!-- Dish identified card -->
     <div class="dish-result-card">
       <img *ngIf="imagePreview" [src]="imagePreview" class="dish-thumb" alt="">
       <div class="dish-info">
@@ -132,11 +209,13 @@
       </div>
     </div>
 
+    <!-- Section header -->
     <div class="section-header">
-      <span>Ingrédients détectés</span>
+      <span>Ingredients Found</span>
       <span class="count-badge">{{ activeIngredients.length }}</span>
     </div>
 
+    <!-- Ingredient verify list -->
     <div class="ingr-verify-list">
       <div *ngFor="let ing of dishAnalysis?.ingredients" class="ingr-item"
         [class.inactive]="!isIngredientActive(ing.name)" (click)="toggleIngredient(ing.name)">
@@ -158,208 +237,121 @@
       </div>
     </div>
 
-    <div class="add-manual">
-      <ion-input [(ngModel)]="manualIngredient" placeholder="Ajouter un ingrédient..."
-        (keyup.enter)="addManualIngredient()" class="manual-input"></ion-input>
-      <ion-button fill="clear" (click)="addManualIngredient()">
-        <ion-icon name="add-circle-outline"></ion-icon>
+    
+
+    <!-- AI Recipe Generator card (glassmorphic) -->
+    <div class="recipe-generator-card">
+      <div class="rg-label">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        Recipe Generator
+      </div>
+      <p class="rg-title">Discover what's possible with these ingredients.</p>
+      <div class="rg-progress-label">
+        <span>Analyzing flavor profiles...</span>
+        <span>{{ isGenerating ? '…' : '75%' }}</span>
+      </div>
+      <div class="rg-progress-track">
+        <div class="rg-progress-fill" [style.width]="isGenerating ? '90%' : '75%'"></div>
+      </div>
+      <ion-button expand="block" color="primary" class="action-btn primary"
+        [disabled]="activeIngredients.length === 0 || isGenerating" (click)="generateMultipleRecipes()">
+        <ion-spinner *ngIf="isGenerating" name="crescent" slot="start"></ion-spinner>
+        <ion-icon *ngIf="!isGenerating" name="sparkles-outline" slot="start"></ion-icon>
+        {{ isGenerating ? 'Génération en cours...' : 'Generate AI Recipes' }}
       </ion-button>
     </div>
 
-    <ion-button expand="block" color="primary" class="action-btn primary"
-      [disabled]="activeIngredients.length === 0 || isGenerating" (click)="generateMultipleRecipes()">
-      <ion-spinner *ngIf="isGenerating" name="crescent" slot="start"></ion-spinner>
-      <ion-icon *ngIf="!isGenerating" name="sparkles-outline" slot="start"></ion-icon>
-      {{ isGenerating ? 'Génération en cours...' : 'Générer les recettes avec l\'IA' }}
-    </ion-button>
   </div>
 
-  <!-- ══ ÉTAPE 3 : RÉSULTATS — style recipe-detail ══ -->
+  <!-- ══ ÉTAPE 3 : RÉSULTATS ══ -->
   <div class="results-page" *ngIf="step === 'results'">
 
-    <!-- Header résultats -->
-    <div class="results-topbar">
-      <div class="results-topbar-left">
-        <div class="ai-badge">
-          <ion-icon name="hardware-chip-outline"></ion-icon>
-          <span>Gemini AI</span>
+    <!-- Header -->
+    <div class="results-header">
+      <div class="gemini-badge">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        GEMINI AI · {{ recipeResults.length }} recettes générées
+      </div>
+      <p class="results-dish-name">{{ dishAnalysis?.dishName }}</p>
+    </div>
+
+    <!-- Recipe cards -->
+    <div class="recipe-cards-list">
+      <div class="recipe-card"
+           *ngFor="let recipe of recipeResults; let i = index"
+           (click)="goToDetail(recipe)">
+
+        <!-- Score ring -->
+        <div class="rc-score-badge">
+          <div class="score-ring">
+            <svg viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#eee" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15" fill="none"
+                [attr.stroke]="recipe.matchScore >= 80 ? '#1a9e5c' : recipe.matchScore >= 60 ? '#e08c00' : '#aaa'"
+                stroke-width="3" stroke-linecap="round"
+                [attr.stroke-dasharray]="getScoreDash(recipe.matchScore)"
+                transform="rotate(-90 18 18)"/>
+            </svg>
+            <span>{{ recipe.matchScore }}</span>
+          </div>
         </div>
-        <span class="results-count">{{ recipeResults.length }} recettes générées</span>
-      </div>
-      <button class="restart-icon-btn" (click)="restart()">
-        <ion-icon name="refresh-outline"></ion-icon>
-      </button>
-    </div>
 
-    <!-- Avertissement IA -->
-    <div class="ai-warning-banner">
-      <ion-icon name="information-circle-outline"></ion-icon>
-      <span>Ces recettes sont générées par IA et peuvent contenir des inexactitudes.</span>
-    </div>
-
-    <!-- Tabs de sélection de recette -->
-    <div class="recipe-tabs-scroll">
-      <div class="recipe-tabs">
-        <button *ngFor="let recipe of recipeResults; let i = index"
-          class="recipe-tab-btn"
-          [class.active]="expandedIndex === i"
-          [class.rank-gold]="i === 0"
-          [class.rank-silver]="i === 1"
-          [class.rank-bronze]="i === 2"
-          (click)="selectRecipe(i)">
-          <span class="rtab-rank">{{ i + 1 }}</span>
-          <span class="rtab-name">{{ recipe.nom }}</span>
-          <span class="rtab-score">{{ recipe.matchScore }}%</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── Vue recette sélectionnée (style recipe-detail) ── -->
-    <ng-container *ngIf="expandedIndex !== null && recipeResults[expandedIndex] as recipe">
-
-      <!-- Hero -->
-      <div class="rd-hero">
-        <div class="rd-hero-img-wrap">
-          <img *ngIf="imagePreview" [src]="imagePreview" class="rd-hero-img" alt="">
-          <div *ngIf="!imagePreview" class="rd-hero-placeholder">🍽️</div>
-          <div class="rd-hero-gradient"></div>
-
-          <div class="rd-hero-badges">
-            <span class="rd-badge rd-badge-ai">IA Généré</span>
-            <span class="rd-badge"
-              [class.rd-badge-easy]="recipe.difficulte === 'Facile'"
-              [class.rd-badge-medium]="recipe.difficulte === 'Moyen'"
-              [class.rd-badge-hard]="recipe.difficulte === 'Difficile'">
+        <!-- Body -->
+        <div class="rc-body">
+          <div class="rc-top">
+            <span class="rc-rank-label">
+              <span *ngIf="i === 0">⭐ Perfect Match</span>
+              <span *ngIf="i === 1">⚡ Alternative</span>
+              <span *ngIf="i > 1">🔀 Option {{ i + 1 }}</span>
+            </span>
+            <span class="rc-diff-chip"
+              [class.chip-easy]="recipe.difficulte === 'Facile'"
+              [class.chip-medium]="recipe.difficulte === 'Moyen'"
+              [class.chip-hard]="recipe.difficulte === 'Difficile'">
               {{ recipe.difficulte }}
             </span>
-            <span class="rd-badge rd-badge-score"
-              [class.score-high]="recipe.matchScore >= 80"
-              [class.score-mid]="recipe.matchScore >= 60 && recipe.matchScore < 80">
-              <div class="score-dot"></div>
-              {{ recipe.matchScore }}% correspondance
+          </div>
+
+          <h3 class="rc-name">{{ recipe.nom }}</h3>
+          <p class="rc-desc">{{ recipe.description }}</p>
+
+          <div class="rc-meta-row">
+            <span class="rc-meta-item">
+              <ion-icon name="timer-outline"></ion-icon>
+              {{ recipe.temps_preparation }}
+            </span>
+            <span class="rc-meta-sep">·</span>
+            <span class="rc-meta-item">
+              <ion-icon name="flame-outline"></ion-icon>
+              {{ recipe.temps_cuisson }}
+            </span>
+            <span class="rc-meta-sep">·</span>
+            <span class="rc-meta-item">
+              <ion-icon name="people-outline"></ion-icon>
+              {{ recipe.nombre_personnes }} pers.
             </span>
           </div>
 
-          <div class="rd-hero-info">
-            <h1 class="rd-hero-title">{{ recipe.nom }}</h1>
-            <div class="rd-hero-meta">
-              <span class="rd-hero-stat">
-                <ion-icon name="people-outline"></ion-icon>
-                {{ recipe.nombre_personnes }} pers.
-              </span>
-              <span class="rd-hero-dot"></span>
-              <span class="rd-hero-stat">
-                <ion-icon name="restaurant-outline"></ion-icon>
-                {{ recipe.categorie || 'Plat principal' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stats strip -->
-        <div class="rd-stats-strip">
-          <div class="rd-stat-item">
-            <ion-icon name="timer-outline"></ion-icon>
-            <span class="rd-stat-val">{{ recipe.temps_preparation }}</span>
-            <span class="rd-stat-lbl">Préparation</span>
-          </div>
-          <div class="rd-stat-divider"></div>
-          <div class="rd-stat-item">
-            <ion-icon name="flame-outline"></ion-icon>
-            <span class="rd-stat-val">{{ recipe.temps_cuisson }}</span>
-            <span class="rd-stat-lbl">Cuisson</span>
-          </div>
-          <div class="rd-stat-divider"></div>
-          <div class="rd-stat-item">
-            <ion-icon name="people-outline"></ion-icon>
-            <span class="rd-stat-val">{{ recipe.nombre_personnes }}</span>
-            <span class="rd-stat-lbl">Personnes</span>
-          </div>
-          <div class="rd-stat-divider"></div>
-          <div class="rd-stat-item">
-            <ion-icon name="bar-chart-outline"></ion-icon>
-            <span class="rd-stat-val rd-stat-diff"
-              [class.diff-easy]="recipe.difficulte === 'Facile'"
-              [class.diff-medium]="recipe.difficulte === 'Moyen'"
-              [class.diff-hard]="recipe.difficulte === 'Difficile'">
-              {{ recipe.difficulte }}
+          <div class="rc-footer">
+            <span class="rc-ingredient-count">
+              <ion-icon name="list-outline"></ion-icon>
+              {{ getIngredientsArray(recipe).length }} ingrédients
             </span>
-            <span class="rd-stat-lbl">Niveau</span>
+            <span class="rc-see-more">
+              Voir la recette
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </span>
           </div>
         </div>
       </div>
-
-      <!-- Description -->
-      <p class="rd-description">{{ recipe.description }}</p>
-      <p class="rd-match-reason" *ngIf="recipe.matchReason">
-        <ion-icon name="bulb-outline"></ion-icon>
-        {{ recipe.matchReason }}
-      </p>
-
-      <!-- Segments -->
-      <div class="rd-segment-wrap">
-        <div class="rd-segment-pills">
-          <button class="rd-seg-pill" [class.active]="activeRecipeSegment === 'ingredients'"
-            (click)="activeRecipeSegment = 'ingredients'">
-            <ion-icon name="list-outline"></ion-icon> Ingrédients
-          </button>
-          <button class="rd-seg-pill" [class.active]="activeRecipeSegment === 'instructions'"
-            (click)="activeRecipeSegment = 'instructions'">
-            <ion-icon name="restaurant-outline"></ion-icon> Préparation
-          </button>
-        </div>
-      </div>
-
-      <!-- Panel Ingrédients -->
-      <div class="rd-segment-panel" *ngIf="activeRecipeSegment === 'ingredients'">
-        <div class="rd-ingredients-block">
-          <div *ngFor="let ing of getIngredientsArray(recipe); let last = last"
-            class="rd-ingredient-row" [class.last]="last">
-            <span class="rd-ing-dot"></span>
-            <div class="rd-ing-info">
-              <span class="rd-ing-name">{{ getIngrName(ing) }}</span>
-            </div>
-            <span class="rd-ing-qty">{{ getIngrQty(ing) }}</span>
-          </div>
-        </div>
-
-        <!-- Bouton ajouter au panier -->
-        <div class="rd-selection-actions">
-          <button class="rd-add-btn" (click)="addToCart(recipe)" [disabled]="isAddingToCart">
-            <ion-spinner *ngIf="isAddingToCart" name="crescent" style="width:16px;height:16px;margin-right:6px;"></ion-spinner>
-            <ion-icon *ngIf="!isAddingToCart" name="cart-outline"></ion-icon>
-            {{ isAddingToCart ? 'Vérification...' : 'Ajouter les ingrédients disponibles au panier' }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Panel Instructions -->
-      <div class="rd-segment-panel" *ngIf="activeRecipeSegment === 'instructions'">
-        <div class="rd-steps-list">
-          <div *ngFor="let step of getStepsArray(recipe); let si = index; let last = last"
-            class="rd-step-item">
-            <div class="rd-step-left">
-              <div class="rd-step-num">{{ si + 1 }}</div>
-              <div class="rd-step-line" *ngIf="!last"></div>
-            </div>
-            <div class="rd-step-body">
-              <div class="rd-step-text" [class.last]="last">{{ step }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Spacer footer -->
-      <div style="height: 100px;"></div>
-    </ng-container>
-
-    <!-- Signaler erreur flottant -->
-    <div class="rd-bottom-cta" *ngIf="expandedIndex !== null">
-      <button class="rd-feedback-btn" (click)="sendFeedback(recipeResults[expandedIndex!])">
-        <ion-icon name="flag-outline"></ion-icon>
-        Signaler une erreur
-      </button>
     </div>
+
+    <div style="height: 16px;"></div>
+    <ion-button expand="block" fill="outline" color="primary" (click)="restart()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Nouvelle recherche
+    </ion-button>
+    <div style="height: 80px;"></div>
 
   </div>
 

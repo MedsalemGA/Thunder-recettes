@@ -27,8 +27,7 @@ import {
   timerOutline, flameOutline, pricetagOutline,
   listOutline, restaurantOutline, gridOutline,
   swapHorizontalOutline, searchOutline,
-  chevronDownOutline, checkmarkOutline, addOutline
-} from 'ionicons/icons';
+  chevronDownOutline, checkmarkOutline, addOutline, closeOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -71,6 +70,7 @@ export class RecipeDetailComponent implements ViewWillEnter {
   // Rating
   userRate    = 0;
   detailHovered = 0;
+  allIngredientsChecked = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -82,18 +82,7 @@ export class RecipeDetailComponent implements ViewWillEnter {
    
     private toastController: ToastController
   ) {
-    addIcons({
-      heart, heartOutline, cartOutline, flashOutline,
-      timeOutline, peopleOutline, star, starOutline, starHalf, chevronForwardOutline,
-      checkmarkCircleOutline, alertCircleOutline, bulbOutline,
-      shareSocialOutline, printOutline, restaurant, timer,
-      flame, people, pricetag, swapHorizontal, addCircle,
-      checkmarkCircle, shareSocial, arrowBackOutline,
-      timerOutline, flameOutline, pricetagOutline,
-      listOutline, restaurantOutline, gridOutline,
-      swapHorizontalOutline, searchOutline,
-      chevronDownOutline, checkmarkOutline, addOutline
-    });
+    addIcons({arrowBackOutline,shareSocialOutline,star,timeOutline,peopleOutline,timerOutline,flameOutline,flashOutline,pricetagOutline,listOutline,restaurantOutline,checkmarkOutline,closeOutline,addOutline,checkmarkCircleOutline,swapHorizontalOutline,cartOutline,checkmarkCircle,heart,heartOutline,starOutline,starHalf,chevronForwardOutline,alertCircleOutline,bulbOutline,printOutline,restaurant,timer,flame,people,pricetag,swapHorizontal,addCircle,shareSocial,gridOutline,searchOutline,chevronDownOutline});
   }
 
   // ════════════════════════════════════════════════════
@@ -105,7 +94,33 @@ export class RecipeDetailComponent implements ViewWillEnter {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (!id) { this.isLoading = false; return; }
+
+      // ── Recette IA : données passées via navigation state ──
+      if (id === 'ai-temp') {
+        const state = history.state as { aiRecipe?: any };
+        if (state?.aiRecipe) {
+          this.recipe     = state.aiRecipe;
+          this.calories   = 0;
+          this.totalPrice = 0;
+          this.isFavorite = false;
+          this.isInCart   = false;
+
+          this.checkedIngredients = {};
+          (state.aiRecipe.ingredients ?? []).forEach((ing: any) => {
+            if (ing.disponible) {
+              this.checkedIngredients[ing.nom] = true;
+            }
+          });
+
+          this.isLoading = false;
+          return;
+        }
+      }
+
+      // ── Recette normale : chargement par ID ──
       this.loadRecipeDetails(id);
+      this.sortIngredients();
+      console.log(this.recipe);
     });
   }
 
@@ -140,7 +155,9 @@ export class RecipeDetailComponent implements ViewWillEnter {
 
         // Charger la note de l'utilisateur connecté
         this.recipeService.getUserRating(recipeId).subscribe({
-          next: (res: any) => { this.userRate = res.user_rate ?? 0; },
+          next: (res: any) => { this.userRate = res.user_rate ?? 0;
+            this.recipe.vote_count = res.count;
+           },
           error: () => {}
         });
 
@@ -209,34 +226,73 @@ export class RecipeDetailComponent implements ViewWillEnter {
 }
  
  // Prix depuis cache ingredientDetails (appelé si getIngredientDetails est utilisé)
-getIngredientPrice(ingredient: any): number {
+getIngredientPrice(ingredient: any): { price: number, details: string } {
 
-  if (!this.checkedIngredients[ingredient.nom]) return 0;
-  if (!ingredient.disponible) return 0;
-
-  const quantite = parseFloat(ingredient["quantite"]) || 0;
-  
-  if (!ingredient.variantes || ingredient.variantes.length === 0) {
-    return 0;
+  if (!this.checkedIngredients[ingredient.nom] || !ingredient.disponible) {
+    return { price: 0, details: '' };
   }
 
-  let bestPrice = Infinity;
+  const quantite = parseFloat(ingredient.quantite) || 0;
 
-  ingredient.variantes.forEach((v: any) => {
+  if (!ingredient.variantes || ingredient.variantes.length === 0) {
+    return { price: 0, details: '' };
+  }
 
-    const qty = this.convertToSameUnit(quantite, String(ingredient["unite"]), String(v["unite"]));
-    
-    if (qty === null) return;
+  // 🔥 convertir toutes les variantes dans même unité
+  const variantes = ingredient.variantes.map((v: any) => {
+    const q = this.convertToSameUnit(v.quantite, v.unite, ingredient.unite);
+    return { ...v, quantiteConv: q };
+  }).filter((v: any) => v.quantiteConv !== null);
 
-    const nb = Math.ceil(qty / v["quantite"]);
-    const prix = nb * v.prix;
+  // 🔥 trier par prix / unité (meilleur d'abord)
+  variantes.sort((a: any, b: any) => (a.prix / a.quantiteConv) - (b.prix / b.quantiteConv));
 
-    if (prix < bestPrice) {
-      bestPrice = prix;
+  let remaining = quantite;
+  let totalPrice = 0;
+  let detailsArr: string[] = [];
+
+  for (let v of variantes) {
+
+    if (remaining <= 0) break;
+
+    const nb = Math.floor(remaining / v.quantiteConv);
+
+    if (nb > 0) {
+      totalPrice += nb * v.prix;
+      remaining -= nb * v.quantiteConv;
+
+      detailsArr.push(this.formatDetail(nb, ingredient.nom, v));
     }
-  });
+  }
 
-  return bestPrice === Infinity ? 0 : bestPrice;
+  // 🔥 s'il reste un petit besoin → prendre la plus petite variante
+  if (remaining > 0) {
+    const smallest = variantes[variantes.length - 1];
+
+    totalPrice += smallest.prix;
+    detailsArr.push(this.formatDetail(1, ingredient.nom, smallest));
+  }
+
+  return {
+    price: totalPrice,
+    details: detailsArr.join(' + ')
+  };
+}
+formatDetail(nb: number, nom: string, v: any): string {
+
+  let type = '';
+
+  if (['g', 'kg'].includes(v.unite)) {
+    type = 'paquet';
+  } else if (['ml', 'l'].includes(v.unite)) {
+    type = 'bouteille';
+  } else {
+    type = 'unité';
+  }
+
+  const plural = nb > 1 ? 's' : '';
+
+  return `${nb} ${type}${plural} de ${nom} (${v.quantite}${v.unite})`;
 }
 convertToSameUnit(qty: number, from: string, to: string): number | null {
 
@@ -299,53 +355,63 @@ convertToSameUnit(qty: number, from: string, to: string): number | null {
   // Panier
   // ════════════════════════════════════════════════════
 
-  async addSelectedToCart(): Promise<void> {
-    if (!this.recipe || this.isAdding) return;
+ async addSelectedToCart(): Promise<void> {
+  if (!this.recipe || this.isAdding) return;
 
-    const checkedIngredients = this.recipe.ingredients
-      .filter((ing: any) => this.checkedIngredients[ing.nom] && ing.disponible)
-      .map((ing: any) => ({
+  const checkedIngredients = this.recipe.ingredients
+    .filter((ing: any) => this.checkedIngredients[ing.nom] && ing.disponible)
+    .map((ing: any) => {
+
+      const priceData = this.getIngredientPrice(ing); // 🔥 nouveau
+
+      return {
         id: ing.produit_id ?? ing.nom,
         nom: ing.nom,
         quantite: parseFloat(ing.quantite) || 1,
         unite: ing.unite ?? 'unité',
-        prix: this.getIngredientPrice(ing),
+
+        prix: priceData.price,        // 🔥 important
+        details: priceData.details, 
+        fromRecipeName: this.recipe.name ?? '',  // 🔥 nouveau (optionnel mais utile)
+
         recette_id: this.recipe.id ?? undefined,
-      }));
-
-    if (checkedIngredients.length === 0) return;
-
-    this.isAdding = true;
-
-    this.cartService.addCheckedIngredients(checkedIngredients);
-    this.isInCart   = true;
-    this.isAdding   = false;
-    this.addSuccess = true;
-    setTimeout(() => (this.addSuccess = false), 2500);
-
-    const toast = await this.toastController.create({
-      message: `✅ ${checkedIngredients.length} ingrédient(s) ajouté(s) au panier`,
-      duration: 3000,
-      position: 'bottom',
-      color: 'success',
-      buttons: [
-        {
-          text: 'Voir le panier',
-          role: 'cancel',
-          handler: () => {
-            this.router.navigate(['/tabs/panier']);
-          }
-        }
-      ]
+      };
     });
 
-    await toast.present();
+  if (checkedIngredients.length === 0) return;
 
-    const { role } = await toast.onDidDismiss();
-    if (role !== 'cancel') {
-      this.router.navigate(['/smart-cart']);
-    }
+  this.isAdding = true;
+
+  this.cartService.addCheckedIngredients(checkedIngredients);
+
+  this.isInCart   = true;
+  this.isAdding   = false;
+  this.addSuccess = true;
+  setTimeout(() => (this.addSuccess = false), 2500);
+
+  const toast = await this.toastController.create({
+    message: `✅ ${checkedIngredients.length} ingrédient(s) ajouté(s) au panier`,
+    duration: 3000,
+    position: 'bottom',
+    color: 'success',
+    buttons: [
+      {
+        text: 'Voir le panier',
+        role: 'cancel',
+        handler: () => {
+          this.router.navigate(['/smart-cart']);
+        }
+      }
+    ]
+  });
+
+  await toast.present();
+
+  const { role } = await toast.onDidDismiss();
+  if (role !== 'cancel') {
+    this.router.navigate(['/smart-cart']);
   }
+}
 
   addRecipeToCart(): void {
     if (!this.recipe) return;
@@ -452,4 +518,40 @@ convertToSameUnit(qty: number, from: string, to: string): number | null {
   get cookTime(): number {
     return this.recipe?.cookTime ?? 0;
   }
+  getdetailprod(recipe: any) {
+    let res = String();
+    let prod = recipe.ingredients.variantes;
+    prod.forEach((item: any) => {
+      if(item.unit=='g'||item.unit=='kg'){
+        if(item.quantite>recipe.ingredients.quantite){
+          res += item.quantity + ' ' + item.unit + '\n';
+        }
+        res += item.quantity + ' ' + item.unit + '\n';
+      }
+    });
+
+    
+  }
+toggleAllIngredients() {
+  const newState = !this.allIngredientsChecked;
+
+  this.recipe.ingredients.forEach(ing => {
+    if (ing.disponible) {
+      this.checkedIngredients[ing.nom] = newState;
+    }
+  });
+
+  this.allIngredientsChecked = newState;
+
+  this.updateTotalPrice();
+  this.updateCalories();
+}
+sortIngredients() {
+  if (this.recipe?.ingredients) {
+    this.recipe.ingredients.sort((a, b) => {
+      return Number(a.disponible) - Number(b.disponible);
+    });
+  }
+}
+
 }

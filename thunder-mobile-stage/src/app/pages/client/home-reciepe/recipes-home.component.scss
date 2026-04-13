@@ -130,55 +130,7 @@ ion-toolbar {
     ion-icon { font-size: 14px; color: $text-light; }
     &:hover { background: $border; }
   }}
- .camera-btn {
-  position: absolute;
-  right: 35px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgb(245, 243, 233); /* ✅ transparent */
-  border: none;
-  
-
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-/* border animé */
-.camera-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  padding: 2px; /* épaisseur border */
-
-  background: conic-gradient(
-    rgb(0, 242, 255),
-    pink,
-    rgb(129, 255, 146)
-  );
-  
-
-  animation: rotateBorder 2s linear infinite;
-
-  /* masque pour garder seulement le border */
-  -webkit-mask: 
-    linear-gradient(#000 0 0) content-box, 
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-}
-
-/* icône */
-.camera-btn ion-icon {
-  font-size: 20px;
-  color: #767676;
-  position: relative;
-  z-index: 1;
-}
+ 
 
 /* animation */
 @keyframes rotateBorder {
@@ -189,7 +141,40 @@ ion-toolbar {
     transform: rotate(360deg);
   }
 }
-  //===========================================
+.magic-btn {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+ animation: pulse 1.5s linear infinite;
+  
+}
+
+.magic-btn .wand-icon {
+  font-size: 26px; /* Ajustez selon vos besoins */
+  color:$primary;/* Optionnel : une couleur "magique" */
+ transform: rotate(70deg);
+ position: relative;
+ top: -4px;
+ right: -2px;
+}
+
+.sparkles-overlay {
+    color:gold;
+    font-size: 9px;
+    position: absolute;
+    top: -3px;
+    right: -2px;
+     
+} 
+
+  // Effet au survol
+ 
+
+  
+//===========================================
 // Filters horizontal bar
 // =============================================
 .filters-bar {

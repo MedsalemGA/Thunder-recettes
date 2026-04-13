@@ -36,6 +36,7 @@ export interface Recipe {
   }[];
   instructions: string[];
   tags?: string[];
+  vote_count: number;
 }
 
 export interface UserPreference {

@@ -7,9 +7,6 @@
       </button>
     </ion-buttons>
 
-    <ion-title class="floating-title" [class.visible]="isScrolled">
-      {{ recipe?.name }}
-    </ion-title>
 
     <ion-buttons slot="end">
       <button class="nav-btn" (click)="toggleFavorite()">
@@ -48,22 +45,10 @@
     <div class="hero-info">
       <h1 class="hero-title">{{ recipe.name }}</h1>
       <div class="hero-meta">
-        <!-- Notation interactive -->
-        <div class="detail-star-rating">
-          <button
-            *ngFor="let s of [1,2,3,4,5]"
-            class="detail-star-btn"
-            (click)="rateRecipe(s)"
-            (mouseenter)="detailHovered = s"
-            (mouseleave)="detailHovered = 0"
-          >
-            <ion-icon
-              [name]="getDetailStarIcon(s)"
-              [class.filled]="s <= (detailHovered > 0 ? detailHovered : (userRate || recipe.rating))"
-            ></ion-icon>
-          </button>
-          <span class="detail-rating-avg">{{ recipe.rating | number:'1.1-1' }}/5</span>
-        </div>
+        <span class="hero-stat">
+          <ion-icon name="star"></ion-icon>
+          {{ recipe.rating }}/5
+        </span>
         <span class="hero-dot"></span>
         <span class="hero-stat">
           <ion-icon name="time-outline"></ion-icon>
@@ -120,10 +105,21 @@
      
     </div>
   </div>
-
+  
   <!-- ══ INGRÉDIENTS ══ -->
   <div class="segment-panel" *ngIf="activeSegment === 'ingredients'">
-
+    <div class="allingchecked">
+      <button class="word-but" (click)="toggleAllIngredients()" *ngIf="!allIngredientsChecked">Coucher Tous</button>
+      <button class="word-but" (click)="toggleAllIngredients()" *ngIf="allIngredientsChecked">Déscoucher Tous</button>
+     <button (click)="toggleAllIngredients()" 
+          class="ing-check"
+          [class.done]="allIngredientsChecked"
+          
+        >
+          <ion-icon name="checkmark-outline"></ion-icon>
+        </button>
+        
+  </div>
     <div class="ingredients-block">
       <div
         *ngFor="let ingredient of recipe.ingredients; let last = last"
@@ -164,9 +160,12 @@
             (click)="$event.stopPropagation()"
             (change)="updateTotalPrice(); updateCalories()"
           />
-          <span class="ing-price" *ngIf="getIngredientPrice(ingredient) > 0">
-            {{ getIngredientPrice(ingredient)
-               | currency:'TND':'symbol':'1.2-2' }}
+          <span class="ing-price" *ngIf="getIngredientPrice(ingredient).price > 0">
+            {{ getIngredientPrice(ingredient).price
+               | currency:'TND':'symbol':'1.2-2' }}  
+          </span>
+          <span class="ing-details" *ngIf="getIngredientPrice(ingredient).details">
+            {{ getIngredientPrice(ingredient).details }}
           </span>
         </div>
 

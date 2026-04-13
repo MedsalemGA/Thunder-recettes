@@ -53,7 +53,7 @@
     <div class="empty-icon">🛒</div>
     <h3>Votre panier est vide</h3>
     <p>Sélectionnez des ingrédients depuis une recette pour les ajouter ici</p>
-    <button class="cta-outline" (click)="closeModal()">Parcourir les recettes</button>
+    <button class="cta-outline" (click)="navigateToRecipes()">Parcourir les recettes</button>
   </div>
 
   <!-- Items List -->
@@ -72,28 +72,22 @@
           <div class="item-name-row">
             <span class="item-name">{{ item.ingredientName }}</span>
           </div>
-          <span class="item-recette" *ngIf="item.fromRecipeId">📖 Recette #{{ item.fromRecipeId }}</span>
-          <span class="item-note" *ngIf="item.notes">{{ item.notes }}</span>
+          <span class="item-recette" *ngIf="item.fromRecipeId">📖 Recette {{ item.fromRecipeName }}</span>
+          
           <span class="item-unit-price" *ngIf="item.price > 0">
-            {{ item.price | number:'1.2-2' }} DT / {{ item.unit }}
+             {{item.details }} 
           </span>
           <span class="item-unit-price" *ngIf="item.price === 0">
             Prix non disponible
           </span>
-          <!-- Substitution badge -->
-          <span class="substitution-badge" *ngIf="item.substitution">
-            🔄 Substitut
-          </span>
+         
+          
         </div>
       </div>
 
       <!-- Right: stepper + price + delete -->
       <div class="item-right">
-        <div class="qty-stepper">
-          <button class="stepper-btn" (click)="updateQty(item, -1)">−</button>
-          <span class="qty-label">{{ item.quantity }}<span class="qty-unit"> {{ item.unit }}</span></span>
-          <button class="stepper-btn" (click)="updateQty(item, 1)">+</button>
-        </div>
+        
         <div class="item-footer-row">
           <span class="item-price" *ngIf="item.price > 0">
             {{ item.price  | number:'1.2-2' }} DT

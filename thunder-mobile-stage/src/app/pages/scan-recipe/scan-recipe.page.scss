@@ -1,77 +1,101 @@
 // src/app/pages/scan-recipe/scan-recipe.page.scss
-// src/app/pages/scan-recipe/scan-recipe.page.scss
-// src/app/pages/scan-recipe/scan-recipe.page.scss
-// src/app/pages/scan-recipe/scan-recipe.page.scss
+// ── Design System: Culinary Intelligence Framework ──────────────────
 
-// ── Palette ──────────────────────────────────────────────────────
-$green-deep:    #04a8a3;
-$green-main:    #080808;
-$green-mid:     #00f9af;
-$green-light:   #03b594;
-$green-accent:  #02b887;
-$gold:          #D4A017;
-$silver:        #8A9BA8;
-$bronze:        #A0622A;
-$amber:         #BA7517;
-$teal:          #1D9E75;
-$danger:        #C0392B;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
-// ── Header ───────────────────────────────────────────────────────
+// ── Design Tokens ──────────────────────────────────────────────────
+// Colors
+$primary:               #00675d;
+$primary-fixed-dim:     #21e7d2;
+$primary-container:     #3ff6e0;
+$on-primary:            #ffffff;
+$on-primary-container:  #00201d;
 
+$surface:               #f5f7f9;
+$surface-container:     #e5e9eb;
+$surface-container-low: #eef0f2;
+$surface-container-lowest: #ffffff;
+$surface-container-high:#dde1e3;
+$surface-container-highest: #d0d4d6;
+
+$on-surface:            #2c2f31;
+$on-surface-variant:    #595c5e;
+$outline-variant:       #abadaf;
+
+$text-dark:             #1a202c;
+$text-light:            #64748b;
+$text-hint:             #94a3b8;
+
+$success:               #10b981;
+$warning:               #f59e0b;
+$danger:                #ef4444;
+$gold:                  #D4A017;
+$silver-rank:           #8A9BA8;
+$bronze:                #A0622A;
+
+// Typography
+$font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+$font-body:    'Inter', system-ui, sans-serif;
+
+// Shadows (ambient, not harsh)
+$shadow-float: 0 12px 48px rgba(44, 47, 49, 0.06);
+$shadow-card:  0 4px 24px rgba(44, 47, 49, 0.06);
+$shadow-sm:    0 2px 12px rgba(44, 47, 49, 0.05);
+
+// Radii
+$radius-xl:  1.5rem;   // 24px - large containers
+$radius-lg:  1rem;     // 16px - cards
+$radius-md:  0.75rem;  // 12px - nested elements
+$radius-sm:  0.5rem;   // 8px
+$radius-full: 9999px;  // pill
+
+// ── Reset / Base ────────────────────────────────────────────────────
+ion-content {
+  --background: #{$surface};
+  --padding-bottom: 80px;
+  font-family: $font-body;
+}
+
+// ── Header ──────────────────────────────────────────────────────────
 ion-header {
   --background: transparent;
   box-shadow: none;
 }
 
 .fancy-toolbar {
-  --background: linear-gradient(135deg, #{$green-deep} 0%, #{$green-main} 60%, #{$green-mid} 100%);
+  --background: #{$surface-container-lowest};
   --border-width: 0;
   --padding-top: 0;
   --padding-bottom: 0;
-  --min-height: 72px;
-  position: relative;
-  overflow: visible;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -12px;
-    left: 0;
-    right: 0;
-    height: 12px;
-    background: linear-gradient(to bottom, rgba($green-deep, 0.18), transparent);
-    pointer-events: none;
-  }
+  --min-height: 64px;
 }
 
 .header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px 10px 16px;
+  padding: 12px 20px;
   width: 100%;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .header-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(6px);
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: $surface-container-low;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255,255,255,0.25);
 
   ion-icon {
-    font-size: 20px;
-    color: #fff;
+    font-size: 18px;
+    color: $primary;
   }
 }
 
@@ -81,20 +105,21 @@ ion-header {
 }
 
 .header-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
-  color: #fff;
-  font-family: 'Georgia', serif;
-  letter-spacing: 0.2px;
+  color: $on-surface;
+  font-family: $font-display;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .header-sub {
   font-size: 11px;
-  color: rgba(255,255,255,0.65);
-  letter-spacing: 0.8px;
+  color: $on-surface-variant;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-top: 1px;
+  font-weight: 500;
 }
 
 .header-step-indicator {
@@ -104,140 +129,227 @@ ion-header {
 }
 
 .step-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.3);
+  background: $surface-container;
   transition: background 0.3s, transform 0.3s;
 
   &.active {
-    background: #fff;
-    transform: scale(1.15);
+    background: $primary;
+    transform: scale(1.2);
   }
 }
 
 .step-line {
-  width: 16px;
+  width: 14px;
   height: 2px;
-  background: rgba(255,255,255,0.25);
+  background: $surface-container;
   border-radius: 1px;
 }
 
-// ── Page ─────────────────────────────────────────────────────────
-
-.scan-page {
-  --background: #F5F7F2;
-}
-
-.step-block {
-  padding: 20px 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  animation: fadeSlideUp 0.35s ease;
-}
-
+// ── Page animation ──────────────────────────────────────────────────
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Mode tabs ────────────────────────────────────────────────────
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
+@keyframes pulseAura {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%       { transform: scale(1.15); opacity: 0.3; }
+}
+
+// ── Step block (step 1 & 2) ─────────────────────────────────────────
+.scan-page { --background: #{$surface}; }
+
+.step-block {
+  padding: 20px 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeSlideUp 0.35s ease;
+}
+
+// ── Page title block (Step 1) ────────────────────────────────────────
+.page-hero {
+  text-align: center;
+  padding: 8px 4px 4px;
+
+  h1 {
+    font-family: $font-display;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: $on-surface;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $on-surface-variant;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 280px;
+    margin-inline: auto;
+  }
+}
+
+// ── Mode tabs ────────────────────────────────────────────────────────
 .mode-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #fff;
-  border-radius: 16px;
+  background: $surface-container-lowest;
+  border-radius: $radius-xl;
   padding: 5px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   gap: 4px;
+  box-shadow: $shadow-sm;
 }
 
 .mode-tab {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 5px;
-  padding: 12px 8px;
-  border-radius: 12px;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 10px;
+  border-radius: $radius-lg;
   border: none;
   background: transparent;
-  color: $silver;
-  font-size: 12px;
-  font-weight: 500;
+  color: $on-surface-variant;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: $font-body;
 
-  ion-icon {
-    font-size: 22px;
-    transition: color 0.2s;
-  }
+  ion-icon { font-size: 18px; transition: color 0.2s; }
 
   &.active {
-    background: linear-gradient(135deg, $green-main, $green-mid);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba($green-main, 0.35);
+    background: $surface-container-lowest;
+    color: $on-surface;
+    box-shadow: 2px 2px 1px  $primary-container;
+    border: 2px solid $primary-container;
+    background: transparent;
 
-    ion-icon { color: #fff; }
+    ion-icon { color: $primary; }
   }
 }
+:host::ng-deep ion-button.analyze-btn::part(native), ion-button.action-btn-primary::part(native) {
 
-// ── Zone image ───────────────────────────────────────────────────
+
+  
+
+  border-radius: $radius-lg;
+  border: none;
+  background: transparent;
+  padding: 11px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: $font-body;
+
+  color: $on-surface;
+  box-shadow: 2px 2px 1px  $primary-container;
+  border: 2px solid $primary-container;
+  background: transparent;
+ 
+}
 
 .image-zone {
-  border-radius: 18px;
+  border-radius: $radius-xl;
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  min-height: 210px;
-  background: #fff;
-  border: 2px dashed rgba($green-main, 0.25);
+  min-height: 220px;
+  background: $surface-container-low;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
 
-  &:active {
-    border-color: $green-accent;
-    box-shadow: 0 0 0 3px rgba($green-accent, 0.15);
-  }
+  &:active { box-shadow: 0 0 0 3px rgba($primary, 0.15); }
+}
+
+// Viewfinder corner brackets (like the scan UI in screenshot)
+.image-zone::before,
+.image-zone::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: $primary-fixed-dim;
+  border-style: solid;
+  z-index: 2;
+}
+.image-zone::before {
+  top: 16px; left: 16px;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+.image-zone::after {
+  bottom: 16px; right: 16px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
 }
 
 .image-placeholder {
   text-align: center;
-  padding: 32px 20px;
+  padding: 36px 20px;
+  position: relative;
+  z-index: 1;
 }
 
+// Scan ring (the circular pulse around camera icon)
 .cam-ring {
-  width: 72px;
-  height: 72px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
-  background: $green-light;
+  background: transparent;
+  border: 2px solid $primary-fixed-dim;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
-  border: 2px solid rgba($green-main, 0.15);
+  margin: 0 auto 14px;
+  position: relative;
+
+  // Pulse aura
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: rgba($primary-container, 0.3);
+    filter: blur(6px);
+    animation: pulseAura 2.5s ease-in-out infinite;
+  }
 }
 
 .cam-icon {
-  font-size: 34px;
-  color: $green-main;
+  font-size: 30px;
+  color: $primary;
+  position: relative;
+  z-index: 1;
 }
 
 .hint-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: #2C3E1A;
-  margin: 0 0 6px;
-  font-family: 'Georgia', serif;
+  color: $on-surface;
+  margin: 0 0 5px;
+  font-family: $font-display;
+  letter-spacing: -0.01em;
 }
 
 .hint-sub {
-  font-size: 13px;
-  color: $silver;
+  font-size: 12px;
+  color: $on-surface-variant;
   line-height: 1.5;
   margin: 0;
 }
@@ -251,10 +363,8 @@ ion-header {
 
 .preview-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
   color: white;
   font-size: 13px;
   text-align: center;
@@ -264,52 +374,132 @@ ion-header {
   justify-content: center;
   gap: 6px;
   font-weight: 500;
+  font-family: $font-body;
 }
 
-// ── Text input zone ───────────────────────────────────────────────
+// ── Source buttons ───────────────────────────────────────────────────
+.source-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+// ── Action buttons ───────────────────────────────────────────────────
+.action-btn {
+  --border-radius: #{$radius-full};
+  height: 52px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  font-family: $font-display;
+
+  &.primary {
+    --background: linear-gradient(135deg, #{$primary} 0%, #{$primary-fixed-dim} 100%);
+    --background-activated: #{$primary};
+    --color: #fff;
+    box-shadow: 0 6px 20px rgba($primary, 0.35);
+  }
+
+ 
+}
+
+.analyze-btn { margin-top: 0; }
+
+// ── AI Stats bar (AI Accuracy / Processing) ──────────────────────────
+.ai-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ai-stat-card {
+  background: $surface-container-lowest;
+  border-radius: $radius-lg;
+  padding: 14px;
+  box-shadow: $shadow-sm;
+
+  .stat-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+
+    ion-icon { font-size: 15px; color: $primary; }
+
+    span {
+      font-size: 10px;
+      font-weight: 700;
+      color: $on-surface-variant;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: $font-body;
+    }
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: $primary;
+    font-family: $font-display;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: $on-surface-variant;
+    font-family: $font-body;
+    line-height: 1.4;
+  }
+}
+
+// ── Text input zone ──────────────────────────────────────────────────
 .text-input-zone {
-  background: #fff;
-  border-radius: 16px;
-  border: 2px solid rgba($green-main, 0.2);
+  background: $surface-container-lowest;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
-  padding: 8px 14px;
+  padding: 10px 14px;
   gap: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  transition: border-color 0.2s;
+  box-shadow: $shadow-sm;
+  transition: box-shadow 0.2s;
 
   &:focus-within {
-    border-color: $green-accent;
-    box-shadow: 0 0 0 3px rgba($green-accent, 0.12);
+    box-shadow: 0 0 0 2px rgba($primary, 0.3);
   }
 }
 
 .text-input-icon {
-  width: 36px;
-  height: 36px;
-  background: $green-light;
-  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  background: $surface-container-low;
+  border-radius: $radius-md;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
   ion-icon {
-    font-size: 18px;
-    color: $green-main;
+    font-size: 17px;
+    color: $primary;
   }
+  
 }
 
-.dish-name-input {
-  flex: 1;
-  font-size: 15px;
-  --placeholder-color: #AAB4A0;
-  --color: #1A2E10;
+
+:host ::ng-deep ion-input.dish-name-input input {
+  font-size: 16px;
+  font-family: $font-display;
+  letter-spacing: -0.01em;
+  border: none;
+  outline: none;
 }
 
-// ── Suggestions ───────────────────────────────────────────────────
 
+
+// ── Suggestions ──────────────────────────────────────────────────────
 .suggestions-row {
   display: flex;
   flex-direction: column;
@@ -318,124 +508,82 @@ ion-header {
 
 .sugg-label {
   font-size: 11px;
-  color: $silver;
+  color: $on-surface-variant;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.05em;
   font-weight: 600;
+  font-family: $font-body;
 }
 
 .sugg-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
 }
 
 .sugg-chip {
   font-size: 12px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: #fff;
-  border: 1px solid rgba($green-main, 0.2);
-  color: $green-main;
+  padding: 6px 13px;
+  border-radius: $radius-full;
+  background: $surface-container-lowest;
+  border: none;
+  color: $on-surface;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.18s;
+  font-family: $font-body;
+  box-shadow: $shadow-sm;
 
   &:active {
-    background: $green-light;
-    border-color: $green-main;
+    background: $primary-container;
+    color: $on-primary-container;
   }
 }
 
-// ── Buttons ───────────────────────────────────────────────────────
-
-.action-btn {
-  --border-radius: 14px;
-  height: 52px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  margin: 0;
-
-  &.primary {
-    --background: linear-gradient(135deg, #{$green-main} 0%, #{$green-mid} 100%);
-    --background-activated: #{$green-deep};
-    box-shadow: 0 6px 18px rgba($green-main, 0.4);
-  }
-
-  &.outline {
-    --border-color: #{$green-main};
-    --color: #{$green-main};
-  }
-
-  &.success {
-    --background: linear-gradient(135deg, #{$teal}, #16a085);
-    box-shadow: 0 4px 14px rgba($teal, 0.4);
-  }
-}
-
-.analyze-btn { margin-top: 0; }
-
-// ── Source buttons ────────────────────────────────────────────────
-
-.source-btns {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-// ── Info banner ───────────────────────────────────────────────────
-
+// ── Info banner ──────────────────────────────────────────────────────
 .info-banner {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: $green-light;
-  border-radius: 12px;
-  padding: 11px 14px;
+  background: rgba($primary-container, 0.2);
+  border-radius: $radius-lg;
+  padding: 12px 14px;
   font-size: 12px;
-  color: $green-main;
+  color: $primary;
   font-weight: 500;
-  border: 1px solid rgba($green-main, 0.12);
+  font-family: $font-body;
 
-  ion-icon { font-size: 16px; flex-shrink: 0; color: $green-accent; }
+  ion-icon { font-size: 16px; flex-shrink: 0; }
 }
 
-// ── Dish result card ──────────────────────────────────────────────
-
+// ── STEP 2: Dish result card ──────────────────────────────────────────
 .dish-result-card {
-  background: white;
-  border-radius: 16px;
+  background: $surface-container-lowest;
+  border-radius: $radius-xl;
   padding: 14px;
   display: flex;
   gap: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  border: 1px solid rgba($green-main, 0.08);
+  box-shadow: $shadow-card;
 
   .dish-thumb {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
+    width: 76px;
+    height: 76px;
+    border-radius: $radius-lg;
     object-fit: cover;
     flex-shrink: 0;
   }
 
   .dish-label {
     font-size: 10px;
-    color: $silver;
+    color: $on-surface-variant;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.05em;
     margin-bottom: 4px;
     font-weight: 600;
+    font-family: $font-body;
   }
 
-  .dish-name {
-    font-size: 17px;
-    font-weight: 700;
-    color: #1A2E10;
-    margin-bottom: 8px;
-    font-family: 'Georgia', serif;
-  }
+
 
   .dish-meta {
     display: flex;
@@ -445,59 +593,64 @@ ion-header {
 
   .meta-chip {
     font-size: 11px;
-    background: #F0F2EC;
-    color: #5A6E50;
+    background: $surface-container-low;
+    color: $on-surface-variant;
     padding: 3px 9px;
-    border-radius: 20px;
+    border-radius: $radius-full;
     font-weight: 500;
-    &.easy { background: $green-light; color: $green-main; }
+    font-family: $font-body;
+
+    &.easy {
+      background: rgba($success, 0.12);
+      color: $success;
+    }
   }
 }
-
-// ── Section header ────────────────────────────────────────────────
-
+ 
+// ── Section header ────────────────────────────────────────────────────
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #7A8E70;
+  color: $on-surface-variant;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.05em;
+  font-family: $font-body;
 
   .count-badge {
-    background: $green-main;
-    color: white;
+    background: $primary;
+    color: #fff;
     font-size: 11px;
     padding: 2px 9px;
-    border-radius: 20px;
+    border-radius: $radius-full;
     text-transform: none;
     letter-spacing: 0;
-    font-weight: 600;
+    font-weight: 700;
+    font-family: $font-body;
   }
 }
 
-// ── Ingredient list ───────────────────────────────────────────────
-
+// ── Ingredients found list (step 2) ──────────────────────────────────
 .ingr-verify-list {
-  background: white;
-  border-radius: 14px;
+  background: $surface-container-lowest;
+  border-radius: $radius-xl;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: $shadow-card;
 }
 
 .ingr-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid #F0F2EC;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba($outline-variant, 0.15);
   cursor: pointer;
   transition: background 0.15s;
 
   &:last-child { border-bottom: none; }
-  &:active { background: #F8FAF5; }
+  &:active { background: $surface-container-low; }
 
   &.inactive {
     opacity: 0.4;
@@ -509,14 +662,16 @@ ion-header {
   .ingr-name {
     flex: 1;
     font-size: 14px;
-    color: #1A2E10;
+    color: $on-surface;
     font-weight: 500;
+    font-family: $font-body;
   }
 
   .ingr-qty {
     font-size: 12px;
-    color: $silver;
-    margin-right: 8px;
+    color: $on-surface-variant;
+    margin-right: 6px;
+    font-family: $font-body;
   }
 
   .ingr-prob {
@@ -527,750 +682,1201 @@ ion-header {
   }
 
   .prob-bar {
-    width: 40px;
+    width: 44px;
     height: 4px;
-    background: #E8EDE2;
+    background: $surface-container;
     border-radius: 2px;
     overflow: hidden;
   }
 
   .prob-fill {
     height: 100%;
-    background: $silver;
+    background: $on-surface-variant;
     border-radius: 2px;
-    &.high { background: $teal; }
-    &.mid  { background: $amber; }
+    transition: width 0.5s ease;
+
+    &.high { background: linear-gradient(90deg, $primary, $primary-fixed-dim); }
+    &.mid  { background: $warning; }
   }
 
   .prob-pct {
     font-size: 11px;
-    color: $silver;
+    color: $on-surface-variant;
     width: 30px;
     text-align: right;
-    font-weight: 600;
+    font-weight: 700;
+    font-family: $font-display;
   }
 }
 
+// ── Add manual ingredient ─────────────────────────────────────────────
 .add-manual {
   display: flex;
   align-items: center;
-  background: white;
-  border-radius: 12px;
-  border: 1.5px dashed rgba($green-main, 0.25);
+  background: $surface-container-lowest;
+  border-radius: $radius-lg;
   padding-left: 12px;
+  box-shadow: $shadow-sm;
 
-  .manual-input { flex: 1; font-size: 14px; }
+  .manual-input {
+    flex: 1;
+    font-size: 14px;
+    font-family: $font-body;
+  }
 }
 
-// ── Results page ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// STEP 3: RESULTS PAGE — Recipe Detail Style
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Results page ──────────────────────────────────────────────────
+.results-page {
+  padding: 16px;
+}
 
 .results-header {
-  background: white;
-  border-radius: 16px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  margin-bottom: 20px;
+
+  .gemini-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: #6c63ff;
+    background: #f0eeff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    ion-icon { font-size: 13px; }
+  }
+
+  .results-dish-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1d23;
+    margin: 0;
+  }
 }
 
-.results-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.results-icon {
-  font-size: 26px;
-  color: $green-accent;
-}
-
-.results-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1A2E10;
-  margin: 0 0 2px;
-  font-family: 'Georgia', serif;
-}
-
-.results-sub {
-  font-size: 12px;
-  color: $silver;
-  margin: 0;
-}
-
-.ai-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: linear-gradient(135deg, $green-deep, $green-mid);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.3px;
-  flex-shrink: 0;
-
-  ion-icon { font-size: 13px; }
-}
-
-.ai-warning-banner {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: #FFF8E8;
-  border-radius: 10px;
-  padding: 10px 12px;
-  border-left: 3px solid $amber;
-  font-size: 12px;
-  color: #7A5210;
-
-  ion-icon { font-size: 16px; color: $amber; flex-shrink: 0; }
-}
-
-// ── Result cards ──────────────────────────────────────────────────
-
-.results-list {
+// ── Recipe Cards ──────────────────────────────────────────────────
+.recipe-cards-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-.result-card {
+.recipe-card {
+  display: flex;
+  gap: 12px;
   background: #fff;
   border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  border: 1.5px solid rgba($green-main, 0.08);
-  transition: box-shadow 0.2s, border-color 0.2s;
-
-  &.top-match {
-    border-color: rgba($green-accent, 0.35);
-    box-shadow: 0 4px 18px rgba($green-main, 0.14);
-  }
-
-  &.expanded {
-    border-color: $green-accent;
-    box-shadow: 0 6px 24px rgba($green-main, 0.18);
-  }
-}
-
-.result-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 14px 10px;
+  padding: 16px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1.5px solid transparent;
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+    border-color: var(--ion-color-primary, #6c63ff);
+  }
 }
 
-.result-rank {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #E8EDE2;
-  color: #5A6E50;
-  font-size: 13px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+// Score ring
+.rc-score-badge {
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
 
-  &.rank-gold   { background: linear-gradient(135deg, #F5D26A, #D4A017); color: #7A5210; }
-  &.rank-silver { background: linear-gradient(135deg, #D4DDE4, #8A9BA8); color: #fff; }
-  &.rank-bronze { background: linear-gradient(135deg, #D4A476, #A0622A); color: #fff; }
+  .score-ring {
+    position: relative;
+    width: 52px;
+    height: 52px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      color: #1a1d23;
+    }
+  }
 }
 
-.result-card-info {
+// Card body
+.rc-body {
   flex: 1;
   min-width: 0;
 }
 
-.result-card-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1A2E10;
-  margin-bottom: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: 'Georgia', serif;
-}
-
-.result-card-meta {
-  font-size: 11px;
-  color: $silver;
-  font-weight: 500;
-}
-
-.dot-sep {
-  margin: 0 3px;
-  opacity: 0.5;
-}
-
-// ── Score ring ────────────────────────────────────────────────────
-
-.result-score-block {
-  flex-shrink: 0;
-}
-
-.score-ring {
-  position: relative;
-  width: 42px;
-  height: 42px;
-}
-
-.score-svg {
-  width: 42px;
-  height: 42px;
-  transform: rotate(-90deg);
-}
-
-.score-track {
-  fill: none;
-  stroke: #E8EDE2;
-  stroke-width: 3;
-}
-
-.score-fill {
-  fill: none;
-  stroke: $silver;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dashoffset: 0;
-  transition: stroke-dasharray 0.6s ease;
-
-  &.score-high { stroke: $teal; }
-  &.score-mid  { stroke: $amber; }
-}
-
-.score-num {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 10px;
-  font-weight: 800;
-  color: #1A2E10;
-}
-
-.expand-icon {
-  font-size: 16px;
-  color: $silver;
-  flex-shrink: 0;
-}
-
-.result-desc {
-  font-size: 12px;
-  color: $silver;
-  padding: 0 14px 12px 52px;
-  margin: 0;
-  line-height: 1.5;
-}
-
-// ── Expanded content ──────────────────────────────────────────────
-
-.result-expanded {
-  padding: 0 14px 14px;
-  border-top: 1px solid #F0F2EC;
-  animation: expandIn 0.25s ease;
-}
-
-@keyframes expandIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.result-desc-expanded {
-  font-size: 13px;
-  color: #5A6E50;
-  line-height: 1.6;
-  margin: 12px 0;
-}
-
-.recipe-meta-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid #F0F2EC;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 16px;
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 4px;
-    text-align: center;
-    border-right: 1px solid #F0F2EC;
-
-    &:last-child { border-right: none; }
-
-    ion-icon { font-size: 17px; color: $green-main; margin-bottom: 3px; }
-    span { font-size: 12px; font-weight: 700; color: #1A2E10; }
-    small { font-size: 9px; color: $silver; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.4px; }
-  }
-}
-
-.exp-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #7A8E70;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 8px;
-}
-
-.ingr-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin-bottom: 14px;
-
-  .ingr-grid-item {
-    background: #F8FAF5;
-    border-radius: 8px;
-    padding: 7px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .ingr-grid-name { font-size: 12px; color: #1A2E10; font-weight: 500; }
-    .ingr-grid-qty  { font-size: 11px; color: $silver; }
-  }
-}
-
-.instructions-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 14px;
-
-  li {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #3A4E30;
-  }
-
-  .step-num {
-    flex-shrink: 0;
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(135deg, $green-main, $green-mid);
-    color: white;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 800;
-    margin-top: 2px;
-  }
-}
-
-.card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.cart-btn { height: 46px; }
-
-.restart-btn {
-  color: $silver;
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-ion-content {
-  --padding-bottom: 70px;
-}
-// ══════════════════════════════════════════════════════════════════
-// RESULTS PAGE — Style recipe-detail
-// ══════════════════════════════════════════════════════════════════
-
-$primary:      #0ae1cc;
-$primary-dark: #00A896;
-$text-dark:    #1a202c;
-$text-light:   #64748b;
-$text-hint:    #94a3b8;
-$bg-white:     #ffffff;
-$bg-surface:   #f1f5f9;
-$bg-page:      #f8fafc;
-$border:       #e2e8f0;
-$success-c:    #10b981;
-$warning-c:    #f59e0b;
-$danger-c:     #ef4444;
-$shadow-md:    0 8px 24px rgba(0,0,0,0.08);
-$shadow-sm:    0 2px 12px rgba(0,0,0,0.06);
-$font-display: 'Sora', 'SF Pro Display', system-ui, sans-serif;
-$font-body:    'DM Sans', 'SF Pro Text', system-ui, sans-serif;
-
-.results-page {
-  background: $bg-page;
-  min-height: 100%;
-  animation: fadeSlideUp 0.35s ease;
-}
-
-// ── Topbar ──────────────────────────────────────────────────────
-.results-topbar {
+.rc-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 8px;
+  margin-bottom: 4px;
 }
 
-.results-topbar-left {
+.rc-rank-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a8f99;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rc-diff-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #f4f5f7;
+  color: #5a5f6e;
+
+  &.chip-easy   { background: #e8f9f0; color: #1a9e5c; }
+  &.chip-medium { background: #fff7e6; color: #e08c00; }
+  &.chip-hard   { background: #fef0f0; color: #d94040; }
+}
+
+.rc-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1d23;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rc-desc {
+  font-size: 12px;
+  color: #8a8f99;
+  line-height: 1.5;
+  margin: 0 0 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rc-meta-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
-.results-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-light;
-  font-family: $font-body;
-}
-
-.restart-icon-btn {
-  width: 38px; height: 38px;
-  border-radius: 12px;
-  background: $bg-white;
-  border: 1px solid $border;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.2s;
-  ion-icon { font-size: 18px; color: $text-light; }
-  &:active { transform: scale(0.95); background: $bg-surface; }
-}
-
-// ── Recipe tabs scroll ──────────────────────────────────────────
-.recipe-tabs-scroll {
-  overflow-x: auto;
-  padding: 4px 16px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
-}
-
-.recipe-tabs {
+.rc-meta-item {
   display: flex;
-  gap: 8px;
-  width: max-content;
-}
-
-.recipe-tab-btn {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 1.5px solid $border;
-  background: $bg-white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 90px;
-  box-shadow: $shadow-sm;
-
-  .rtab-rank {
-    font-size: 11px; font-weight: 800;
-    color: $text-hint; font-family: $font-display;
-  }
-  .rtab-name {
-    font-size: 11px; font-weight: 700;
-    color: $text-dark; font-family: $font-display;
-    text-align: center; line-height: 1.3;
-    max-width: 80px;
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .rtab-score {
-    font-size: 11px; font-weight: 800;
-    color: $primary-dark; font-family: $font-display;
-  }
-
-  &.active {
-    background: linear-gradient(135deg, $primary, $primary-dark);
-    border-color: $primary;
-    box-shadow: 0 4px 16px rgba(10,225,204,0.35);
-    .rtab-rank, .rtab-name, .rtab-score { color: white; }
-  }
-
-  &.rank-gold:not(.active)  { border-color: #D4A017; .rtab-rank { color: #D4A017; } }
-  &.rank-silver:not(.active){ border-color: #8A9BA8; .rtab-rank { color: #8A9BA8; } }
-  &.rank-bronze:not(.active){ border-color: #A0622A; .rtab-rank { color: #A0622A; } }
+  font-size: 11px;
+  color: #6b7280;
+  ion-icon { font-size: 12px; }
 }
 
-// ── Hero ────────────────────────────────────────────────────────
-.rd-hero { background: $bg-page; }
+.rc-meta-sep {
+  color: #d1d5db;
+  font-size: 12px;
+}
+
+.rc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rc-ingredient-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  ion-icon { font-size: 12px; }
+}
+
+.rc-see-more {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ion-color-primary, #6c63ff);
+  ion-icon { font-size: 13px; }
+}
+
+// ── Recent Searches ───────────────────────────────────────────────
+.recent-searches-section {
+  margin: 20px 0 8px;
+
+  .recent-section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8a8f99;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    ion-icon { font-size: 15px; }
+  }
+
+  .recent-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .recent-recipe-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    cursor: pointer;
+    transition: transform 0.18s ease;
+    border: 1.5px solid transparent;
+
+    &:active {
+      transform: scale(0.98);
+      border-color: var(--ion-color-primary, #6c63ff);
+    }
+  }
+
+  .recent-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .recent-card-emoji {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f5f0ff, #ede8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .recent-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .recent-card-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1d23;
+  }
+
+  .recent-card-date {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: #adb0b8;
+    ion-icon { font-size: 11px; }
+  }
+
+  .recent-card-score {
+    font-size: 13px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #f0f0f0;
+    color: #666;
+
+    &.score-high { background: #e8f9f0; color: #1a9e5c; }
+    &.score-mid  { background: #fff7e6; color: #e08c00; }
+  }
+
+  .recent-card-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .recent-meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #f4f5f7;
+    color: #5a5f6e;
+    ion-icon { font-size: 11px; }
+
+    &.chip-easy   { background: #e8f9f0; color: #1a9e5c; }
+    &.chip-medium { background: #fff7e6; color: #e08c00; }
+    &.chip-hard   { background: #fef0f0; color: #d94040; }
+  }
+
+  .recent-card-desc {
+    font-size: 12px;
+    color: #8a8f99;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// ── Hero image block ──────────────────────────────────────────────────
+.rd-hero { background: $surface; }
 
 .rd-hero-img-wrap {
-  position: relative; height: 280px; overflow: hidden;
-  background: $bg-surface;
-  @media (max-width: 480px) { height: 220px; }
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  background: $surface-container;
+
+  @media (max-width: 480px) { height: 230px; }
 }
 
 .rd-hero-img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .rd-hero-placeholder {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 80px; background: $bg-surface;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  background: $surface-container-low;
 }
 
 .rd-hero-gradient {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.06) 0%, transparent 30%, rgba(0,0,0,0.65) 100%);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.65) 100%);
 }
 
 .rd-hero-badges {
-  position: absolute; top: 16px; left: 16px;
-  display: flex; gap: 8px; flex-wrap: wrap;
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
 }
 
 .rd-badge {
-  padding: 5px 12px; border-radius: 100px;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
-  backdrop-filter: blur(10px); color: white;
+  padding: 5px 11px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(10px);
+  color: white;
+  font-family: $font-body;
 
-  &.rd-badge-ai     { background: rgba(10,225,204,0.75); border: 1px solid rgba(10,225,204,0.5); }
-  &.rd-badge-easy   { background: rgba(16,185,129,0.85); }
-  &.rd-badge-medium { background: rgba(245,158,11,0.85); }
-  &.rd-badge-hard   { background: rgba(239,68,68,0.85); }
+  &.rd-badge-ai     { background: rgba($primary, 0.8); }
+  &.rd-badge-easy   { background: rgba($success, 0.85); }
+  &.rd-badge-medium { background: rgba($warning, 0.85); }
+  &.rd-badge-hard   { background: rgba($danger, 0.85); }
 
   &.rd-badge-score {
-    display: flex; align-items: center; gap: 5px;
-    background: rgba(0,0,0,0.5);
-    &.score-high { background: rgba(16,185,129,0.8); }
-    &.score-mid  { background: rgba(245,158,11,0.8); }
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.45);
+
+    &.score-high { background: rgba($success, 0.8); }
+    &.score-mid  { background: rgba($warning, 0.8); }
 
     .score-dot {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
       background: white;
     }
   }
 }
 
 .rd-hero-info {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 24px 20px 20px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 22px 18px 16px;
 }
 
 .rd-hero-title {
-  font-size: 24px; font-weight: 800; color: white;
-  margin: 0 0 8px; line-height: 1.2; letter-spacing: -0.5px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 8px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
   font-family: $font-display;
-  @media (max-width: 480px) { font-size: 20px; }
+
+  @media (max-width: 480px) { font-size: 19px; }
 }
 
 .rd-hero-meta {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .rd-hero-stat {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9);
-  ion-icon { font-size: 14px; color: $primary; }
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  font-family: $font-body;
+
+  ion-icon { font-size: 13px; color: $primary-fixed-dim; }
 }
 
 .rd-hero-dot {
-  width: 3px; height: 3px; border-radius: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
   background: rgba(255,255,255,0.5);
 }
 
-// ── Stats strip ─────────────────────────────────────────────────
+// ── Stats strip ───────────────────────────────────────────────────────
 .rd-stats-strip {
-  display: flex; align-items: stretch;
-  background: $bg-white; margin: 0 16px;
-  margin-top: -20px; border-radius: 20px;
-  box-shadow: $shadow-md; position: relative; z-index: 2;
+  display: flex;
+  align-items: stretch;
+  background: $surface-container-lowest;
+  margin: 0 16px;
+  margin-top: -20px;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-float;
+  position: relative;
+  z-index: 2;
   overflow: hidden;
 }
 
 .rd-stat-item {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; padding: 14px 6px; gap: 4px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 6px;
+  gap: 3px;
 
-  ion-icon { font-size: 18px; color: $primary; margin-bottom: 2px; }
+  ion-icon {
+    font-size: 17px;
+    color: $primary;
+    margin-bottom: 2px;
+  }
 
   .rd-stat-val {
-    font-size: 12px; font-weight: 800; color: $text-dark; line-height: 1;
-    font-family: $font-display; text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: $on-surface;
+    line-height: 1;
+    font-family: $font-display;
+    text-align: center;
 
     &.rd-stat-diff {
-      font-size: 11px;
-      &.diff-easy   { color: $success-c; }
-      &.diff-medium { color: $warning-c; }
-      &.diff-hard   { color: $danger-c; }
+      font-size: 10px;
+      &.diff-easy   { color: $success; }
+      &.diff-medium { color: $warning; }
+      &.diff-hard   { color: $danger; }
     }
   }
 
   .rd-stat-lbl {
-    font-size: 9px; font-weight: 600; color: $text-hint;
-    text-transform: uppercase; letter-spacing: 0.4px; text-align: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: $on-surface-variant;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
+    font-family: $font-body;
   }
 }
 
-.rd-stat-divider { width: 1px; background: $border; margin: 12px 0; }
+.rd-stat-divider {
+  width: 1px;
+  background: rgba($outline-variant, 0.2);
+  margin: 12px 0;
+}
 
-// ── Description ─────────────────────────────────────────────────
+// ── Description ───────────────────────────────────────────────────────
 .rd-description {
-  font-size: 14px; color: $text-light; line-height: 1.7;
-  padding: 20px 20px 0; margin: 0; font-family: $font-body;
+  font-size: 14px;
+  color: $on-surface-variant;
+  line-height: 1.7;
+  padding: 20px 20px 0;
+  margin: 0;
+  font-family: $font-body;
 }
 
 .rd-match-reason {
-  display: flex; align-items: flex-start; gap: 6px;
-  font-size: 13px; color: $text-light; line-height: 1.5;
-  padding: 8px 20px 0; margin: 0; font-family: $font-body;
-  ion-icon { font-size: 15px; color: $warning-c; flex-shrink: 0; margin-top: 2px; }
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  color: $on-surface-variant;
+  line-height: 1.5;
+  padding: 8px 20px 0;
+  margin: 0;
+  font-family: $font-body;
+
+  ion-icon {
+    font-size: 14px;
+    color: $warning;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
 }
 
-// ── Segment pills ───────────────────────────────────────────────
+// ── Segment pills ─────────────────────────────────────────────────────
 .rd-segment-wrap { padding: 16px 16px 4px; }
 
 .rd-segment-pills {
-  display: flex; gap: 8px; background: $bg-surface;
-  border-radius: 16px; padding: 5px;
+  display: flex;
+  gap: 6px;
+  background: $surface-container;
+  border-radius: $radius-lg;
+  padding: 5px;
 }
 
 .rd-seg-pill {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  gap: 5px; padding: 9px 10px; border-radius: 12px;
-  border: none; background: transparent;
-  font-size: 12px; font-weight: 600; color: $text-light;
-  cursor: pointer; transition: all 0.2s ease;
-  white-space: nowrap; font-family: $font-body;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: $radius-md;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: $on-surface-variant;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: $font-body;
 
   ion-icon { font-size: 14px; }
-  &.active { background: $bg-white; color: $primary-dark; box-shadow: $shadow-sm; }
+
+  &.active {
+    background: $surface-container-lowest;
+    color: $primary;
+    box-shadow: $shadow-sm;
+  }
 }
 
-// ── Segment panel ───────────────────────────────────────────────
+// ── Segment panel ─────────────────────────────────────────────────────
 .rd-segment-panel {
-  padding: 16px 16px 0;
+  padding: 14px 16px 0;
   animation: fadeIn 0.2s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-// ── Ingredients block ───────────────────────────────────────────
+// ── Ingredients block ─────────────────────────────────────────────────
 .rd-ingredients-block {
-  background: $bg-white; border-radius: 20px;
-  border: 1px solid $border; overflow: hidden; margin-bottom: 14px;
+  background: $surface-container-lowest;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: $shadow-card;
 }
 
 .rd-ingredient-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 16px; border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba($outline-variant, 0.15);
 
   &.last { border-bottom: none; }
 
   .rd-ing-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: $primary; flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $primary;
+    flex-shrink: 0;
   }
 
   .rd-ing-info { flex: 1; }
 
   .rd-ing-name {
-    font-size: 14px; font-weight: 600; color: $text-dark;
+    font-size: 14px;
+    font-weight: 500;
+    color: $on-surface;
     font-family: $font-body;
   }
 
   .rd-ing-qty {
-    font-size: 13px; font-weight: 700; color: $primary-dark;
-    font-family: $font-display; flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: $on-surface-variant;
+    font-family: $font-display;
+    flex-shrink: 0;
   }
 }
 
-// ── Add to cart button ──────────────────────────────────────────
+// AI-substituted ingredient highlight
+.rd-ingredient-row.ai-sub {
+  .rd-ing-dot { background: $primary-fixed-dim; }
+  .rd-ing-name { color: $primary; font-weight: 600; }
+}
+
+// ── Add to cart button ────────────────────────────────────────────────
 .rd-selection-actions { margin-bottom: 14px; }
 
 .rd-add-btn {
-  width: 100%; background: $primary; color: #04342C;
-  border: none; border-radius: 14px;
-  padding: 14px 20px; font-size: 14px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 6px 20px rgba(10,225,204,0.3);
-  cursor: pointer; font-family: $font-display; letter-spacing: -0.2px;
+  width: 100%;
+  background: linear-gradient(135deg, $primary, $primary-fixed-dim);
+  color: #fff;
+  border: none;
+  border-radius: $radius-full;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba($primary, 0.35);
+  cursor: pointer;
+  font-family: $font-display;
+  letter-spacing: -0.01em;
   transition: all 0.2s;
 
   ion-icon { font-size: 18px; }
   &:active { transform: scale(0.98); }
-  &:disabled { background: $text-hint; box-shadow: none; color: white; cursor: not-allowed; opacity: 0.6; }
+
+  &:disabled {
+    background: $surface-container;
+    box-shadow: none;
+    color: $on-surface-variant;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
 
-// ── Steps ───────────────────────────────────────────────────────
+// ── Steps list ────────────────────────────────────────────────────────
 .rd-steps-list { display: flex; flex-direction: column; }
 
 .rd-step-item {
-  display: flex; gap: 14px; padding-bottom: 0;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 0;
 }
 
 .rd-step-left {
-  display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .rd-step-num {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: linear-gradient(135deg, $primary, $primary-dark);
-  color: #04342C; font-size: 13px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  font-family: $font-display; flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $surface-container-lowest;
+  border: 2px solid $primary;
+  color: $primary;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-display;
+  flex-shrink: 0;
+
+  // Active step (first)
+  &.active {
+    background: $primary;
+    color: #fff;
+    border-color: $primary;
+    box-shadow: 0 0 0 4px rgba($primary, 0.15);
+  }
 }
 
 .rd-step-line {
-  width: 2px; flex: 1; background: $border;
-  margin: 6px 0; min-height: 20px;
+  width: 2px;
+  flex: 1;
+  background: rgba($outline-variant, 0.3);
+  margin: 6px 0;
+  min-height: 20px;
 }
 
 .rd-step-body {
-  flex: 1; padding-bottom: 18px;
+  flex: 1;
+  padding-bottom: 20px;
+}
+
+.rd-step-card {
+  background: $surface-container-lowest;
+  border-radius: $radius-lg;
+  padding: 14px;
+  box-shadow: $shadow-sm;
+}
+
+.rd-step-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: $on-surface-variant;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  font-family: $font-body;
 }
 
 .rd-step-text {
-  font-size: 14px; color: $text-dark; line-height: 1.65;
-  font-family: $font-body; padding-top: 5px;
+  font-size: 14px;
+  color: $on-surface;
+  line-height: 1.65;
+  font-family: $font-body;
+
   &.last { padding-bottom: 0; }
 }
 
-// ── Bottom CTA ──────────────────────────────────────────────────
+// Timer chip inside step
+.rd-step-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  background: $surface-container-low;
+  border-radius: $radius-full;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $on-surface;
+  font-family: $font-body;
+
+  ion-icon { font-size: 13px; color: $primary; }
+}
+
+// ── Bottom CTA ────────────────────────────────────────────────────────
 .rd-bottom-cta {
-  position: fixed; bottom: 0; left: 0; right: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 10px 16px max(14px, env(safe-area-inset-bottom));
-  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-  border-top: 1px solid $border; z-index: 50;
+  background: rgba($surface-container-lowest, 0.95);
+  backdrop-filter: blur(16px);
+  z-index: 50;
 }
 
 .rd-feedback-btn {
-  width: 100%; height: 46px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  background: transparent; border: 1.5px solid $border; border-radius: 14px;
-  font-size: 13px; font-weight: 600; color: $text-light;
-  cursor: pointer; font-family: $font-body; transition: all 0.2s;
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: 13px;
+  font-weight: 600;
+  color: $on-surface-variant;
+  cursor: pointer;
+  font-family: $font-body;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 15px; }
+  &:active { background: $surface-container-low; }
+}
+
+// ── Bon Appétit footer ────────────────────────────────────────────────
+.bon-appetit-footer {
+  text-align: center;
+  padding: 28px 20px 16px;
+
+  .ba-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 2rem;
+    font-style: italic;
+    color: $surface-container-high;
+    letter-spacing: 0.02em;
+    margin: 0 0 8px;
+  }
+
+  .ba-sub {
+    font-size: 12px;
+    color: $on-surface-variant;
+    line-height: 1.5;
+    font-family: $font-body;
+    margin: 0 0 16px;
+  }
+
+  .ba-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+}
+
+.ba-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: $radius-full;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: $font-body;
+  transition: all 0.2s;
+  box-shadow: $shadow-sm;
 
   ion-icon { font-size: 16px; }
-  &:active { background: $bg-surface; }
+
+  &.ba-share {
+    background: $surface-container-lowest;
+    color: $on-surface;
+  }
+
+  &.ba-save {
+    background: linear-gradient(135deg, $primary, $primary-fixed-dim);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba($primary, 0.3);
+  }
 }
 
-.ai-warning-banner {
-  display: flex; gap: 8px; align-items: center;
-  background: #FFF8E8; border-radius: 10px;
-  padding: 10px 12px; margin: 0 16px 12px;
-  border-left: 3px solid #BA7517;
-  font-size: 12px; color: #7A5210;
-  ion-icon { font-size: 16px; color: #BA7517; flex-shrink: 0; }
+// ── Recipe Generator card (AI glassmorphic) ───────────────────────────
+.recipe-generator-card {
+  background: rgba($primary-container, 0.4);
+  backdrop-filter: blur(24px);
+  border-radius: $radius-xl;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+
+  .rg-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: $primary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    font-family: $font-body;
+
+    ion-icon { font-size: 13px; }
+  }
+
+  .rg-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: $on-surface;
+    font-family: $font-display;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0 0 14px;
+    max-width: 200px;
+  }
+
+  .rg-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: $on-surface-variant;
+    margin-bottom: 6px;
+    font-family: $font-body;
+    font-weight: 500;
+  }
+
+  .rg-progress-track {
+    height: 5px;
+    background: rgba($primary, 0.15);
+    border-radius: $radius-full;
+    overflow: hidden;
+    margin-bottom: 16px;
+
+    .rg-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $primary, $primary-fixed-dim);
+      border-radius: $radius-full;
+      transition: width 0.4s ease;
+    }
+  }
+
+  // Decorative sparkle shapes
+  .rg-deco {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    font-size: 40px;
+    color: rgba($primary, 0.25);
+  }
 }
+
+// ── Gemini AI optimized pill (top of results) ─────────────────────────
+.gemini-badge-row {
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px 6px;
+}
+
+.gemini-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba($primary-container, 0.35);
+  backdrop-filter: blur(10px);
+  border-radius: $radius-full;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: $primary;
+  font-family: $font-display;
+  letter-spacing: 0.03em;
+
+  ion-icon { font-size: 12px; }
+}
+
+// ── Perfect match tabs (score tabs at top of results) ─────────────────
+.match-tabs-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.match-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: $radius-lg;
+  background: $surface-container-lowest;
+  border: none;
+  cursor: pointer;
+  min-width: 110px;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s;
+
+  .match-score {
+    font-size: 18px;
+    font-weight: 800;
+    color: $primary;
+    font-family: $font-display;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .match-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: $on-surface-variant;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: $font-body;
+  }
+
+  .match-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: $on-surface;
+    font-family: $font-display;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+  }
+
+  &.active {
+    background: $surface-container-low;
+    .match-score { color: $on-surface; }
+  }
+}
+
+// ── Ingredient serving toggle ─────────────────────────────────────────
+.serving-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $surface-container-low;
+  border-radius: $radius-full;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $on-surface;
+  font-family: $font-display;
+  border: none;
+  cursor: pointer;
+
+  ion-icon { font-size: 14px; color: $primary; }
+}
+// ── Recent Searches Section ────────────────────────────────────
+.recent-searches-section {
+  margin: 20px 0 8px;
+
+  .recent-section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8a8f99;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+
+    ion-icon { font-size: 15px; }
+  }
+
+  .recent-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .recent-recipe-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: 1.5px solid transparent;
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+      border-color: var(--ion-color-primary, #6c63ff);
+    }
+  }
+
+  .recent-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .recent-card-emoji {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f5f0ff, #ede8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .recent-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .recent-card-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1d23;
+    line-height: 1.2;
+  }
+
+  .recent-card-date {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: #adb0b8;
+    ion-icon { font-size: 11px; }
+  }
+
+  .recent-card-score {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #f0f0f0;
+    color: #666;
+
+    &.score-high { background: #e8f9f0; color: #1a9e5c; }
+    &.score-mid  { background: #fff7e6; color: #e08c00; }
+  }
+
+  .recent-card-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .recent-meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #f4f5f7;
+    color: #5a5f6e;
+
+    ion-icon { font-size: 11px; }
+
+    &.chip-easy   { background: #e8f9f0; color: #1a9e5c; }
+    &.chip-medium { background: #fff7e6; color: #e08c00; }
+    &.chip-hard   { background: #fef0f0; color: #d94040; }
+  }
+
+  .recent-card-desc {
+    font-size: 12px;
+    color: #8a8f99;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+

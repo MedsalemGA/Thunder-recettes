@@ -34,12 +34,16 @@ ion-content.recipe-detail-content { --background: #{$bg-page}; }
 // Header flottant
 // =============================================
 ion-header.floating-header {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 100;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 100;;
 
   ion-toolbar {
     --background: transparent;
     --border-width: 0; --box-shadow: none;
     transition: background 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+  justify-content: space-between; /* 🔥 clé principale */
+  align-items: center;
+   
   }
 
   &.scrolled ion-toolbar {
@@ -49,27 +53,37 @@ ion-header.floating-header {
 }
 
 .nav-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
-  border: none; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; margin: 0 4px; transition: all 0.2s;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border: none;
 
-  ion-icon { font-size: 20px; color: $text-dark; }
-  .active-fav { color: $danger; }
-  &:active { transform: scale(0.95); }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn ion-icon {
+  font-size: 20px;
+  color: $text-dark;
+}
+
+.nav-btn .active-fav {
+  color: $danger;
+}
+
+.nav-btn:active {
+  transform: scale(0.95);
 }
 
 .floating-header.scrolled .nav-btn { background: $bg-surface; }
 
-.floating-title {
-  font-family: $font-display; font-size: 16px;
-  font-weight: 700; color: $text-dark;
-  opacity: 0; transform: translateY(6px);
-  transition: all 0.2s ease;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 
-  &.visible { opacity: 1; transform: translateY(0); }
-}
 
 // =============================================
 // Hero
@@ -320,6 +334,15 @@ ion-header.floating-header {
 .ing-price {
   font-size: 13px; font-weight: 700; color: $primary-dark;
   flex-shrink: 0; font-family: $font-display;
+}
+.ing-details {
+  font-size: 10px;
+  color: $text-hint;
+  font-weight: 500;
+
+  max-width: 200px;      // 🔥 limite largeur (change selon ton design)
+  white-space: normal;   
+  word-wrap: break-word; // coupe si mot trop long
 }
 
 .ing-price-unavail { font-size: 13px; color: $text-hint; flex-shrink: 0; }
@@ -709,4 +732,16 @@ $ink-blue: #1a5fb4;
   .segment-panel { padding: 14px 12px 0; }
   .seg-pill { font-size: 11px; padding: 8px 8px; }
 }
+.allingchecked {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 🔥 pousse à droite */
+  gap: 6px;
+  margin: 5px 0; /* propre et responsive */
+}
+.allingchecked .word-but {
+  font-size: 12px; color: $text-hint; font-weight: 600; background: transparent; border: none;
+}
+
+
 

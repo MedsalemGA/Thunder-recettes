@@ -9,7 +9,7 @@ import { SmartCartService, Cart, CartItem } from '../../../services/smart-cart.s
 import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, trashOutline, removeCircleOutline, addCircleOutline, bagCheckOutline } from 'ionicons/icons';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-smart-cart',
   standalone: true,
@@ -28,9 +28,14 @@ export class SmartCartComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: SmartCartService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private router: Router
   ) {
     addIcons({ chevronDownOutline, trashOutline, removeCircleOutline, addCircleOutline, bagCheckOutline });
+  }
+
+  navigateToRecipes(): void {
+    this.router.navigate(['/recipes']);
   }
 
   ngOnInit(): void {
